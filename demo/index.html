@@ -62,7 +62,7 @@
 
             <!-- bottom toolbar -->
             <app-toolbar>
-              <paper-tabs bottom-item selected="{{page}}" attr-for-selected="name">
+              <paper-tabs bottom-item selected="{{page}}" attr-for-selected="name" on-iron-deselect="_onIronDeselect">
                 <paper-tab name="today">
                   <span>today</span>
                 </paper-tab>
@@ -85,6 +85,12 @@
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
       demo.page = 'upcoming';
+
+      demo._onIronDeselect = function (ev) {
+        console.log('iron-deselect');
+        var _page = document.querySelector('semafloor-reserve-page')
+        _page.hideOverflow();
+      };
 
     </script>
 

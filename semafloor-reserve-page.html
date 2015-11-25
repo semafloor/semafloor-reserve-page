@@ -32,7 +32,7 @@ Example:
   <template>
     <style include="semafloor-reserve-page-theme"></style>
 
-    <neon-animated-pages class="" selected="[[page]]" attr-for-selected="name" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
+    <neon-animated-pages id="reservePages" selected="[[page]]" attr-for-selected="name" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation" on-neon-animation-finish="_onNeonAnimationFinish">
       <reserve-list id="todayList" name="today"></reserve-list>
       <reserve-list id="thisweekList" name="thisweek"></reserve-list>
       <reserve-list id="upcomingList" name="upcoming"></reserve-list>
@@ -106,6 +106,18 @@ Example:
          default:
           console.log('Error! Dealing with unknown tab.');
        }
+     },
+
+    //  when `neon-animation-finish`, remove .hide-overflow to allow scrolling.
+     _onNeonAnimationFinish: function (ev) {
+       console.log('neon-animation-finish');
+       this.$.reservePages.classList.remove('hide-overflow');
+     },
+
+    //  set overflow hidden when animating pages.
+     hideOverflow: function () {
+       console.log('hide-overflow');
+       this.$.reservePages.classList.add('hide-overflow');
      },
 
 
