@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>semafloor-reserve-page Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../semafloor-reserve-page.html">
+
+    <link rel="import" href="../../app-layout/app-drawer-layout/app-drawer-layout.html">
+    <link rel="import" href="../../app-layout/app-header-layout/app-header-layout.html">
+    <link rel="import" href="../../app-layout/app-header/app-header.html">
+    <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
+    <link rel="import" href="../../paper-tabs/paper-tabs.html">
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      span {
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      [main] app-header {
+        background-color: #607d8b;
+        color: #fff;
+      }
+
+      [main] app-header > app-toolbar+app-toolbar {
+        background-color: #607d8b;
+      }
+
+      /*penetrate #contentContainer inside app-header-layout*/
+      app-header-layout > #contentContainer {
+        height: 100%;
+      }
+
+    </style>
+  </head>
+  <body>
+    <template is="dom-bind">
+      <app-drawer-layout drawer-position="left" force-narrow fullbleed>
+        <!-- app drawer panel -->
+        <app-header-layout drawer>
+
+        </app-header-layout>
+
+        <!-- app header panel -->
+        <app-header-layout main>
+          <app-header waterfall condenses>
+            <!-- top toolbar -->
+            <app-toolbar>Reservations Demo</app-toolbar>
+
+            <!-- bottom toolbar -->
+            <app-toolbar>
+              <paper-tabs bottom-item selected="{{page}}" attr-for-selected="name">
+                <paper-tab name="today">
+                  <span>today</span>
+                </paper-tab>
+                <paper-tab name="thisweek">
+                  <!-- according to MD's specs, split long sentence into two lines -->
+                  <span>this<br>week</span>
+                </paper-tab>
+                <paper-tab name="upcoming">
+                  <span>upcoming</span>
+                </paper-tab>
+              </paper-tabs>
+            </app-toolbar>
+          </app-header>
+
+          <semafloor-reserve-page page="[[page]]"></semafloor-reserve-page>
+        </app-header-layout>
+      </app-drawer-layout>
+    </template>
+
+    <script>
+      var demo = document.querySelector('template[is=dom-bind]');
+
+    </script>
+
+  </body>
+</html>
