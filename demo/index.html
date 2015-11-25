@@ -15,6 +15,7 @@
 
     <style>
       body {
+        font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
         margin: 0;
       }
 
@@ -87,7 +88,6 @@
       demo.page = 'upcoming';
 
       demo._onIronDeselect = function (ev) {
-        console.log('iron-deselect');
         var _page = document.querySelector('semafloor-reserve-page')
         _page.hideOverflow();
       };

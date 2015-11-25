@@ -20,11 +20,17 @@
       <iron-list id="reserveList" items="[[_reservations]]">
         <template>
           <div class="reserve-item">
-            <span>[[index]]</span>
-            <span>[[item.room]]</span>
-            <span>[[item.site]]</span>
-            <span>[[item.period]]</span>
-            <paper-ripple></paper-ripple>
+            <!-- <span>[[index]]</span> -->
+            <div class="item-left">
+              <div class="item-room">[[item.room]]</div>
+              <div class="item-site">[[item.site]]</div>
+            </div>
+
+            <div class="item-right">
+              <div class="item-period">[[item.period]]</div>
+              <div class="item-subject">[[item.subject]]</div>
+            </div>
+            <!-- <paper-ripple></paper-ripple> -->
           </div>
         </template>
       </iron-list>
@@ -46,18 +52,18 @@
 
       },
 
-      observers: [
-        '_logResponse(_reservations)',
-        '_logName(name)'
-      ],
+      // observers: [
+      //   '_logResponse(_reservations)',
+      //   '_logName(name)'
+      // ],
 
-      _logResponse: function (_response) {
-        console.log(_response);
-      },
-
-      _logName: function (_name) {
-        console.log(_name);
-      },
+      // _logResponse: function (_response) {
+      //   console.log(_response);
+      // },
+      //
+      // _logName: function (_name) {
+      //   console.log(_name);
+      // },
 
       updateList: function () {
         this.$.reserveList.fire('iron-resize');

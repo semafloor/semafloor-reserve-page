@@ -92,7 +92,6 @@ Example:
      */
 
      _logPage: function (_page) {
-       console.log(_page);
        switch (_page) {
          case 'today':
            this.$.todayList.updateList();
@@ -110,13 +109,11 @@ Example:
 
     //  when `neon-animation-finish`, remove .hide-overflow to allow scrolling.
      _onNeonAnimationFinish: function (ev) {
-       console.log('neon-animation-finish');
        this.$.reservePages.classList.remove('hide-overflow');
      },
 
     //  set overflow hidden when animating pages.
      hideOverflow: function () {
-       console.log('hide-overflow');
        this.$.reservePages.classList.add('hide-overflow');
      },
 

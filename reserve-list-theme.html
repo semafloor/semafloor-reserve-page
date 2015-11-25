@@ -13,6 +13,7 @@
         -moz-box-sizing: border-box;
         box-sizing: border-box;
 
+        font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
         display: block;
         /*overflow-y: auto;*/
         /*@apply(--layout-vertical);
@@ -31,12 +32,33 @@
       .reserve-item {
         position: relative;
         border-bottom: 1px solid #ddd;
-        padding: 16px 0 16px 16px;
+        padding: 16px;
         min-height: 64px;
+        @apply(--layout-horizontal);
       }
 
-      .reserve-item > span {
-        display: block;
+      .item-left {
+        width: 50%;
+      }
+      .item-room {
+        font-size: 24px;
+        color: #1DDBD8;
+        font-weight: bold;
+      }
+      .item-site {
+        font-size: 85%;
+        color: #616161;
+        /*color: #424242;*/
+      }
+      .item-period {
+        font-size: 85%;
+        line-height: 32px;
+      }
+      .item-subject {
+        font-size: 75%;
+        color: #9e9e9e;
+        /*color: #757575;        */
+        line-height: 6px;
       }
 
       iron-list {
