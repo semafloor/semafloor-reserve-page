@@ -13,12 +13,20 @@
       url="../json/[[name]]-booking.json"
       handle-as="json"
       last-response="{{_reservations}}"></iron-ajax>
-    <div class="">
+
+    <div class="list-container">
       <h1>[[name]]</h1>
 
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis consequuntur sit quidem optio quisquam dolorum! Facere sunt officia delectus, rerum, eaque sint officiis veniam quasi hic, molestiae debitis neque facilis sapiente accusamus! Pariatur doloribus eum adipisci alias suscipit minima animi nemo accusantium, repellendus sint beatae deleniti libero in nisi, consectetur rem, soluta, cumque aliquid! Quaerat ipsum, ab aspernatur! Nostrum placeat dolorem nihil dolor quaerat, vero cumque repellendus, impedit, accusantium temporibus deserunt ducimus odio voluptatem eum optio quos voluptate culpa nemo enim unde. Vitae quod hic rerum saepe consequatur est eveniet illo commodi rem maxime veritatis, deleniti facere nemo eum minima adipisci aut omnis quae perspiciatis, ad quaerat inventore ipsum. Fuga dolor explicabo nam? Laboriosam inventore quaerat eaque molestias temporibus cumque voluptatum reiciendis assumenda, recusandae adipisci labore sed magni minima provident consequuntur dignissimos maxime at praesentium hic dolor et blanditiis. Molestias ipsum numquam expedita dolorem sit error doloremque iure debitis beatae, earum est officiis, et placeat amet, corporis. Fugiat autem illo magni ab vitae non earum, itaque, expedita, commodi facilis, veritatis animi dolore accusantium! Temporibus ex dolor delectus voluptas soluta autem cupiditate laudantium provident expedita laboriosam ut impedit commodi, dolore dolores doloremque iste eius, suscipit, iure eaque porro. Hic ipsum, nihil ipsam dolore facere laudantium illo unde totam ea, facilis adipisci, deserunt neque sequi similique ad corporis sed reprehenderit obcaecati dolores natus nisi magni. Accusantium porro, odio placeat doloribus expedita atque quis nostrum aliquam natus, aspernatur veniam ipsa repellat facilis iste modi unde in. Qui amet porro quas dolores, a, explicabo illum sequi dolorem sapiente iure, saepe! Voluptate laudantium assumenda perferendis quaerat dignissimos similique sapiente quia expedita in iure, magni sunt ea ut eum, aut accusamus magnam facilis. Sint enim placeat suscipit aliquid debitis voluptatem odio sed sit odit sequi dolorem pariatur impedit, blanditiis at. Similique ipsam, quibusdam quisquam modi illo?
-      </p>
+      <iron-list items="[[_reservations]]" class="">
+        <template>
+          <div class="reserve-item">
+            <span>[[index]]</span>
+            <span>[[item.room]]</span>
+            <span>[[item.site]]</span>
+            <span>[[item.period]]</span>
+          </div>
+        </template>
+      </iron-list>
     </div>
   </template>
   <script>
@@ -26,15 +34,12 @@
       is: 'reserve-list',
 
       properties: {
-        name: {
-          type: String,
-          value: 'today'
-        },
+        name: String,
 
         _reservations: {
           type: Object,
           value: function () {
-            return {};
+            return [];
           }
         },
 

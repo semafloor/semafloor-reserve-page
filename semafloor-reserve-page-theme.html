@@ -14,10 +14,19 @@
         box-sizing: border-box;
 
         display: block;
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-flex-auto);
       }
 
       *, *::before, *::after {
         box-sizing: inherit;
+      }
+
+      neon-animated-pages {
+        /*height: 100%;*/
+        @apply(--layout-vertical);
+        @apply(--layout-flex-auto);
       }
 
     </style>

@@ -32,7 +32,7 @@ Example:
   <template>
     <style include="semafloor-reserve-page-theme"></style>
 
-    <neon-animated-pages class="flex-auto" selected="[[page]]" attr-for-selected="name" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
+    <neon-animated-pages class="" selected="[[page]]" attr-for-selected="name" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
       <reserve-list name="today"></reserve-list>
       <reserve-list name="thisweek"></reserve-list>
       <reserve-list name="upcoming"></reserve-list>
@@ -48,10 +48,7 @@ Example:
     is: 'semafloor-reserve-page',
 
     properties: {
-      page: {
-        type: String,
-        value: 'today'
-      },
+      page: String,
 
     },
 

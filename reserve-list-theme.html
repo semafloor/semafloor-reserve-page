@@ -14,10 +14,30 @@
         box-sizing: border-box;
 
         display: block;
+        /*overflow-y: auto;*/
+        @apply(--layout-vertical);
+        @apply(--layout-flex-auto);
       }
 
       *, *::before, *::after {
         box-sizing: inherit;
+      }
+
+      .list-container {
+        @apply(--layout-vertical);
+        @apply(--layout-flex-auto);
+      }
+
+      .reserve-item {
+        position: relative;
+        border-bottom: 1px solid #ddd;
+        padding: 16px 0 16px 16px;
+        min-height: 64px;
+      }
+
+      iron-list {
+        /*height: 999px;*/
+        @apply(--layout-flex-auto);
       }
     </style>
 

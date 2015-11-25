@@ -35,6 +35,13 @@
       /*penetrate #contentContainer inside app-header-layout*/
       app-header-layout > #contentContainer {
         height: 100%;
+        /* PART 1: fix unable to see view two items */
+        padding-top: 0 !important;
+      }
+
+      /* PART 2: fix unable to see view two items */
+      semafloor-reserve-page {
+        padding-top: 128px;
       }
 
     </style>
@@ -48,7 +55,7 @@
         </app-header-layout>
 
         <!-- app header panel -->
-        <app-header-layout main>
+        <app-header-layout main has-scrolling-region>
           <app-header waterfall condenses>
             <!-- top toolbar -->
             <app-toolbar>Reservations Demo</app-toolbar>
@@ -77,6 +84,7 @@
 
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
+      demo.page = 'upcoming';
 
     </script>
 
