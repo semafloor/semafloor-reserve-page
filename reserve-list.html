@@ -19,18 +19,24 @@
     <!-- <div class="list-container"> -->
       <iron-list id="reserveList" items="[[_reservations]]">
         <template>
-          <div class="reserve-item">
+          <div class="reserve-item" aria-expanded$="[[_isExpanded(index)]]" aria-controls$="[[_isCollapsible(index)]]" on-tap="_toggle">
             <!-- <span>[[index]]</span> -->
-            <div class="item-left">
-              <div class="item-room">[[item.room]]</div>
-              <div class="item-site">[[item.site]]</div>
+            <div class="item-container">
+              <div class="item-left">
+                <div class="item-room">[[item.room]]</div>
+                <div class="item-site">[[item.site]]</div>
+              </div>
+
+              <div class="item-right">
+                <div class="item-period">[[item.period]]</div>
+                <div class="item-subject">[[item.subject]]</div>
+              </div>
             </div>
 
-            <div class="item-right">
-              <div class="item-period">[[item.period]]</div>
-              <div class="item-subject">[[item.subject]]</div>
-            </div>
             <!-- <paper-ripple></paper-ripple> -->
+            <div id$="[[_isCollapsible(index)]]" class="collapsible-item">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sequi animi cum, ut, nostrum tenetur harum!
+            </div>
           </div>
         </template>
       </iron-list>
@@ -68,6 +74,32 @@
       updateList: function () {
         this.$.reserveList.fire('iron-resize');
       },
+
+      _isExpanded: function (_idx) {
+        return 'opened' + _idx;
+      },
+
+      _isCollapsible: function (_idx) {
+        return 'collapse' + _idx;
+      },
+
+      _toggle: function (ev) {
+        // console.log(ev);
+        var _target = ev.target;
+        if (_target && _target.hasAttribute('aria-controls')) {
+          _target = this.$$('#' + _target.getAttribute('aria-controls'));
+          var _isOpened = _target.classList.contains('opened');
+          if (_target) {
+            if (_isOpened) {
+              _target.classList.remove('opened');
+            }else {
+              _target.classList.add('opened');
+            }
+            this.$.reserveList.updateSizeForItem(ev.model.index);
+          }
+        }
+      },
+
 
     });
   </script>

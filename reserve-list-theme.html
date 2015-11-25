@@ -34,9 +34,15 @@
         border-bottom: 1px solid #ddd;
         padding: 16px;
         min-height: 64px;
+        transition: all .2s cubic-bezier(0.22, 0.61, 0.36, 1);
+        @apply(--layout-vertical);
+      }
+      .reserve-item * {
+        pointer-events: none;
+      }
+      .reserve-item > .item-container {
         @apply(--layout-horizontal);
       }
-
       .item-left {
         width: 50%;
       }
@@ -57,8 +63,16 @@
       .item-subject {
         font-size: 75%;
         color: #9e9e9e;
-        /*color: #757575;        */
+        /*color: #757575;*/
         line-height: 6px;
+      }
+      .collapsible-item {
+        margin-top: 8px;
+        padding: 8px;
+        display: none;
+      }
+      .opened {
+        display: block;
       }
 
       iron-list {
