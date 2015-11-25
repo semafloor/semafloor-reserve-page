@@ -4,6 +4,8 @@
 <link rel="import" href="../iron-list/iron-list.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+
 <dom-module id="reserve-list">
   <template>
     <style include="reserve-list-theme"></style>
@@ -14,20 +16,19 @@
       handle-as="json"
       last-response="{{_reservations}}"></iron-ajax>
 
-    <div class="list-container">
-      <h1>[[name]]</h1>
-
-      <iron-list id="reserveList" items="[[_reservations]]" class="">
+    <!-- <div class="list-container"> -->
+      <iron-list id="reserveList" items="[[_reservations]]">
         <template>
           <div class="reserve-item">
             <span>[[index]]</span>
             <span>[[item.room]]</span>
             <span>[[item.site]]</span>
             <span>[[item.period]]</span>
+            <paper-ripple></paper-ripple>
           </div>
         </template>
       </iron-list>
-    </div>
+    <!-- </div> -->
   </template>
   <script>
     Polymer({

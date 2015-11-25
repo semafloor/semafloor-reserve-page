@@ -15,19 +15,18 @@
 
         display: block;
         /*overflow-y: auto;*/
-        @apply(--layout-vertical);
-        @apply(--layout-flex-auto);
+        /*@apply(--layout-vertical);
+        @apply(--layout-flex-auto);*/
       }
 
       *, *::before, *::after {
         box-sizing: inherit;
       }
 
-      .list-container {
-        /* add padding at the end of the list */
+      /*.list-container {
         @apply(--layout-vertical);
         @apply(--layout-flex-auto);
-      }
+      }*/
 
       .reserve-item {
         position: relative;
@@ -36,8 +35,11 @@
         min-height: 64px;
       }
 
+      .reserve-item > span {
+        display: block;
+      }
+
       iron-list {
-        /*height: 999px;*/
         padding-bottom: 64px;
         @apply(--layout-flex-auto);
       }
