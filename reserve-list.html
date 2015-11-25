@@ -17,7 +17,7 @@
     <div class="list-container">
       <h1>[[name]]</h1>
 
-      <iron-list items="[[_reservations]]" class="">
+      <iron-list id="reserveList" items="[[_reservations]]" class="">
         <template>
           <div class="reserve-item">
             <span>[[index]]</span>
@@ -56,6 +56,10 @@
 
       _logName: function (_name) {
         console.log(_name);
+      },
+
+      updateList: function () {
+        this.$.reserveList.fire('iron-resize');
       },
 
     });

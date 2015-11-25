@@ -33,9 +33,9 @@ Example:
     <style include="semafloor-reserve-page-theme"></style>
 
     <neon-animated-pages class="" selected="[[page]]" attr-for-selected="name" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
-      <reserve-list name="today"></reserve-list>
-      <reserve-list name="thisweek"></reserve-list>
-      <reserve-list name="upcoming"></reserve-list>
+      <reserve-list id="todayList" name="today"></reserve-list>
+      <reserve-list id="thisweekList" name="thisweek"></reserve-list>
+      <reserve-list id="upcomingList" name="upcoming"></reserve-list>
     </neon-animated-pages>
   </template>
 
@@ -51,6 +51,8 @@ Example:
       page: String,
 
     },
+
+    observers: ['_logPage(page)'],
 
     // Element Lifecycle
 
@@ -88,6 +90,23 @@ Example:
      * @event semafloor-reserve-page-lasers
      * @detail {{sound: String}}
      */
+
+     _logPage: function (_page) {
+       console.log(_page);
+       switch (_page) {
+         case 'today':
+           this.$.todayList.updateList();
+           break;
+         case 'thisweek':
+           this.$.thisweekList.updateList();
+           break;
+         case 'upcoming':
+           this.$.upcomingList.updateList();
+           break;
+         default:
+          console.log('Error! Dealing with unknown tab.');
+       }
+     },
 
 
 
