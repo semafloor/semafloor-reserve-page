@@ -39,7 +39,7 @@
               <template is="dom-repeat" items="[[item.details]]" index-as="index" as="detail">
                 <div class="collapsible-item">
                   <span>[[detail.label]]</span>
-                  <span>[[detail.data]]</span>
+                  <span>[[_isObject(detail.data)]]</span>
                 </div>
               </template>
             </div>
@@ -96,7 +96,6 @@
       },
 
       updateList: function () {
-        console.log('update-list');
         this.$.reserveList.fire('iron-resize');
       },
 
@@ -126,7 +125,6 @@
       },
 
       updateListStyle: function (_width) {
-        console.log('update-list-style');
         // calculate number of columns best fit the screen.
         var _itemWidth = '50%';
         if (_width > 360 && _width <=  600) {
@@ -134,11 +132,18 @@
         }else if (_width > 600) {
           _itemWidth = '25%'; // desktop
         }
-        console.log(_itemWidth);
         // update number of column for collapsible item.
         this.updateStyles({
           '--collapsible-item-width': _itemWidth
         });
+      },
+
+      _isObject: function (_data) {
+        var _result = _data;
+        if (_.isObject(_data)) {
+          _result = _data.tStart + ' - ' + _data.tEnd;
+        }
+        return _result;
       },
 
     });
