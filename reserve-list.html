@@ -3,8 +3,15 @@
 
 <link rel="import" href="../iron-list/iron-list.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+
+<link rel="import" href="../neon-animation/animations/transform-animation.html">
 
 <dom-module id="reserve-list">
   <template>
@@ -32,7 +39,10 @@
                 <div class="item-period">[[item.period]]</div>
                 <div class="item-subject">[[item.subject]]</div>
               </div>
+
+              <paper-icon-button icon="icons:more-vert" class="more-options" on-tap="_optionsMenu"></paper-icon-button>
             </div>
+
 
             <!-- <paper-ripple></paper-ripple> -->
             <div id$="[[_isCollapsible(index)]]" class="collapsible-items">
@@ -46,6 +56,17 @@
           </div>
         </template>
       </iron-list>
+
+      <paper-dialog id="optionsDialog" with-backdrop>
+        <paper-menu selected="0">
+          <paper-icon-item dialog-confirm on-tap="_removeItem">
+            <iron-icon icon="icons:remove-circle" item-icon></iron-icon>Remove
+          </paper-icon-item>
+          <paper-icon-item dialog-dismiss>
+            <iron-icon icon="icons:close" item-icon></iron-icon>Close
+          </paper-icon-item>
+        </paper-menu>
+      </paper-dialog>
     <!-- </div> -->
   </template>
   <script>
@@ -65,11 +86,29 @@
             return [];
           }
         },
+        _selectedIdx: Number,
+        _selectedItem: Object,
 
       },
 
       attached: function() {
         this.fire('list-ready', {readyList: this.name});
+
+        var _dialog = this.$.optionsDialog;
+        _dialog.animationConfig = {
+          'entry': {
+            name: 'transform-animation',
+            node: _dialog,
+            transformFrom: 'translateY(100%)',
+            transformTo: 'translateY(0)'
+          },
+          'exit': {
+            name: 'transform-animation',
+            node: _dialog,
+            transformFrom: 'translateY(0)',
+            transformTo: 'translateY(100%)'
+          }
+        };
       },
 
       // observers: [
@@ -110,6 +149,13 @@
       _toggle: function (ev) {
         // console.log(ev);
         var _target = ev.target;
+
+        if (_target.tagName === 'IRON-ICON') {
+          return;
+        }
+
+        _target = _target.parentElement;
+
         if (_target && _target.hasAttribute('aria-controls')) {
           _target = this.$$('#' + _target.getAttribute('aria-controls'));
           var _isOpened = _target.classList.contains('opened');
@@ -144,6 +190,34 @@
           _result = _data.tStart + ' - ' + _data.tEnd;
         }
         return _result;
+      },
+
+      _optionsMenu: function (ev) {
+        var _target = ev.target;
+
+        while (_target && _target.tagName !== 'PAPER-ICON-BUTTON') {
+          _target = _target.parentElement;
+        }
+
+        this.set('_selectedIdx', ev.model.index);
+        this.set('_selectedItem', ev.model.item);
+        this.$.optionsDialog.open();
+      },
+
+      // simple removing item from list for Firebase.
+      _removeItem: function (ev) {
+        // console.log(this._reservations);
+        // console.log(this._selectedIdx);
+        // console.log(this._selectedItem);
+
+        // var $array = this._reservations;
+        // var $idx = this._selectedIdx;
+        // var $remove = _.remove($array, function (el, idx, arr) {
+        //   return idx === $idx;
+        // });
+        // console.log($remove);
+        // console.log($array);
+        // console.log(this._reservations);
       },
 
     });

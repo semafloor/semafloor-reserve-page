@@ -32,12 +32,12 @@
       .reserve-item {
         position: relative;
         border-bottom: 1px solid #ddd;
-        padding: 16px;
+        padding: 16px 0 16px 16px;
         min-height: 64px;
         transition: all .2s cubic-bezier(0.22, 0.61, 0.36, 1);
         @apply(--layout-vertical);
       }
-      .reserve-item * {
+      .reserve-item > div div {
         pointer-events: none;
       }
       .reserve-item > .item-container {
@@ -46,8 +46,10 @@
       .item-left {
         width: 50%;
       }
+      .item-right {
+        @apply(--layout-flex);
+      }
       .item-room {
-        font-size: 24px;
         color: #1DDBD8;
         font-weight: bold;
       }
@@ -58,13 +60,16 @@
       }
       .item-period {
         font-size: 85%;
-        line-height: 32px;
+        line-height: 24px;
       }
       .item-subject {
         font-size: 75%;
         color: #9e9e9e;
         /*color: #757575;*/
-        line-height: 6px;
+        line-height: 8px;
+      }
+      .more-options {
+        margin-left: 16px;
       }
       .collapsible-items {
         margin-top: 8px;
@@ -91,6 +96,19 @@
       .collapsible-item > span+span {
         color: #757575;
         font-weight: normal;
+      }
+
+      paper-dialog {
+        overflow: initial !important;
+        margin: 0;
+        width: 100%;
+        @apply(--layout-fixed-bottom);
+      }
+      paper-menu {
+        margin: 0;
+      }
+      paper-icon-item {
+        color: #37474f;
       }
 
       iron-list {
