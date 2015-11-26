@@ -11,9 +11,11 @@
     <link rel="import" href="../../app-layout/app-header-layout/app-header-layout.html">
     <link rel="import" href="../../app-layout/app-header/app-header.html">
     <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-    <link rel="import" href="../../paper-tabs/paper-tabs.html">
 
-    <style>
+    <link rel="import" href="../../paper-tabs/paper-tabs.html">
+    <link rel="import" href="../../paper-badge/paper-badge.html">
+
+    <style is="custom-style">
       body {
         font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
         margin: 0;
@@ -42,8 +44,18 @@
 
       /* PART 2: fix unable to see view two items */
       semafloor-reserve-page {
-        padding-top: 128px;
+        /*padding-top: 128px;*/
       }
+
+      paper-badge {
+        --paper-badge-margin-left: -6px;
+        --paper-badge-background: #1DDBD8;
+        --paper-badge-text-color: #607d8b;
+      }
+      paper-badge[for=thisweekTab] {
+        --paper-badge-margin-bottom: 12px;
+      }
+
 
     </style>
   </head>
@@ -65,27 +77,31 @@
             <app-toolbar>
               <paper-tabs bottom-item selected="{{page}}" attr-for-selected="name" on-iron-deselect="_onIronDeselect">
                 <paper-tab name="today">
-                  <span>today</span>
+                  <span id="todayTab">today</span>
+                  <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
                 </paper-tab>
                 <paper-tab name="thisweek">
                   <!-- according to MD's specs, split long sentence into two lines -->
-                  <span>this<br>week</span>
+                  <span>this<br><span id="thisweekTab">week</span></span>
+                  <paper-badge for="thisweekTab" label="[[thisweekCount]]"></paper-badge>
                 </paper-tab>
                 <paper-tab name="upcoming">
-                  <span>upcoming</span>
+                  <span id="upcomingTab">upcoming</span>
+                <paper-badge for="upcomingTab" label="[[upcomingCount]]"></paper-badge>
                 </paper-tab>
               </paper-tabs>
             </app-toolbar>
           </app-header>
 
-          <semafloor-reserve-page page="[[page]]"></semafloor-reserve-page>
+          <semafloor-reserve-page page="[[page]]"
+            today-count="{{todayCount}}" thisweek-count="{{thisweekCount}}" upcoming-count="{{upcomingCount}}"></semafloor-reserve-page>
         </app-header-layout>
       </app-drawer-layout>
     </template>
 
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
-      demo.page = 'upcoming';
+      demo.page = 'today';
 
       demo._onIronDeselect = function (ev) {
         var _page = document.querySelector('semafloor-reserve-page')

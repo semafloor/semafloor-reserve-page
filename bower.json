@@ -23,7 +23,8 @@
     "app-layout": "PolymerLabs/app-layout#~0.0.5",
     "paper-tabs": "PolymerElements/paper-tabs#~1.1.0",
     "iron-ajax": "PolymerElements/iron-ajax#~1.1.1",
-    "iron-list": "PolymerElements/iron-list#~1.1.6"
+    "iron-list": "PolymerElements/iron-list#~1.1.6",
+    "paper-badge": "PolymerElements/paper-badge#~1.0.4"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

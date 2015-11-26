@@ -66,13 +66,31 @@
         /*color: #757575;*/
         line-height: 6px;
       }
-      .collapsible-item {
+      .collapsible-items {
         margin-top: 8px;
         padding: 8px;
         display: none;
       }
       .opened {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        /*display: block;*/
+      }
+      .opened > .collapsible-item > span {
         display: block;
+      }
+      .collapsible-item {
+        width: var(--collapsible-item-width, 50%);
+        font-size: 75%;
+        padding: 3px;
+        font-weight: bold;
+      }
+      .collapsible-item > span{
+        display: none;
+      }
+      .collapsible-item > span+span {
+        color: #757575;
+        font-weight: normal;
       }
 
       iron-list {

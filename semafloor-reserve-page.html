@@ -13,7 +13,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../neon-animation/neon-animated-pages.html">
 <link rel="import" href="../neon-animation/animations/slide-from-right-animation.html">
-<link rel="import" href="../neon-animation/animations/slide-left-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-up-animation.html">
+<script src="../lodash/lodash.min.js" charset="utf-8"></script>
 
 <!--
 An element providing a solution to no problem in particular.
@@ -32,10 +36,10 @@ Example:
   <template>
     <style include="semafloor-reserve-page-theme"></style>
 
-    <neon-animated-pages id="reservePages" selected="[[page]]" attr-for-selected="name" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation" on-neon-animation-finish="_onNeonAnimationFinish">
-      <reserve-list id="todayList" name="today"></reserve-list>
-      <reserve-list id="thisweekList" name="thisweek"></reserve-list>
-      <reserve-list id="upcomingList" name="upcoming"></reserve-list>
+    <neon-animated-pages id="reservePages" selected="[[_page]]" attr-for-selected="name" entry-animation="[[_entryAnimation]]" exit-animation="fade-out-animation" on-neon-animation-finish="_onNeonAnimationFinish">
+      <reserve-list id="todayList" name="today" count="{{todayCount}}"></reserve-list>
+      <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}"></reserve-list>
+      <reserve-list id="upcomingList" name="upcoming" count="{{upcomingCount}}"></reserve-list>
     </neon-animated-pages>
   </template>
 
@@ -49,9 +53,26 @@ Example:
 
     properties: {
       page: String,
+      thisweekCount: {
+        type: Number,
+        notify: true
+      },
+      todayCount: {
+        type: Number,
+        notify: true
+      },
+      upcomingCount: {
+        type: Number,
+        notify: true
+      },
 
+      _entryAnimation: String,
+      _page: String,
     },
 
+    listeners: {
+      'list-ready': '_onListReady'
+    },
     observers: ['_logPage(page)'],
 
     // Element Lifecycle
@@ -92,19 +113,13 @@ Example:
      */
 
      _logPage: function (_page) {
-       switch (_page) {
-         case 'today':
-           this.$.todayList.updateList();
-           break;
-         case 'thisweek':
-           this.$.thisweekList.updateList();
-           break;
-         case 'upcoming':
-           this.$.upcomingList.updateList();
-           break;
-         default:
-          console.log('Error! Dealing with unknown tab.');
-       }
+       var _width = this.$.reservePages.getBoundingClientRect();
+       // apply new animation based on tab change.
+       this._changeEntryAnimation(this._page, _page);
+       // then imperatively switch to new page.
+       this.set('_page', _page);
+       // update the style of the list and populate the list content..
+       this._initList(_page, _width.width);
      },
 
     //  when `neon-animation-finish`, remove .hide-overflow to allow scrolling.
@@ -117,7 +132,39 @@ Example:
        this.$.reservePages.classList.add('hide-overflow');
      },
 
+     // set animation based on tab changing.
+     _changeEntryAnimation: function (_from, _to) {
+       var _strToIdx = ['today', 'thisweek', 'upcoming'];
+       var _idxFrom = _.indexOf(_strToIdx, _from);
+       var _idxTo = _.indexOf(_strToIdx, _to);
+       // compare from with to, slide left will return true else false.
+       this._entryAnimation = _idxFrom < _idxTo ? 'slide-from-right-animation' : 'slide-from-left-animation';
+     },
 
+     _initList: function (_page, _width) {
+       switch (_page) {
+         case 'today':
+           this.$.todayList.updateListStyle(_width);
+           this.$.todayList.updateList();
+           break;
+         case 'thisweek':
+           this.$.todayList.updateListStyle(_width);
+           this.$.thisweekList.updateList();
+           break;
+         case 'upcoming':
+           this.$.todayList.updateListStyle(_width);
+           this.$.upcomingList.updateList();
+           break;
+         default:
+          console.log('Error! Dealing with unknown tab.');
+       }
+     },
+
+     _onListReady: function (ev) {
+       // when `reserve-list` is attached to this, re-initialize the list.
+       var _width = this.$.reservePages.getBoundingClientRect();
+       this._initList(this.page, _width.width);
+     },
 
   });
 

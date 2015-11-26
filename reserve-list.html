@@ -14,6 +14,7 @@
       auto
       url="../json/[[name]]-booking.json"
       handle-as="json"
+      on-response="_onResponse"
       last-response="{{_reservations}}"></iron-ajax>
 
     <!-- <div class="list-container"> -->
@@ -34,8 +35,13 @@
             </div>
 
             <!-- <paper-ripple></paper-ripple> -->
-            <div id$="[[_isCollapsible(index)]]" class="collapsible-item">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sequi animi cum, ut, nostrum tenetur harum!
+            <div id$="[[_isCollapsible(index)]]" class="collapsible-items">
+              <template is="dom-repeat" items="[[item.details]]" index-as="index" as="detail">
+                <div class="collapsible-item">
+                  <span>[[detail.label]]</span>
+                  <span>[[detail.data]]</span>
+                </div>
+              </template>
             </div>
           </div>
         </template>
@@ -48,6 +54,10 @@
 
       properties: {
         name: String,
+        count: {
+          type: Number,
+          notify: true
+        },
 
         _reservations: {
           type: Object,
@@ -56,6 +66,10 @@
           }
         },
 
+      },
+
+      attached: function() {
+        this.fire('list-ready', {readyList: this.name});
       },
 
       // observers: [
@@ -71,7 +85,18 @@
       //   console.log(_name);
       // },
 
+      _onResponse: function (ev) {
+        // count the list when the data is successfully received.
+        this._countList(this._reservations);
+      },
+
+      _countList: function (_json) {
+        var _count = _.size(_json);
+        this.set('count', _count);
+      },
+
       updateList: function () {
+        console.log('update-list');
         this.$.reserveList.fire('iron-resize');
       },
 
@@ -100,6 +125,21 @@
         }
       },
 
+      updateListStyle: function (_width) {
+        console.log('update-list-style');
+        // calculate number of columns best fit the screen.
+        var _itemWidth = '50%';
+        if (_width > 360 && _width <=  600) {
+          _itemWidth = '33%'; // tablet
+        }else if (_width > 600) {
+          _itemWidth = '25%'; // desktop
+        }
+        console.log(_itemWidth);
+        // update number of column for collapsible item.
+        this.updateStyles({
+          '--collapsible-item-width': _itemWidth
+        });
+      },
 
     });
   </script>
