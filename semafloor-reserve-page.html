@@ -32,7 +32,7 @@ Example:
 -->
 <dom-module id="semafloor-reserve-page">
 
-  <template>
+  <template strip-whitespace>
     <style include="semafloor-reserve-page-theme"></style>
 
     <neon-animated-pages id="reservePages" selected="[[_page]]" attr-for-selected="name" entry-animation="[[_entryAnimation]]" exit-animation="fade-out-animation" on-neon-animation-finish="_onNeonAnimationFinish">
