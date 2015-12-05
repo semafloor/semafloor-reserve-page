@@ -1,35 +1,36 @@
 {
   "name": "semafloor-reserve-page",
-  "version": "1.0.3",
+  "version": "0.1.0",
   "authors": [
-    "Anonymous <anonymous@example.com>"
+    "semafloor <wes_ngrongsen@hotmail.com>"
   ],
-  "description": "An element providing a solution to no problem in particular.",
+  "description": "Semafloor's My Reservations Page.",
   "keywords": [
     "web-component",
     "polymer",
-    "seed"
+    "seed",
+    "semafloor"
   ],
   "main": "semafloor-reserve-page.html",
-  "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "license": "MIT",
+  "homepage": "https://github.com/semafloor/semafloor-reserve-page/",
   "ignore": [
     "/.*",
     "/test/"
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.1.0",
-    "neon-animation": "PolymerElements/neon-animation#~1.0.8",
-    "app-layout": "PolymerLabs/app-layout#~0.0.5",
-    "paper-tabs": "PolymerElements/paper-tabs#~1.1.0",
-    "iron-ajax": "PolymerElements/iron-ajax#~1.1.1",
-    "iron-list": "PolymerElements/iron-list#~1.1.6",
-    "paper-badge": "PolymerElements/paper-badge#~1.0.4",
-    "paper-icon-button": "PolymerElements/paper-icon-button#~1.0.5",
-    "iron-icons": "PolymerElements/iron-icons#~1.0.5",
-    "paper-dialog": "PolymerElements/paper-dialog#~1.0.3",
-    "paper-menu": "PolymerElements/paper-menu#~1.2.0",
-    "paper-item": "PolymerElements/paper-item#~1.1.2"
+    "neon-animation": "PolymerElements/neon-animation#^1.0.8",
+    "app-layout": "PolymerLabs/app-layout#^0.0.5",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.1.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.1.1",
+    "iron-list": "PolymerElements/iron-list#^1.1.6",
+    "paper-badge": "PolymerElements/paper-badge#^1.0.4",
+    "paper-icon-button": "PolymerElements/paper-icon-button#^1.0.5",
+    "iron-icons": "PolymerElements/iron-icons#^1.0.5",
+    "paper-dialog": "PolymerElements/paper-dialog#^1.0.3",
+    "paper-menu": "PolymerElements/paper-menu#^1.2.0",
+    "paper-item": "PolymerElements/paper-item#^1.1.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
