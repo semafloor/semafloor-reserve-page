@@ -14,15 +14,14 @@
         box-sizing: border-box;
 
         display: block;
+        height: calc(100vh - 128px);
+        overflow: auto;
         @apply(--paper-font-common-base);
       }
 
       *, *::before, *::after {
         box-sizing: inherit;
       }
-
-      /*neon-animated-pages {
-      }*/
 
       .hide-overflow {
         overflow: hidden;

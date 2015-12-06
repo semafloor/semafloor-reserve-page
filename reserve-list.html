@@ -57,16 +57,18 @@
         </template>
       </iron-list>
 
-      <paper-dialog id="optionsDialog" with-backdrop>
-        <paper-menu selected="0">
-          <paper-icon-item dialog-confirm on-tap="_removeItem">
-            <iron-icon icon="icons:remove-circle" item-icon></iron-icon>Remove
-          </paper-icon-item>
-          <paper-icon-item dialog-dismiss>
-            <iron-icon icon="icons:close" item-icon></iron-icon>Close
-          </paper-icon-item>
-        </paper-menu>
-      </paper-dialog>
+      <div class="">
+        <paper-dialog id="optionsDialog" with-backdrop>
+          <paper-menu selected="0">
+            <paper-icon-item dialog-confirm on-tap="_removeItem">
+              <iron-icon icon="icons:remove-circle" item-icon></iron-icon>Remove
+            </paper-icon-item>
+            <paper-icon-item dialog-dismiss>
+              <iron-icon icon="icons:close" item-icon></iron-icon>Close
+            </paper-icon-item>
+          </paper-menu>
+        </paper-dialog>
+      </div>
     <!-- </div> -->
   </template>
   <script>
