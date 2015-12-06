@@ -157,6 +157,10 @@ Example:
        this._initList(this.page, _width.width);
      },
 
+     fireIronResizeOnPageSwitch: function () {
+       this.$[this._page + 'List'].updateList();
+     },
+
   });
 
 </script>
