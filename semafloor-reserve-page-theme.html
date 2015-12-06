@@ -13,11 +13,8 @@
         -moz-box-sizing: border-box;
         box-sizing: border-box;
 
-        font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
         display: block;
-        height: 100%;
-        @apply(--layout-vertical);
-        @apply(--layout-flex-auto);
+        @apply(--paper-font-common-base);
       }
 
       *, *::before, *::after {
@@ -25,9 +22,6 @@
       }
 
       neon-animated-pages {
-        /*height: 100%;*/
-        @apply(--layout-vertical);
-        @apply(--layout-flex-auto);
       }
 
       .hide-overflow {
