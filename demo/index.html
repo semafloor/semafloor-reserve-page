@@ -78,7 +78,7 @@
 
             <!-- bottom toolbar -->
             <app-toolbar>
-              <paper-tabs bottom-item selected="{{page}}" attr-for-selected="name" on-iron-deselect="_onIronDeselect">
+              <paper-tabs bottom-item selected="{{tab}}" attr-for-selected="name" on-iron-deselect="_onIronDeselect" on-transitionend="_onIronItemsChanged">
                 <paper-tab name="today">
                   <span id="todayTab">today</span>
                   <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
@@ -104,11 +104,25 @@
 
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
+      var _ready = 2;
       demo.page = 'today';
+      demo.tab = 'today';
 
       demo._onIronDeselect = function (ev) {
         var _page = document.querySelector('semafloor-reserve-page')
-        _page.hideOverflow();
+        // _page.hideOverflow();
+        _page.alwaysSetWaitingPage();
+      };
+
+      demo._onIronItemsChanged = function (ev) {
+        if (ev.target.tagName === 'PAPER-RIPPLE') {
+          _ready--;
+          if (!_ready) {
+            console.log('final-change');
+            demo.page = demo.tab;
+            _ready = 2;
+          }
+        }
       };
 
     </script>
