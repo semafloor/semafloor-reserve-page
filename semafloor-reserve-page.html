@@ -34,7 +34,6 @@ Example:
       <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}"></reserve-list>
       <reserve-list id="upcomingList" name="upcoming" count="{{upcomingCount}}"></reserve-list>
     </iron-pages>
-      <!-- <reserve-list name$="[[_getJson(page)]]"></reserve-list> -->
 
   </template>
 
@@ -155,10 +154,6 @@ Example:
      fireIronResizeOnPageSwitch: function () {
        this.$[this._page + 'List'].updateList();
      },
-
-    //  _getJson: function (_page) {
-    //    return _page === 'waiting' ? this._page : _page;
-    //  },
 
   });
 
