@@ -121,6 +121,10 @@ Example:
      },
 
      _initList: function (_page, _width) {
+       if (_.isUndefined(_page)) {
+         return;
+       }
+
        switch (_page) {
          case 'today':
            this.$.todayList.updateListStyle(_width);
@@ -134,8 +138,10 @@ Example:
            this.$.todayList.updateListStyle(_width);
            this.$.upcomingList.updateList();
            break;
+        case 'waiting':
+           break;
          default:
-          console.log('Error! Dealing with unknown tab.');
+          console.log('Error! Dealing with unknown tab, ' + _page + '.');
        }
      },
 
