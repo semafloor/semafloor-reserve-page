@@ -111,7 +111,8 @@
       demo._onIronDeselect = function (ev) {
         var _page = document.querySelector('semafloor-reserve-page')
         // _page.hideOverflow();
-        _page.alwaysSetWaitingPage();
+        // _page.alwaysSetWaitingPage();
+        demo.page = 'waiting';
       };
 
       demo._onIronItemsChanged = function (ev) {

@@ -3,6 +3,7 @@
 <link rel="import" href="reserve-list.html">
 
 <link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 
@@ -33,6 +34,8 @@ Example:
       <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}"></reserve-list>
       <reserve-list id="upcomingList" name="upcoming" count="{{upcomingCount}}"></reserve-list>
     </iron-pages>
+      <!-- <reserve-list name$="[[_getJson(page)]]"></reserve-list> -->
+
   </template>
 
 </dom-module>
@@ -104,9 +107,9 @@ Example:
      */
 
      _logPage: function (_page) {
-       var _width = this.$.reservePages.getBoundingClientRect();
-       // update the style of the list and populate the list content..
-       this._initList(this._page, _width.width);
+      //  var _width = this.$.reservePages.getBoundingClientRect();
+      //  // update the style of the list and populate the list content..
+      //  this._initList(this._page, _width.width);
 
        // then imperatively switch to new page.
        this.set('_page', _page);
@@ -152,6 +155,10 @@ Example:
      fireIronResizeOnPageSwitch: function () {
        this.$[this._page + 'List'].updateList();
      },
+
+    //  _getJson: function (_page) {
+    //    return _page === 'waiting' ? this._page : _page;
+    //  },
 
   });
 
