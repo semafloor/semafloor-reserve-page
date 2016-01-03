@@ -3,7 +3,6 @@
 <link rel="import" href="reserve-list.html">
 
 <link rel="import" href="../iron-pages/iron-pages.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <link rel="import" href="../paper-badge/paper-badge.html">
 <link rel="import" href="../paper-spinner/paper-spinner-lite.html">
@@ -43,13 +42,12 @@ Example:
       </paper-tab>
     </paper-tabs>
 
-    <iron-pages id="reservePages" selected="upcoming" attr-for-selected="name">
-      <div class="waiting-page" name="waiting">
-        <paper-spinner-lite active></paper-spinner-lite>
-      </div>
-      <!-- <reserve-list id="todayList" name="today" count="{{todayCount}}" ></reserve-list>
-      <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}"></reserve-list> -->
-      <reserve-list id="upcomingList" name="upcoming" count="{{upcomingCount}}"></reserve-list>
+    <iron-pages id="reservePages" selected="{{_page}}">
+      <paper-spinner-lite active></paper-spinner-lite>
+      <reserve-list id="upcomingList" name="[[_name]]"
+        today-count="{{todayCount}}"
+        thisweek-count="{{thisweekCount}}"
+        upcoming-count="{{upcomingCount}}"></reserve-list>
     </iron-pages>
 
   </template>
@@ -62,35 +60,40 @@ Example:
     is: 'semafloor-reserve-page',
 
     properties: {
-      page: String,
       tab: {
         type: String,
         value: 'today'
       },
       thisweekCount: {
         type: Number,
-        value: 99,
-        notify: true
+        value: 99
       },
       todayCount: {
         type: Number,
-        value: 99,
-        notify: true
+        value: 99
       },
       upcomingCount: {
         type: Number,
-        value: 99,
-        notify: true
+        value: 99
       },
 
-      _page: String,
+      _page: {
+        type: Number,
+        value: 0
+      },
+      _name: {
+        type: String,
+        value: 'today'
+      },
     },
+
+    observers: [
+      '_fetchReservations(tab)'
+    ],
 
     listeners: {
-      'list-ready': '_onListReady',
+      'data-ready': '_onDataReady'
     },
-
-    observers: ['_logPage(page)'],
 
     // Element Lifecycle
 
@@ -128,59 +131,20 @@ Example:
      * @detail {{sound: String}}
      */
 
-     _logPage: function (_page) {
-      //  var _width = this.$.reservePages.getBoundingClientRect();
-      //  // update the style of the list and populate the list content..
-      //  this._initList(this._page, _width.width);
-
-       // then imperatively switch to new page.
-       this.set('_page', _page);
-     },
-
-     // always set waiting page.
-     // it is to wait for list to populate and unveil.
-     alwaysSetWaitingPage: function () {
-       this.set('_page', 'waiting');
-     },
-
-     _initList: function (_page, _width) {
-       if (_.isUndefined(_page)) {
-         return;
-       }
-
-       switch (_page) {
-         case 'today':
-           this.$.todayList.updateListStyle(_width);
-           this.$.todayList.updateList();
-           break;
-         case 'thisweek':
-           this.$.todayList.updateListStyle(_width);
-           this.$.thisweekList.updateList();
-           break;
-         case 'upcoming':
-           this.$.todayList.updateListStyle(_width);
-           this.$.upcomingList.updateList();
-           break;
-        case 'waiting':
-           break;
-         default:
-          console.log('Error! Dealing with unknown tab, ' + _page + '.');
-       }
-     },
-
-     _onListReady: function (ev) {
-       // when `reserve-list` is attached to this, re-initialize the list.
-       var _width = this.$.reservePages.getBoundingClientRect();
-       this._initList(this.page, _width.width);
-     },
-
-     fireIronResizeOnPageSwitch: function () {
-       this.$[this._page + 'List'].updateList();
-     },
-
      condenseTabs: function(_progress) {
-       this.transform('translate3d(0px, -' + (64 * _progress) + 'px, 0px)', this.$.fakeTabs);
-       this.$.fakeTabs.notifyResize();
+       var _fakeTabs = this.$.fakeTabs;
+       this.transform('translate3d(0px, -' + (64 * _progress) + 'px, 0px)', _fakeTabs);
+       _fakeTabs.notifyResize();
+     },
+
+     _fetchReservations: function(_tab) {
+       console.log(_tab);
+       this.set('_name', _tab);
+     },
+
+     _onDataReady: function() {
+       console.log('data-ready');
+       this.set('_page', 1);
      },
 
   });

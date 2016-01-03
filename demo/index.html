@@ -10,16 +10,28 @@
     <link rel="import" href="../../app-layout/app-layout.html">
     <link rel="import" href="../../app-layout/app-scroll-effects/app-scroll-effects.html">
 
+    <link rel="import" href="../../iron-icons/iron-icons.html">
+
     <link rel="import" href="../../paper-badge/paper-badge.html">
     <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
     <link rel="import" href="../../paper-tabs/paper-tabs.html">
 
     <style is="custom-style">
       body {
-        font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
         margin: 0;
+        /*font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;*/
+        @apply(--paper-font-common-base);
       }
 
+      /* workaround to hide fake toolbar */
+      app-drawer-layout {
+        --app-drawer-layout-narrow-drawer: {
+          z-index: 2;
+        };
+      }
+      app-drawer-layout::content app-scrim {
+        z-index: 2;
+      }
       app-header {
         background-color: #009688;
         color: #fff;
@@ -30,24 +42,14 @@
 
       .fake-toolbar {
         height: 64px;
+        z-index: 0;
+        pointer-events: none;
+        visibility: hidden;
       }
 
-      iron-overlay-backdrop {
+      /*iron-overlay-backdrop {
         opacity: 0.3;
-      }
-
-
-      /*penetrate #contentContainer inside app-header-layout*/
-      .app-header-layout > #contentContainer {
-        height: 100%;
-        /* PART 1: fix unable to see view two items */
-        padding-top: 0 !important;
-      }
-
-      /* PART 2: fix unable to see view two items */
-      semafloor-reserve-page {
-        /*padding-top: 128px;*/
-      }
+      }*/
     </style>
   </head>
   <body>
@@ -57,19 +59,21 @@
         </app-header-layout>
 
         <app-header-layout main>
-          <app-header condenses fixed effects="material" on-app-header-transform="_onAppHeaderTransform">
+          <app-header condenses fixed effects="waterfall" on-app-header-transform="_onAppHeaderTransform">
             <app-toolbar>
               <paper-icon-button id="menu" icon="icons:menu" drawer-toggle></paper-icon-button>
               Reservations Demo
             </app-toolbar>
-            <div class="fake-toolbar">
-
-            </div>
+            <div class="fake-toolbar"></div>
           </app-header>
 
-          <!-- <div class="">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia ad, deleniti aperiam nisi nesciunt consequuntur ex inventore vero necessitatibus! Veniam natus suscipit expedita facilis nostrum voluptates, ut eum provident, cumque nisi aliquam deleniti libero, consequuntur quod ullam facere. Corporis praesentium repellat amet aspernatur, iusto nulla laborum possimus voluptas nostrum, obcaecati magni eum eligendi, similique impedit numquam voluptatum beatae debitis optio consectetur maiores? Dolores necessitatibus itaque cumque ratione illo labore assumenda expedita consectetur quaerat nobis, soluta odit earum unde totam iusto perspiciatis possimus tempore minus voluptatibus quis mollitia ipsam incidunt dicta. Ipsa dignissimos nemo quo laudantium expedita perspiciatis a natus, delectus aut assumenda, animi! Nostrum tempora dolorem dicta cupiditate velit, quidem eligendi assumenda magnam, sunt neque, deleniti. Illum molestiae consectetur quia. Minus aperiam inventore ipsa animi qui incidunt, assumenda cupiditate ipsum? Molestiae dicta laboriosam esse sint eius deserunt, cupiditate sapiente? Quas voluptate dolore, accusantium rem quisquam, nostrum dignissimos ad magnam, ducimus harum quam officia incidunt. Vel dolor cum pariatur modi nesciunt natus, ducimus nam laudantium temporibus necessitatibus, quos reprehenderit officiis fuga, nemo, commodi magnam minus. Quasi delectus perferendis, laudantium ea est, libero modi blanditiis pariatur, animi necessitatibus dolorum adipisci fugiat amet eos voluptates sequi quas aliquid sint officiis eveniet. Quidem iste maiores excepturi, maxime quisquam ullam suscipit autem omnis eveniet nulla dolorem, incidunt consequatur deserunt, iure eaque fugiat repudiandae molestiae consequuntur tempora tenetur. Praesentium consequuntur quibusdam earum nihil accusamus quos deserunt dolores quod, modi, officiis voluptatem quas maiores vitae illo. Voluptatibus dolorem sit omnis, animi beatae nihil excepturi optio. Ullam harum quis quam inventore, optio beatae adipisci perferendis? Facilis laborum officiis, ex consectetur rem maiores deleniti libero quia a, temporibus repellendus! At voluptatem quo incidunt, quisquam animi cupiditate. Inventore aspernatur incidunt deserunt, ullam officia, laborum pariatur dignissimos aperiam iusto ipsam quaerat necessitatibus quas ratione consequuntur iste repellat quia aut velit expedita recusandae distinctio. Laudantium illo nisi natus error veritatis dicta, provident perspiciatis magnam quisquam doloremque, reprehenderit modi, blanditiis iusto amet voluptatibus expedita nostrum assumenda iure, laborum facilis. Voluptates quod odio saepe asperiores, delectus provident, iste autem excepturi magni natus rerum inventore sunt earum doloribus illum corporis cumque minus temporibus, esse tempora. Pariatur reiciendis laudantium similique enim deserunt nam delectus, soluta, aspernatur placeat beatae corporis perferendis itaque! Amet quidem dolore veniam laudantium mollitia quam nostrum ullam exercitationem unde vitae error voluptatem cumque, incidunt temporibus eveniet dolores quo modi. Necessitatibus sunt modi dicta dolores reprehenderit laboriosam quis aliquid minus! Libero deserunt minima ipsa nisi doloribus laboriosam officia quis assumenda cupiditate expedita fugiat, hic accusantium praesentium placeat incidunt dolore vero, nesciunt quasi dolorem. Quo, ex aut quas optio sint, reiciendis quos voluptates non vitae cum autem error earum blanditiis veritatis totam inventore facere laboriosam. Praesentium reiciendis aspernatur consequuntur obcaecati doloremque blanditiis incidunt eum, quibusdam recusandae dolor et laborum placeat dicta, assumenda minus suscipit explicabo harum! Praesentium libero sit ducimus soluta. Ipsam totam modi temporibus est ea qui numquam repudiandae minima sed officiis corporis consequatur commodi odit consequuntur neque magnam suscipit pariatur libero cumque voluptates debitis veritatis, velit provident praesentium voluptate? Magni architecto laudantium asperiores!
-          </div> -->
+          <!-- 39 nodes clean on CH/ OP -->
+          <!-- 47 nodes clean on FF -->
+          <!-- 30 nodes app shell on CH/ OP & FF-->
+          <!-- ? nodes reserve page on CH/ OP before optimization -->
+          <!-- ? nodes reserve page on FF before optimization-->
+          <!-- 261 nodes reserve page on CH/ OP after optimization -->
+          <!-- 261 nodes reserve page on FF after optimization-->
           <semafloor-reserve-page id="reserve"></semafloor-reserve-page>
         </app-header-layout>
       </app-drawer-layout>
@@ -77,31 +81,14 @@
 
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
-
-      // var _ready = 2;
-      // demo.page = 'today';
-      // demo.tab = 'today';
+      var page = 'reserve';
 
       demo._onAppHeaderTransform = function (ev) {
-        // console.log('scrolling...', ev.detail.progress);
-        this.$.reserve.condenseTabs(ev.detail.progress);
+        if (page === 'reserve') {
+          // console.log('scrolling...', ev.detail.progress);
+          this.$.reserve.condenseTabs(ev.detail.progress);
+        }
       };
-
-      // demo._onIronDeselect = function (ev) {
-      //   var _page = document.querySelector('semafloor-reserve-page');
-      //   demo.page = 'waiting';
-      // };
-      //
-      // demo._onIronItemsChanged = function (ev) {
-      //   if (ev.target.tagName === 'PAPER-RIPPLE') {
-      //     _ready--;
-      //     if (!_ready) {
-      //       console.log('final-change');
-      //       demo.page = demo.tab;
-      //       _ready = 2;
-      //     }
-      //   }
-      // };
 
     </script>
 

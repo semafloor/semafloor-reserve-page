@@ -14,19 +14,15 @@
         box-sizing: border-box;
 
         display: block;
-        /*height: calc(100vh - 128px);
-        overflow: auto;*/
-        /*@apply(--paper-font-common-base);*/
       }
 
       *, *::before, *::after {
-        box-sizing: box-sizing;
+        box-sizing: border-box;
       }
 
-      .waiting-page {
-        margin-top: 40px;
-        @apply(--layout);
-        @apply(--layout-center-center);
+      paper-spinner-lite {
+        display: block;
+        margin: 40px auto;
       }
 
       /* tabs */
@@ -36,7 +32,8 @@
         height: 64px;
         position: fixed;
         top: 64px;
-        width: 100%;
+        left: 256px;
+        right: 0;
         will-change: transform;
         transform: translate3d(0px, 0px, 0px);
         z-index: 1;
@@ -59,7 +56,18 @@
         --paper-badge-text-color: #004D40;
       }
       paper-badge[for=thisweekTab] {
-        --paper-badge-margin-bottom: 13.6221px;
+        --paper-badge-margin-bottom: 16px;
+      }
+
+      paper-spinner-lite {
+        --paper-spinner-color: #1ddbd8;
+      }
+
+
+      @media (max-width: 640px) {
+        paper-tabs {
+          left: 0;
+        }
       }
     </style>
 

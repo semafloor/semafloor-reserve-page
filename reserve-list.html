@@ -1,15 +1,19 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="reserve-list-theme.html">
+<link rel="import" href="semafloor-reserve-page-icons.html">
 
 <link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
 
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-ripple/paper-ripple.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
 <link rel="import" href="../paper-menu/paper-menu.html">
 <link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+
+<!-- <link rel="import" href="../firebase-element/firebase-collection.html"> -->
 
 <link rel="import" href="../neon-animation/animations/transform-animation.html">
 
@@ -17,6 +21,12 @@
   <template strip-whitespace>
     <style include="reserve-list-theme"></style>
 
+    <iron-media-query
+      query="(max-width: 640px)"
+      query-matches="{{_isPhone}}"></iron-media-query>
+    <iron-media-query
+      query="(min-width: 1280px)"
+      query-matches="{{_isDesktop}}"></iron-media-query>
     <iron-ajax id="listAjax"
       auto
       url="../json/[[name]]-booking.json"
@@ -24,75 +34,125 @@
       on-response="_onResponse"
       last-response="{{_reservations}}"></iron-ajax>
 
-    <!-- <div class="list-container"> -->
-      <iron-list id="reserveList" items="[[_reservations]]">
-        <template>
-          <div class="reserve-item" aria-expanded$="[[_isExpanded(index)]]" aria-controls$="[[_isCollapsible(index)]]" on-tap="_toggle">
-            <!-- <span>[[index]]</span> -->
-            <div class="item-container">
-              <div class="item-left">
-                <div class="item-room">[[item.room]]</div>
-                <div class="item-site">[[item.site]]</div>
-              </div>
+    <!-- <firebase-collection id="listAjax"
+      location="../json/[[name]]-booking.json" data="[[_reservations]]">
+    </firebase-collection>-->
 
-              <div class="item-right">
-                <div class="item-period">[[item.period]]</div>
-                <div class="item-subject">[[item.subject]]</div>
-              </div>
-
-              <paper-icon-button icon="icons:more-vert" class="more-options" on-tap="_optionsMenu"></paper-icon-button>
+    <iron-list id="reserveList" items="[[_reservations]]">
+      <template strip-whitespace>
+        <div class="reserve-item" aria-expanded$="[[_isExpanded(index)]]" aria-controls$="[[_isCollapsible(index)]]" on-tap="_toggle">
+          <div class="item-container">
+            <div class="item-left">
+              [[item.room]]
+              <div class="">[[item.site]]</div>
             </div>
 
-            <div id$="[[_isCollapsible(index)]]" class="collapsible-items">
-              <template is="dom-repeat" items="[[item.details]]" index-as="index" as="detail">
-                <div class="collapsible-item">
-                  <span>[[detail.label]]</span>
-                  <span>[[_isObject(detail.data)]]</span>
-                </div>
-              </template>
+            <div class="item-right">
+              [[item.period]]
+              <div class="">[[item.subject]]</div>
             </div>
+
+            <paper-icon-button icon="icons:more-vert" class="more-options" on-tap="_optionsMenu"></paper-icon-button>
           </div>
-        </template>
-      </iron-list>
 
-      <div class="">
-        <paper-dialog id="optionsDialog" with-backdrop>
-          <paper-menu selected="0">
-            <paper-icon-item dialog-confirm on-tap="_removeItem">
-              <iron-icon icon="icons:remove-circle" item-icon></iron-icon>Remove
-            </paper-icon-item>
-            <paper-icon-item dialog-dismiss>
-              <iron-icon icon="icons:close" item-icon></iron-icon>Close
-            </paper-icon-item>
-          </paper-menu>
-        </paper-dialog>
-      </div>
-    <!-- </div> -->
+          <div id$="[[_isCollapsible(index)]]" class="collapsible-items">
+            <template is="dom-repeat" items="[[item.details]]" index-as="index" as="detail" strip-whitespace>
+              <div class="collapsible-item">
+                [[detail.label]]
+                <div>[[_isObject(detail.data)]]</div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </iron-list>
+
+    <!-- options dialog -->
+    <paper-dialog id="optionsDialog" with-backdrop>
+      <paper-menu selected="0">
+        <paper-icon-item dialog-confirm on-tap="_removeItem">
+          <iron-icon icon="icons:remove-circle" item-icon></iron-icon>Remove
+        </paper-icon-item>
+        <paper-icon-item dialog-dismiss on-tap="_dismissOptions">
+          <iron-icon icon="icons:close" item-icon></iron-icon>Close
+        </paper-icon-item>
+      </paper-menu>
+    </paper-dialog>
+
+    <!-- toast -->
+    <paper-toast id="reserveToast" text="[[_msg]]">
+      <span role="button" tabindex="0" on-tap="_undoItemRemoval" hidden$="[[_hideUndo]]">Undo</span>
+    </paper-toast>
   </template>
   <script>
     Polymer({
       is: 'reserve-list',
 
       properties: {
-        name: String,
-        count: {
+        name: {
+          type: String,
+          value: 'today'
+        },
+        todayCount: {
           type: Number,
+          value: 99,
+          notify: true
+        },
+        thisweekCount: {
+          type: Number,
+          value: 99,
+          notify: true
+        },
+        upcomingCount: {
+          type: Number,
+          value: 99,
           notify: true
         },
 
         _reservations: {
           type: Object,
-          value: function () {
+          value: function() {
             return [];
           }
         },
-        _selectedIdx: Number,
-        _selectedItem: Object,
-
+        _selectedIdx: {
+          type: Number,
+          value: 0
+        },
+        _selectedItem: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        _isPhone: {
+          type: Boolean,
+          value: false
+        },
+        _isDesktop: {
+          type: Boolean,
+          value: false
+        },
+        _msg: {
+          type: String,
+          value: ''
+        },
+        _hideUndo: {
+          type: Boolean,
+          value: false
+        },
       },
 
+      observers: [
+        '_onQueryChanged(_isPhone, _isDesktop)'
+      ],
+
       attached: function() {
-        this.fire('list-ready', {readyList: this.name});
+        // Only at attached stage, this.updateStyles can be utilised.
+        // else only Polymer.updateStyles can be used.
+        // In this case, call this.updateListStyles at attached stage.
+        this.updateListStyles(this._isPhone, this._isDesktop);
+        this.updateList();
 
         var _dialog = this.$.optionsDialog;
         _dialog.animationConfig = {
@@ -111,42 +171,25 @@
         };
       },
 
-      // observers: [
-      //   '_logResponse(_reservations)',
-      //   '_logName(name)'
-      // ],
-
-      // _logResponse: function (_response) {
-      //   console.log(_response);
-      // },
-      //
-      // _logName: function (_name) {
-      //   console.log(_name);
-      // },
-
-      _onResponse: function (ev) {
+      _onResponse: function(ev) {
         // count the list when the data is successfully received.
-        this._countList(this._reservations);
+        this._countList(this._reservations, this.name);
+        this.fire('data-ready');
       },
 
-      _countList: function (_json) {
-        var _count = _.size(_json);
-        this.set('count', _count);
+      _countList: function(_json, _name) {
+        this.set(_name + 'Count', _.size(_json));
       },
 
-      updateList: function () {
-        this.$.reserveList.fire('iron-resize');
-      },
-
-      _isExpanded: function (_idx) {
+      _isExpanded: function(_idx) {
         return 'opened' + _idx;
       },
 
-      _isCollapsible: function (_idx) {
+      _isCollapsible: function(_idx) {
         return 'collapse' + _idx;
       },
 
-      _toggle: function (ev) {
+      _toggle: function(ev) {
         var _target = ev.target;
 
         if (_target.tagName === 'IRON-ICON') {
@@ -164,34 +207,37 @@
             }else {
               _target.classList.add('opened');
             }
+            // update size for item after toggle.
             this.$.reserveList.updateSizeForItem(ev.model.index);
+            // update iron-list to fit list on screen with new height.
+            this.async(function() {
+              this.updateList();
+            });
           }
         }
       },
 
-      updateListStyle: function (_width) {
-        // calculate number of columns best fit the screen.
-        var _itemWidth = '50%';
-        if (_width > 360 && _width <=  600) {
-          _itemWidth = '33%'; // tablet
-        }else if (_width > 600) {
-          _itemWidth = '25%'; // desktop
-        }
+      updateListStyles: function(_isPhone, _isDesktop) {
         // update number of column for collapsible item.
-        this.updateStyles({
+        var _itemWidth = _isPhone ? '50%': _isDesktop ? '25%' : '33%';
+        (this.domHost || Polymer).updateStyles({
           '--collapsible-item-width': _itemWidth
         });
       },
-
-      _isObject: function (_data) {
-        var _result = _data;
-        if (_.isObject(_data)) {
-          _result = _data.tStart + ' - ' + _data.tEnd;
-        }
-        return _result;
+      updateList: function() {
+        this.$.reserveList.fire('iron-resize');
       },
 
-      _optionsMenu: function (ev) {
+      _onQueryChanged: function(_isPhone, _isDesktop) {
+        this.updateListStyles(_isPhone, _isDesktop);
+        this.updateList();
+      },
+
+      _isObject: function(_data) {
+        return _.isObject(_data) ? _data.tStart + ' - ' + _data.tEnd : _data;
+      },
+
+      _optionsMenu: function(ev) {
         var _target = ev.target;
 
         while (_target && _target.tagName !== 'PAPER-ICON-BUTTON') {
@@ -203,20 +249,41 @@
         this.$.optionsDialog.open();
       },
 
-      // simple removing item from list for Firebase.
-      _removeItem: function (ev) {
-        // console.log(this._reservations);
-        // console.log(this._selectedIdx);
-        // console.log(this._selectedItem);
+      // TODO: simple removing item from list for Firebase.
+      _removeItem: function(ev) {
+        this._dismissOptions();
 
         // var $array = this._reservations;
         // var $idx = this._selectedIdx;
-        // var $remove = _.remove($array, function (el, idx, arr) {
+        // var $remove = _.remove($array, function(el, idx, arr) {
         //   return idx === $idx;
         // });
         // console.log($remove);
         // console.log($array);
         // console.log(this._reservations);
+        this._openReserveToast('The selected item has been removed.', false);
+      },
+
+      _dismissOptions: function() {
+        this.$.optionsDialog.close();
+      },
+
+      _openReserveToast: function(_msg, _hideUndo) {
+        var _reserveToast = this.$.reserveToast;
+        if (_reserveToast.opened) {
+          _reserveToast.close();
+        }
+        this.toggleClass('undo-remove', _hideUndo, _reserveToast);
+        this.set('_hideUndo', _hideUndo);
+        this.set('_msg', _msg);
+        this.async(function() {
+          _reserveToast.open();
+        });
+      },
+
+      // TODO: undo operation to restore removed item.
+      _undoItemRemoval: function() {
+        this._openReserveToast('Removed item has been restored!', true);
       },
 
     });
