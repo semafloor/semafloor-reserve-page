@@ -14,13 +14,13 @@
         box-sizing: border-box;
 
         display: block;
-        height: calc(100vh - 128px);
-        overflow: auto;
-        @apply(--paper-font-common-base);
+        /*height: calc(100vh - 128px);
+        overflow: auto;*/
+        /*@apply(--paper-font-common-base);*/
       }
 
       *, *::before, *::after {
-        box-sizing: inherit;
+        box-sizing: box-sizing;
       }
 
       .waiting-page {
@@ -29,6 +29,38 @@
         @apply(--layout-center-center);
       }
 
+      /* tabs */
+      paper-tabs {
+        background-color: #009688;
+        color: #fff;
+        height: 64px;
+        position: fixed;
+        top: 64px;
+        width: 100%;
+        will-change: transform;
+        transform: translate3d(0px, 0px, 0px);
+        z-index: 1;
+
+        --paper-tabs-selection-bar: {
+          height: 3px;
+        };
+      }
+      paper-tab {
+        --paper-tab-ink: rgba(255, 255, 141, 0.5);
+      }
+      paper-tab span {
+        text-transform: uppercase;
+      }
+      paper-badge {
+        --paper-badge-margin-left: -6px;
+        /*--paper-badge-background: #1DDBD8;
+        --paper-badge-text-color: #607d8b;*/
+        --paper-badge-background: #FFFF8D;
+        --paper-badge-text-color: #004D40;
+      }
+      paper-badge[for=thisweekTab] {
+        --paper-badge-margin-bottom: 13.6221px;
+      }
     </style>
 
   </template>

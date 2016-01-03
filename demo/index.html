@@ -7,13 +7,12 @@
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../semafloor-reserve-page.html">
 
-    <link rel="import" href="../../app-layout/app-drawer-layout/app-drawer-layout.html">
-    <link rel="import" href="../../app-layout/app-header-layout/app-header-layout.html">
-    <link rel="import" href="../../app-layout/app-header/app-header.html">
-    <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
+    <link rel="import" href="../../app-layout/app-layout.html">
+    <link rel="import" href="../../app-layout/app-scroll-effects/app-scroll-effects.html">
 
-    <link rel="import" href="../../paper-tabs/paper-tabs.html">
     <link rel="import" href="../../paper-badge/paper-badge.html">
+    <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="../../paper-tabs/paper-tabs.html">
 
     <style is="custom-style">
       body {
@@ -21,22 +20,25 @@
         margin: 0;
       }
 
-      paper-tab span {
-        text-align: center;
-        text-transform: uppercase;
-      }
-
-      [main] app-header {
-        background-color: #607d8b;
+      app-header {
+        background-color: #009688;
         color: #fff;
       }
-
-      [main] app-header > app-toolbar+app-toolbar {
-        background-color: #607d8b;
+      paper-icon-button {
+        margin-right: 8px;
       }
 
+      .fake-toolbar {
+        height: 64px;
+      }
+
+      iron-overlay-backdrop {
+        opacity: 0.3;
+      }
+
+
       /*penetrate #contentContainer inside app-header-layout*/
-      app-header-layout > #contentContainer {
+      .app-header-layout > #contentContainer {
         height: 100%;
         /* PART 1: fix unable to see view two items */
         padding-top: 0 !important;
@@ -46,83 +48,60 @@
       semafloor-reserve-page {
         /*padding-top: 128px;*/
       }
-
-      paper-badge {
-        --paper-badge-margin-left: -6px;
-        --paper-badge-background: #1DDBD8;
-        --paper-badge-text-color: #607d8b;
-      }
-      paper-badge[for=thisweekTab] {
-        --paper-badge-margin-bottom: 16px;
-      }
-
-      iron-overlay-backdrop {
-        opacity: 0.3;
-      }
-
     </style>
   </head>
   <body>
     <template is="dom-bind" strip-whitespace>
-      <app-drawer-layout drawer-position="left">
-        <!-- app drawer panel -->
+      <app-drawer-layout>
         <app-header-layout drawer>
-
         </app-header-layout>
 
-        <!-- app header panel -->
         <app-header-layout main>
-          <app-header waterfall condenses>
-            <!-- top toolbar -->
-            <app-toolbar>Reservations Demo</app-toolbar>
-
-            <!-- bottom toolbar -->
+          <app-header condenses fixed effects="material" on-app-header-transform="_onAppHeaderTransform">
             <app-toolbar>
-              <paper-tabs bottom-item selected="{{tab}}" attr-for-selected="name" on-iron-deselect="_onIronDeselect" on-transitionend="_onIronItemsChanged">
-                <paper-tab name="today">
-                  <span id="todayTab">today</span>
-                  <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
-                </paper-tab>
-                <paper-tab name="thisweek">
-                  <!-- according to MD's specs, split long sentence into two lines -->
-                  <span>this<br><span id="thisweekTab">week</span></span>
-                  <paper-badge for="thisweekTab" label="[[thisweekCount]]"></paper-badge>
-                </paper-tab>
-                <paper-tab name="upcoming">
-                  <span id="upcomingTab">upcoming</span>
-                  <paper-badge for="upcomingTab" label="[[upcomingCount]]"></paper-badge>
-                </paper-tab>
-              </paper-tabs>
+              <paper-icon-button id="menu" icon="icons:menu" drawer-toggle></paper-icon-button>
+              Reservations Demo
             </app-toolbar>
+            <div class="fake-toolbar">
+
+            </div>
           </app-header>
 
-          <semafloor-reserve-page page="[[page]]"
-            today-count="{{todayCount}}" thisweek-count="{{thisweekCount}}" upcoming-count="{{upcomingCount}}"></semafloor-reserve-page>
+          <!-- <div class="">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia ad, deleniti aperiam nisi nesciunt consequuntur ex inventore vero necessitatibus! Veniam natus suscipit expedita facilis nostrum voluptates, ut eum provident, cumque nisi aliquam deleniti libero, consequuntur quod ullam facere. Corporis praesentium repellat amet aspernatur, iusto nulla laborum possimus voluptas nostrum, obcaecati magni eum eligendi, similique impedit numquam voluptatum beatae debitis optio consectetur maiores? Dolores necessitatibus itaque cumque ratione illo labore assumenda expedita consectetur quaerat nobis, soluta odit earum unde totam iusto perspiciatis possimus tempore minus voluptatibus quis mollitia ipsam incidunt dicta. Ipsa dignissimos nemo quo laudantium expedita perspiciatis a natus, delectus aut assumenda, animi! Nostrum tempora dolorem dicta cupiditate velit, quidem eligendi assumenda magnam, sunt neque, deleniti. Illum molestiae consectetur quia. Minus aperiam inventore ipsa animi qui incidunt, assumenda cupiditate ipsum? Molestiae dicta laboriosam esse sint eius deserunt, cupiditate sapiente? Quas voluptate dolore, accusantium rem quisquam, nostrum dignissimos ad magnam, ducimus harum quam officia incidunt. Vel dolor cum pariatur modi nesciunt natus, ducimus nam laudantium temporibus necessitatibus, quos reprehenderit officiis fuga, nemo, commodi magnam minus. Quasi delectus perferendis, laudantium ea est, libero modi blanditiis pariatur, animi necessitatibus dolorum adipisci fugiat amet eos voluptates sequi quas aliquid sint officiis eveniet. Quidem iste maiores excepturi, maxime quisquam ullam suscipit autem omnis eveniet nulla dolorem, incidunt consequatur deserunt, iure eaque fugiat repudiandae molestiae consequuntur tempora tenetur. Praesentium consequuntur quibusdam earum nihil accusamus quos deserunt dolores quod, modi, officiis voluptatem quas maiores vitae illo. Voluptatibus dolorem sit omnis, animi beatae nihil excepturi optio. Ullam harum quis quam inventore, optio beatae adipisci perferendis? Facilis laborum officiis, ex consectetur rem maiores deleniti libero quia a, temporibus repellendus! At voluptatem quo incidunt, quisquam animi cupiditate. Inventore aspernatur incidunt deserunt, ullam officia, laborum pariatur dignissimos aperiam iusto ipsam quaerat necessitatibus quas ratione consequuntur iste repellat quia aut velit expedita recusandae distinctio. Laudantium illo nisi natus error veritatis dicta, provident perspiciatis magnam quisquam doloremque, reprehenderit modi, blanditiis iusto amet voluptatibus expedita nostrum assumenda iure, laborum facilis. Voluptates quod odio saepe asperiores, delectus provident, iste autem excepturi magni natus rerum inventore sunt earum doloribus illum corporis cumque minus temporibus, esse tempora. Pariatur reiciendis laudantium similique enim deserunt nam delectus, soluta, aspernatur placeat beatae corporis perferendis itaque! Amet quidem dolore veniam laudantium mollitia quam nostrum ullam exercitationem unde vitae error voluptatem cumque, incidunt temporibus eveniet dolores quo modi. Necessitatibus sunt modi dicta dolores reprehenderit laboriosam quis aliquid minus! Libero deserunt minima ipsa nisi doloribus laboriosam officia quis assumenda cupiditate expedita fugiat, hic accusantium praesentium placeat incidunt dolore vero, nesciunt quasi dolorem. Quo, ex aut quas optio sint, reiciendis quos voluptates non vitae cum autem error earum blanditiis veritatis totam inventore facere laboriosam. Praesentium reiciendis aspernatur consequuntur obcaecati doloremque blanditiis incidunt eum, quibusdam recusandae dolor et laborum placeat dicta, assumenda minus suscipit explicabo harum! Praesentium libero sit ducimus soluta. Ipsam totam modi temporibus est ea qui numquam repudiandae minima sed officiis corporis consequatur commodi odit consequuntur neque magnam suscipit pariatur libero cumque voluptates debitis veritatis, velit provident praesentium voluptate? Magni architecto laudantium asperiores!
+          </div> -->
+          <semafloor-reserve-page id="reserve"></semafloor-reserve-page>
         </app-header-layout>
       </app-drawer-layout>
     </template>
 
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
-      var _ready = 2;
-      demo.page = 'today';
-      demo.tab = 'today';
 
-      demo._onIronDeselect = function (ev) {
-        var _page = document.querySelector('semafloor-reserve-page');
-        demo.page = 'waiting';
+      // var _ready = 2;
+      // demo.page = 'today';
+      // demo.tab = 'today';
+
+      demo._onAppHeaderTransform = function (ev) {
+        // console.log('scrolling...', ev.detail.progress);
+        this.$.reserve.condenseTabs(ev.detail.progress);
       };
 
-      demo._onIronItemsChanged = function (ev) {
-        if (ev.target.tagName === 'PAPER-RIPPLE') {
-          _ready--;
-          if (!_ready) {
-            console.log('final-change');
-            demo.page = demo.tab;
-            _ready = 2;
-          }
-        }
-      };
+      // demo._onIronDeselect = function (ev) {
+      //   var _page = document.querySelector('semafloor-reserve-page');
+      //   demo.page = 'waiting';
+      // };
+      //
+      // demo._onIronItemsChanged = function (ev) {
+      //   if (ev.target.tagName === 'PAPER-RIPPLE') {
+      //     _ready--;
+      //     if (!_ready) {
+      //       console.log('final-change');
+      //       demo.page = demo.tab;
+      //       _ready = 2;
+      //     }
+      //   }
+      // };
 
     </script>
 

@@ -5,7 +5,9 @@
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 
-<link rel="import" href="../paper-spinner/paper-spinner.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
+<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
 
 <script src="../lodash/lodash.min.js" charset="utf-8"></script>
 
@@ -22,21 +24,35 @@ Example:
 @hero hero.svg
 -->
 <dom-module id="semafloor-reserve-page">
-
   <template strip-whitespace>
     <style include="semafloor-reserve-page-theme"></style>
 
-    <iron-pages id="reservePages" selected="[[_page]]" attr-for-selected="name">
+    <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name">
+      <paper-tab name="today">
+        <span id="todayTab">today</span>
+        <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
+      </paper-tab>
+      <paper-tab name="thisweek">
+        <!-- according to MD's specs, split long sentence into two lines -->
+        <span>this<br><span id="thisweekTab">week</span></span>
+        <paper-badge for="thisweekTab" label="[[thisweekCount]]"></paper-badge>
+      </paper-tab>
+      <paper-tab name="upcoming">
+        <span id="upcomingTab">upcoming</span>
+        <paper-badge for="upcomingTab" label="[[upcomingCount]]"></paper-badge>
+      </paper-tab>
+    </paper-tabs>
+
+    <iron-pages id="reservePages" selected="upcoming" attr-for-selected="name">
       <div class="waiting-page" name="waiting">
-        <paper-spinner active></paper-spinner>
+        <paper-spinner-lite active></paper-spinner-lite>
       </div>
-      <reserve-list id="todayList" name="today" count="{{todayCount}}" ></reserve-list>
-      <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}"></reserve-list>
+      <!-- <reserve-list id="todayList" name="today" count="{{todayCount}}" ></reserve-list>
+      <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}"></reserve-list> -->
       <reserve-list id="upcomingList" name="upcoming" count="{{upcomingCount}}"></reserve-list>
     </iron-pages>
 
   </template>
-
 </dom-module>
 
 <script>
@@ -47,16 +63,23 @@ Example:
 
     properties: {
       page: String,
+      tab: {
+        type: String,
+        value: 'today'
+      },
       thisweekCount: {
         type: Number,
+        value: 99,
         notify: true
       },
       todayCount: {
         type: Number,
+        value: 99,
         notify: true
       },
       upcomingCount: {
         type: Number,
+        value: 99,
         notify: true
       },
 
@@ -153,6 +176,11 @@ Example:
 
      fireIronResizeOnPageSwitch: function () {
        this.$[this._page + 'List'].updateList();
+     },
+
+     condenseTabs: function(_progress) {
+       this.transform('translate3d(0px, -' + (64 * _progress) + 'px, 0px)', this.$.fakeTabs);
+       this.$.fakeTabs.notifyResize();
      },
 
   });
