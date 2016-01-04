@@ -26,7 +26,7 @@ Example:
   <template strip-whitespace>
     <style include="semafloor-reserve-page-theme"></style>
 
-    <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name" on-transitionend="_onTransitionEnd">
+    <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name">
       <paper-tab name="today">
         <span id="todayTab">today</span>
         <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
@@ -149,10 +149,6 @@ Example:
         this.set('_page', 0);
       }, 100);
       // console.log('set-spinner-timeout');
-     },
-
-     _onTransitionEnd: function() {
-       console.log('on-transition-end');
      },
 
      _onDataReady: function() {
