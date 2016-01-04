@@ -26,7 +26,7 @@ Example:
   <template strip-whitespace>
     <style include="semafloor-reserve-page-theme"></style>
 
-    <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name">
+    <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name" on-transitionend="_onTransitionEnd">
       <paper-tab name="today">
         <span id="todayTab">today</span>
         <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
@@ -54,6 +54,8 @@ Example:
 </dom-module>
 
 <script>
+
+  var spinnerTimeout;
 
   Polymer({
 
@@ -139,12 +141,25 @@ Example:
 
      _fetchReservations: function(_tab) {
       //  console.log(_tab);
-       this.set('_name', _tab);
+      this.set('_name', _tab);
+      // RAIL approach to hit 100ms mark on R (resonse).
+      // https://youtu.be/iIV1xPFXmBs?list=PLNYkxOF6rcICcHeQY02XLvoGL34rZFWZn;
+      // showSpinner if failed to meet that 100ms.
+      spinnerTimeout = this.async(function() {
+        this.set('_page', 0);
+      }, 100);
+      // console.log('set-spinner-timeout');
+     },
+
+     _onTransitionEnd: function() {
+       console.log('on-transition-end');
      },
 
      _onDataReady: function() {
       //  console.log('data-ready');
-       this.set('_page', 1);
+      // clear spinnerTimeout and hide spinner once data is here.
+      this.cancelAsync(spinnerTimeout);
+      this.set('_page', 1);
      },
 
   });
