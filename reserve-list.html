@@ -28,7 +28,7 @@
       query-matches="{{_isDesktop}}"></iron-media-query>
 
     <firebase-collection id="listAjax"
-      location="[[_location]]" data="{{_reservations}}">
+      location="[[_location]]" data="{{_reservations}}" on-firebase-value="_onFirebaseValue">
     </firebase-collection>
 
     <iron-list id="reserveList" items="[[_reservations]]">
@@ -86,17 +86,7 @@
           type: String,
           value: 'today'
         },
-        todayCount: {
-          type: Number,
-          value: 99,
-          notify: true
-        },
-        thisweekCount: {
-          type: Number,
-          value: 99,
-          notify: true
-        },
-        upcomingCount: {
+        count: {
           type: Number,
           value: 99,
           notify: true
@@ -142,9 +132,9 @@
 
       observers: [
         '_onQueryChanged(_isPhone, _isDesktop)',
-        '_updateFirebaseLocation(name)',
-        '_onFirebaseResponse(_reservations.splices, _reservations.length)'
+        '_updateFirebaseLocation(name)'
       ],
+      // '_onFirebaseResponse(_reservations)'
 
       attached: function() {
         // Only at attached stage, this.updateStyles can be utilised.
@@ -152,6 +142,8 @@
         // In this case, call this.updateListStyles at attached stage.
         this.updateListStyles(this._isPhone, this._isDesktop);
         this.updateList();
+        // fire list-attached event.
+        this.fire('list-attached');
 
         var _dialog = this.$.optionsDialog;
         _dialog.animationConfig = {
@@ -170,8 +162,10 @@
         };
       },
 
-      _onFirebaseResponse: function(_splices, _length) {
-        this.set(this.name + 'Count', _length);
+      _onFirebaseValue: function(ev) {
+        // this.set(this.name + 'Count', ev.detail.val().length);
+        this.set('count', ev.detail.val().length);
+        this.set('_reservations', ev.detail.val());
         this.fire('data-ready');
       },
       _updateFirebaseLocation: function(_name) {
