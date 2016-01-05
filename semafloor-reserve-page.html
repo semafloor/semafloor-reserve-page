@@ -82,10 +82,6 @@ Example:
         type: Number,
         value: 'waiting'
       },
-      _name: {
-        type: String,
-        value: 'today'
-      },
       _tabTransitionEnd: {
         type: Boolean,
         value: false
@@ -96,7 +92,6 @@ Example:
       },
     },
 
-    // '_tapToViewList(_page)',
     observers: [
       '_fetchReservations(tab)',
       '_revealList(_tabTransitionEnd)'
@@ -150,20 +145,16 @@ Example:
      },
 
      _fetchReservations: function(_tab) {
-      //  console.log('fetch-reservations', _tab);
       // RAIL approach to hit 100ms mark on R (resonse).
       // https://youtu.be/iIV1xPFXmBs?list=PLNYkxOF6rcICcHeQY02XLvoGL34rZFWZn;
       // showSpinner if failed to meet that 100ms.
       spinnerTimeout = this.async(function() {
         this.set('_page', 'waiting');
       }, 100);
-      // console.log('set-spinner-timeout');
-      // this.set('_name', this.tab);
       this.set('_tabTransitionEnd', false);
      },
 
      _onDataReady: function() {
-      // console.log('data-ready');
       // clear spinnerTimeout and hide spinner once data is here.
       this.cancelAsync(spinnerTimeout);
       // on iron-list init, set true to reveal list as no RIPPLE.
@@ -171,28 +162,22 @@ Example:
         this.set('_tabTransitionEnd', true);
         this.set('_listAttached', false);
       }
-      // console.log('on-ready-to-reveal', this._tabTransitionEnd);
       this._revealList(this._tabTransitionEnd);
      },
 
      _onTransitionend: function(ev) {
-      //  console.log('on-transition-end', this._tabTransitionEnd);
        if (this._tabTransitionEnd) {
          return;
        }
 
        if (ev.target.tagName === 'PAPER-RIPPLE') {
-        // console.log(ev, this.tab);
         this.cancelAsync(spinnerTimeout);
         this.set('_tabTransitionEnd', true);
-        //  this._fetchReservations(this.tab);
        }
      },
 
      _revealList: function(_tabTransitionEnd) {
-      //  console.log(_tabTransitionEnd);
        if (_tabTransitionEnd) {
-        //  console.log('reveal-list');
          this.set('_page', this.tab);
          this.set('_tabTransitionEnd', false);
        }else {
@@ -201,7 +186,6 @@ Example:
      },
 
      _onListAttached: function() {
-      //  console.log('on-list-attached', this._tabTransitionEnd);
        this.set('_listAttached', true);
      },
 

@@ -134,7 +134,6 @@
         '_onQueryChanged(_isPhone, _isDesktop)',
         '_updateFirebaseLocation(name)'
       ],
-      // '_onFirebaseResponse(_reservations)'
 
       attached: function() {
         // Only at attached stage, this.updateStyles can be utilised.
@@ -163,7 +162,6 @@
       },
 
       _onFirebaseValue: function(ev) {
-        // this.set(this.name + 'Count', ev.detail.val().length);
         this.set('count', ev.detail.val().length);
         this.set('_reservations', ev.detail.val());
         this.fire('data-ready');
