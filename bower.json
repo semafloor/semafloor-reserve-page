@@ -1,6 +1,6 @@
 {
   "name": "semafloor-reserve-page",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "authors": [
     "semafloor <wes_ngrongsen@hotmail.com>"
   ],
@@ -39,6 +39,7 @@
     "web-component-tester": "*",
     "paper-tabs": "PolymerElements/paper-tabs#~1.2.4",
     "paper-badge": "PolymerElements/paper-badge#~1.1.1",
-    "app-layout": "PolymerLabs/app-layout#~0.0.6"
+    "app-layout": "PolymerLabs/app-layout#~0.0.6",
+    "productionizer": "semafloor/productionizer#~0.2.1"
   }
 }
