@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>semafloor-reserve-page Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../lodash/lodash.min.js"></script>
     <link rel="import" href="../semafloor-reserve-page.html">
 
     <link rel="import" href="../../app-layout/app-layout.html">
@@ -17,37 +18,60 @@
     <style is="custom-style">
       body {
         margin: 0;
-        /*font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;*/
-        @apply(--paper-font-common-base);
+        font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      app-header {
+        color: #009688;
+      }
+      paper-icon-button {
+        margin-right: 8px;
+      }
+
+      /* tabs */
+      paper-tabs {
+        background-color: #009688;
+        color: #fff;
+        height: 64px;
+
+        --paper-tabs-selection-bar: {
+          height: 3px;
+        };
+      }
+      paper-tab {
+        --paper-tab-ink: rgba(255, 255, 141, 0.5);
+        text-transform: uppercase;
+      }
+      paper-tab.iron-selected {
+        color: #FFFF8D;
+      }
+      paper-badge {
+        --paper-badge-margin-left: -6px;
+        --paper-badge-background: #FFFF8D;
+        --paper-badge-text-color: #004D40;
+      }
+      paper-badge[for=thisweekTab] {
+        --paper-badge-margin-bottom: 16px;
       }
 
       /* workaround to hide fake toolbar */
-      app-drawer-layout {
+      /*app-drawer-layout {
         --app-drawer-layout-narrow-drawer: {
           z-index: 2;
         };
       }
       app-drawer-layout::content app-scrim {
         z-index: 2;
-      }
-      app-header {
-        background-color: #009688;
-        color: #fff;
-      }
-      paper-icon-button {
-        margin-right: 8px;
-      }
+      }*/
 
-      .fake-toolbar {
+      /*.fake-toolbar {
         height: 64px;
         z-index: 0;
         pointer-events: none;
         visibility: hidden;
-      }
-
-      /*iron-overlay-backdrop {
-        opacity: 0.3;
       }*/
+
     </style>
   </head>
   <body>
@@ -62,7 +86,25 @@
               <paper-icon-button id="menu" icon="icons:menu" drawer-toggle></paper-icon-button>
               Reservations Demo
             </app-toolbar>
-            <div class="fake-toolbar"></div>
+            <app-toolbar>
+              <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name" on-transitionend="_onTransitionend" on-iron-select="_onIronSelect" bottom-item>
+                <paper-tab name="today">
+                  <span id="todayTab">today</span>
+                  <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
+                </paper-tab>
+                <paper-tab name="thisweek">
+                  <!-- according to MD's specs, split long sentence into two lines -->
+                  <span>this<br><span id="thisweekTab">week</span></span>
+                  <paper-badge for="thisweekTab" label="[[thisweekCount]]"></paper-badge>
+                </paper-tab>
+                <paper-tab name="upcoming">
+                  <span id="upcomingTab">upcoming</span>
+                  <paper-badge for="upcomingTab" label="[[upcomingCount]]"></paper-badge>
+                </paper-tab>
+              </paper-tabs>
+            </app-toolbar>
+            <!-- <div class="fake-toolbar">
+            </div> -->
           </app-header>
 
           <!-- 38 nodes clean on CH/ OP before optimization -->
@@ -77,7 +119,7 @@
           <!-- 30 nodes app shell on FF after optimization -->
           <!-- 337 nodes reserve page on CH/ OP after optimization -->
           <!-- 337 nodes reserve page on FF after optimization -->
-          <semafloor-reserve-page id="reserve"></semafloor-reserve-page>
+          <semafloor-reserve-page id="reserve" selected-tab="{{tab}}" today-count="{{todayCount}}" thisweek-count="{{thisweekCount}}" upcoming-count="{{upcomingCount}}"></semafloor-reserve-page>
         </app-header-layout>
       </app-drawer-layout>
     </template>
@@ -86,11 +128,26 @@
       var demo = document.querySelector('template[is=dom-bind]');
       var page = 'reserve';
 
+      demo.tab = 'upcoming';
       demo._onAppHeaderTransform = function (ev) {
         if (page === 'reserve') {
           // console.log('scrolling...', ev.detail.progress);
-          this.$.reserve.condenseTabs(ev.detail.progress);
+          // this.$.reserve.condenseTabs(ev.detail.progress);
         }
+      };
+
+      demo._onTransitionend = function(ev) {
+        if (ev.target.tagName !== 'PAPER-RIPPLE') {
+          return;
+        }
+
+        // console.log('on-transitionend');
+        this.$.reserve.onTransitionend(ev);
+      };
+      demo._onIronSelect = function() {
+        // console.log('on-iron-select');
+        console.log(demo.tab);
+        this.$.reserve.onIronSelect();
       };
 
     </script>

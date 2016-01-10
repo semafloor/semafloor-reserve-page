@@ -4,12 +4,7 @@
 
 <link rel="import" href="../iron-pages/iron-pages.html">
 
-<link rel="import" href="../paper-badge/paper-badge.html">
 <link rel="import" href="../paper-spinner/paper-spinner-lite.html">
-<link rel="import" href="../paper-tabs/paper-tabs.html">
-
-<script src="../lodash/lodash.min.js" charset="utf-8"></script>
-
 <!--
 An element providing a solution to no problem in particular.
 
@@ -25,22 +20,6 @@ Example:
 <dom-module id="semafloor-reserve-page">
   <template strip-whitespace>
     <style include="semafloor-reserve-page-theme"></style>
-
-    <paper-tabs id="fakeTabs" selected="{{tab}}" attr-for-selected="name" no-slide  on-transitionend="_onTransitionend">
-      <paper-tab name="today">
-        <span id="todayTab">today</span>
-        <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
-      </paper-tab>
-      <paper-tab name="thisweek">
-        <!-- according to MD's specs, split long sentence into two lines -->
-        <span>this<br><span id="thisweekTab">week</span></span>
-        <paper-badge for="thisweekTab" label="[[thisweekCount]]"></paper-badge>
-      </paper-tab>
-      <paper-tab name="upcoming">
-        <span id="upcomingTab">upcoming</span>
-        <paper-badge for="upcomingTab" label="[[upcomingCount]]"></paper-badge>
-      </paper-tab>
-    </paper-tabs>
 
     <iron-pages id="reservePages" selected="{{_page}}" attr-for-selected="name">
       <paper-spinner-lite active name="waiting"></paper-spinner-lite>
@@ -61,21 +40,24 @@ Example:
     is: 'semafloor-reserve-page',
 
     properties: {
-      tab: {
+      selectedTab: {
         type: String,
-        value: 'today'
+        value: 'upcoming'
       },
       thisweekCount: {
         type: Number,
-        value: 99
+        value: 99,
+        notify: true
       },
       todayCount: {
         type: Number,
-        value: 99
+        value: 99,
+        notify: true
       },
       upcomingCount: {
         type: Number,
-        value: 99
+        value: 99,
+        notify: true
       },
 
       _page: {
@@ -86,20 +68,19 @@ Example:
         type: Boolean,
         value: false
       },
-      _listAttached: {
+      _tabReady: {
         type: Boolean,
         value: false
       },
+      _dataReady: {
+        type: Boolean,
+        value: false
+      },
+
     },
 
-    observers: [
-      '_fetchReservations(tab)',
-      '_revealList(_tabTransitionEnd)'
-    ],
-
     listeners: {
-      'data-ready': '_onDataReady',
-      'list-attached': '_onListAttached'
+      'data-ready': '_onDataReady'
     },
 
     // Element Lifecycle
@@ -138,56 +119,49 @@ Example:
      * @detail {{sound: String}}
      */
 
-     condenseTabs: function(_progress) {
-       var _fakeTabs = this.$.fakeTabs;
-       this.transform('translate3d(0px, -' + (64 * _progress) + 'px, 0px)', _fakeTabs);
-       _fakeTabs.notifyResize();
-     },
-
-     _fetchReservations: function(_tab) {
+    onIronSelect: function() {
+      // if tap set _tabReady.
+      if (!this._tabReady) {
+        this.set('_tabReady', true);
+      }
       // RAIL approach to hit 100ms mark on R (resonse).
       // https://youtu.be/iIV1xPFXmBs?list=PLNYkxOF6rcICcHeQY02XLvoGL34rZFWZn;
       // showSpinner if failed to meet that 100ms.
       spinnerTimeout = this.async(function() {
         this.set('_page', 'waiting');
       }, 100);
+      // reset _tabTransitionEnd on every new select starts.
       this.set('_tabTransitionEnd', false);
-     },
-
-     _onDataReady: function() {
-      // clear spinnerTimeout and hide spinner once data is here.
-      this.cancelAsync(spinnerTimeout);
-      // on iron-list init, set true to reveal list as no RIPPLE.
-      if (this._listAttached) {
-        this.set('_tabTransitionEnd', true);
-        this.set('_listAttached', false);
+    },
+    onTransitionend: function(ev) {
+      // return when tab not yet trensition end OR tab not tap.
+      if (this._tabTransitionEnd || !this._tabReady) {
+        return;
       }
-      this._revealList(this._tabTransitionEnd);
-     },
 
-     _onTransitionend: function(ev) {
-       if (this._tabTransitionEnd) {
-         return;
-       }
-
-       if (ev.target.tagName === 'PAPER-RIPPLE') {
-        this.cancelAsync(spinnerTimeout);
+      // On the transitionend of first ripple...
+      if (ev.target.tagName === 'PAPER-RIPPLE') {
+        // set _tabTransitionEnd to indicate first transitionend being captured.
         this.set('_tabTransitionEnd', true);
-       }
-     },
-
-     _revealList: function(_tabTransitionEnd) {
-       if (_tabTransitionEnd) {
-         this.set('_page', this.tab);
-         this.set('_tabTransitionEnd', false);
-       }else {
-         return;
-       }
-     },
-
-     _onListAttached: function() {
-       this.set('_listAttached', true);
-     },
+        // hide spinner either meets the 100ms R mark or when it doesn't.
+        this.cancelAsync(spinnerTimeout);
+        // when data fetched from Firebase, set _dataReady then switch to page.
+        // if data still pending from Firebase, pass it on to _onDataReady then.
+        if (this._dataReady) {
+          this.set('_page', this.selectedTab);
+        }
+      }
+    },
+    _onDataReady: function(ev) {
+      // For the first fetch from Firebase, this will run for only once.
+      // switch to page when data is fetched from Firebase.
+      this.set('_page', this.selectedTab);
+      // set _dataReady to indicate data already fetched and just switch to page
+      // for the future new select.
+      this.set('_dataReady', true);
+      // update iron-list after switching to new page.
+      this.$[this.selectedTab + 'List'].updateList();
+    },
 
   });
 

@@ -84,7 +84,7 @@
       properties: {
         name: {
           type: String,
-          value: 'today'
+          value: 'forever'
         },
         count: {
           type: Number,
@@ -142,7 +142,7 @@
         this.updateListStyles(this._isPhone, this._isDesktop);
         this.updateList();
         // fire list-attached event.
-        this.fire('list-attached');
+        this.fire('list-attached', this.name);
 
         var _dialog = this.$.optionsDialog;
         _dialog.animationConfig = {
@@ -164,7 +164,7 @@
       _onFirebaseValue: function(ev) {
         this.set('count', ev.detail.val().length);
         this.set('_reservations', ev.detail.val());
-        this.fire('data-ready');
+        this.fire('data-ready', this.name);
       },
       _updateFirebaseLocation: function(_name) {
         this.set('_location',
