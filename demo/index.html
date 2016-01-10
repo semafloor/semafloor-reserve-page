@@ -14,6 +14,8 @@
     <link rel="import" href="../../iron-icons/iron-icons.html">
 
     <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="../../paper-tabs/paper-tabs.html">
+    <link rel="import" href="../../paper-badge/paper-badge.html">
 
     <style is="custom-style">
       body {
@@ -29,7 +31,6 @@
         margin-right: 8px;
       }
 
-      /* tabs */
       paper-tabs {
         background-color: #009688;
         color: #fff;
@@ -55,23 +56,6 @@
         --paper-badge-margin-bottom: 16px;
       }
 
-      /* workaround to hide fake toolbar */
-      /*app-drawer-layout {
-        --app-drawer-layout-narrow-drawer: {
-          z-index: 2;
-        };
-      }
-      app-drawer-layout::content app-scrim {
-        z-index: 2;
-      }*/
-
-      /*.fake-toolbar {
-        height: 64px;
-        z-index: 0;
-        pointer-events: none;
-        visibility: hidden;
-      }*/
-
     </style>
   </head>
   <body>
@@ -81,7 +65,7 @@
         </app-header-layout>
 
         <app-header-layout main>
-          <app-header condenses fixed effects="waterfall" on-app-header-transform="_onAppHeaderTransform">
+          <app-header condenses reveals effects="waterfall">
             <app-toolbar>
               <paper-icon-button id="menu" icon="icons:menu" drawer-toggle></paper-icon-button>
               Reservations Demo
@@ -103,8 +87,6 @@
                 </paper-tab>
               </paper-tabs>
             </app-toolbar>
-            <!-- <div class="fake-toolbar">
-            </div> -->
           </app-header>
 
           <!-- 38 nodes clean on CH/ OP before optimization -->
@@ -113,12 +95,12 @@
           <!-- 354 nodes reserve page on CH/ OP before optimization -->
           <!-- 354 nodes reserve page on FF before optimization-->
 
-          <!-- 42 nodes clean on CH/ OP after optimization -->
-          <!-- 47 nodes clean on FF after optimization -->
-          <!-- 27 nodes app shell on CH/ OP after optimization -->
-          <!-- 30 nodes app shell on FF after optimization -->
-          <!-- 337 nodes reserve page on CH/ OP after optimization -->
-          <!-- 337 nodes reserve page on FF after optimization -->
+          <!-- 37 nodes clean on CH/ OP after optimization -->
+          <!-- 35 nodes clean on FF after optimization -->
+          <!-- 42 nodes app shell on CH/ OP after optimization -->
+          <!-- 52 nodes app shell on FF after optimization -->
+          <!-- 181 nodes reserve page on CH/ OP after optimization -->
+          <!-- 182 nodes reserve page on FF after optimization -->
           <semafloor-reserve-page id="reserve" selected-tab="{{tab}}" today-count="{{todayCount}}" thisweek-count="{{thisweekCount}}" upcoming-count="{{upcomingCount}}"></semafloor-reserve-page>
         </app-header-layout>
       </app-drawer-layout>
@@ -128,13 +110,7 @@
       var demo = document.querySelector('template[is=dom-bind]');
       var page = 'reserve';
 
-      demo.tab = 'upcoming';
-      demo._onAppHeaderTransform = function (ev) {
-        if (page === 'reserve') {
-          // console.log('scrolling...', ev.detail.progress);
-          // this.$.reserve.condenseTabs(ev.detail.progress);
-        }
-      };
+      demo.tab = 'today';
 
       demo._onTransitionend = function(ev) {
         if (ev.target.tagName !== 'PAPER-RIPPLE') {
