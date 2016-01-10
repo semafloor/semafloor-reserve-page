@@ -75,9 +75,11 @@ gulp.task('html', () => {
   }));
 });
 
+// *page-theme.html
 gulp.task('css', () => {
   return gulp.src([
     './*theme.html',
+    '!./*list-theme.html',
     '!./*icons.html'
   ])
     .pipe(size({
@@ -105,10 +107,68 @@ gulp.task('css', () => {
     }))
     .pipe(gulp.dest('.tmp'));
 });
-
 gulp.task('replace', () => {
   return gulp.src([
-    './*theme.html'
+    './*theme.html',
+    '!./*list-theme.html'
+  ])
+    .pipe(size({
+      showFiles: true,
+      title: 'Replace: '
+    }))
+    .pipe(replace(/<style>[\s\S]*<\/style>/, (s) => {
+      let style  = fs.readFileSync('.tmp/minified.css', 'utf8');
+      return `<style>${style}</style>`;
+    }))
+    .pipe(minifyHTML())
+    .pipe(size({
+      showFiles: true,
+      title: 'Replace: '
+    }))
+    .pipe(size({
+      showFiles: true,
+      gzip: true,
+      title: 'Replace: '
+    }))
+    .pipe(gulp.dest(DIST));
+});
+
+// *list-theme.html
+gulp.task('css-list', () => {
+  return gulp.src([
+    './*theme.html',
+    '!./*page-theme.html',
+    '!./*icons.html'
+  ])
+    .pipe(size({
+      showFiles: true,
+      title: 'CSS: '
+    }))
+    .pipe(extract({
+      sel: 'style'
+    }))
+    .pipe(autoprefixer({
+      browsers: ['last 2 versions'],
+      cascade: false,
+      title: 'CSS: '
+    }))
+    .pipe(cssnano())
+    .pipe(rename('minified.css'))
+    .pipe(size({
+      showFiles: true,
+      title: 'CSS: '
+    }))
+    .pipe(size({
+      showFiles: true,
+      gzip: true,
+      title: 'CSS: '
+    }))
+    .pipe(gulp.dest('.tmp'));
+});
+gulp.task('replace-list', () => {
+  return gulp.src([
+    './*theme.html',
+    '!./*page-theme.html'
   ])
     .pipe(size({
       showFiles: true,
@@ -173,6 +233,7 @@ gulp.task('build', () => {
     'clean',
     ['babel', 'html', 'css'],
     'replace',
+    'css-list', 'replace-list',
     'clean-main',
     'copy-dist'
   );
@@ -180,16 +241,42 @@ gulp.task('build', () => {
 
 // revert everything.
 gulp.task('copy-src', () => {
+  var _ext = ['js', 'html'];
+  var i = 0;
+
   return gulp.src([
-    `${SRC}/*.js`,
-    `${SRC}/*.html`
-  ])
-  .pipe(gulp.dest('./'))
+   `${SRC}/*.js`,
+   `${SRC}/*.html`
+ ], (unknown, files) => {
+    if (_.isEmpty(files)) {
+      console.log(`No .${_ext[i]} files exist!`);
+      i++;
+    }else {
+      return gulp.src([
+        `${SRC}/*.js`,
+        `${SRC}/*.html`
+      ])
+        .pipe(gulp.dest('./'))
+    }
+  });
 });
 gulp.task('revert', () => {
-  sequence(
-    'clean-main',
-    'copy-src',
-    'dry-src'
-  );
+  var _ext = ['js', 'html'];
+  var i = 0;
+
+  return gulp.src([
+   `${SRC}/*.js`,
+   `${SRC}/*.html`
+ ], (unknown, files) => {
+    if (_.isEmpty(files)) {
+      console.log(`Error: No .${_ext[i]} files exist!`);
+      i++;
+    }else {
+      sequence(
+        'clean-main',
+        'copy-src',
+        'dry-src'
+      );
+    }
+  });
 });
