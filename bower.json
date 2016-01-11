@@ -1,6 +1,6 @@
 {
   "name": "semafloor-reserve-page",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "authors": [
     "semafloor <wes_ngrongsen@hotmail.com>"
   ],
@@ -32,7 +32,8 @@
     "iron-icon": "PolymerElements/iron-icon#~1.0.7",
     "iron-media-query": "PolymerElements/iron-media-query#~1.0.8",
     "paper-menu": "PolymerElements/paper-menu#~1.2.1",
-    "paper-toast": "PolymerElements/paper-toast#~1.1.1"
+    "paper-toast": "PolymerElements/paper-toast#~1.1.1",
+    "semafloor-icons": "semafloor/semafloor-icons#~0.1.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
