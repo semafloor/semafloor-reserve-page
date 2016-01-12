@@ -45,13 +45,8 @@ Polymer({
   },
 
   listeners: {
-    'data-ready': '_onDataReady',
-    'iron-resize': '_onIronResize'
+    'data-ready': '_onDataReady'
   },
-
-  behaviors: [
-    'Polymer.IronResizableBehavior'
-  ],
 
   // Element Lifecycle
 
@@ -88,10 +83,6 @@ Polymer({
    * @event semafloor-reserve-page-lasers
    * @detail {{sound: String}}
    */
-
-   _onIronResize: function() {
-     console.log('reserve-iron-resize');
-   },
 
   onIronSelect: function() {
     // if tap set _tabReady.
