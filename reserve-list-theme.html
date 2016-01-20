@@ -1,1 +1,115 @@
-<link rel=import href=../polymer/polymer.html><dom-module id=reserve-list-theme><template strip-whitespace><style>:host{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none;display:block}*,:after,:before,:host{box-sizing:border-box}.reserve-item{position:relative;border-bottom:1px solid #ddd;padding:16px 8px 16px 24px;min-height:64px;transition:all .2s cubic-bezier(.18,.89,.32,1.28);@apply(--layout-vertical);@apply(--layout-center-justified)}.reserve-item>div div{pointer-events:none}.reserve-item>.item-container{@apply(--layout-horizontal)}.item-left{font-size:18px;display:block;margin:auto auto auto 0;color:#1ddbd8;font-weight:800}.item-left>div{color:#616161;font-size:75%}.item-right{display:block;margin:auto 0 auto auto;font-size:85%}.item-right>div{font-size:75%;color:#9e9e9e}.more-options{margin-left:16px}.collapsible-items{margin:16px 0;display:none}.opened{display:block;@apply(--layout-horizontal);@apply(--layout-wrap);@apply(--layout-start-justified)}.collapsible-item{width:var(--collapsible-item-width,25%);margin:0 0 16px;font-size:75%;padding:3px;font-weight:700}.collapsible-item>div{color:#757575;font-weight:300}paper-dialog{width:100%;margin:0;overflow:initial;@apply(--layout-fixed-bottom)}paper-menu{margin:0}paper-icon-item{color:#6a7180}paper-toast{margin:0}paper-toast>span{color:#eeff41;text-transform:uppercase;margin-left:10px;font-style:italic}paper-toast.undo-remove{color:#1ddb8b}</style></template></dom-module>
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="reserve-list-theme">
+  <template strip-whitespace>
+    <style>
+      :host {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+
+        display: block;
+      }
+
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      /* reserve item */
+      .reserve-item {
+        position: relative;
+        border-bottom: 1px solid #ddd;
+        padding: 16px 8px 16px 24px;
+        min-height: 64px;
+        /*transition: all .2s cubic-bezier(0.22, 0.61, 0.36, 1);*/
+        transition: all .2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+      .reserve-item > div div {
+        pointer-events: none;
+      }
+      .reserve-item > .item-container {
+        @apply(--layout-horizontal);
+      }
+      .item-left {
+        font-size: 18px;
+        display: block;
+        margin: auto auto auto 0;
+        color: #1ddbd8;
+        font-weight: 800;
+      }
+      .item-left > div {
+        color: #616161;
+        font-size: 75%;
+      }
+      .item-right {
+        display: block;
+        margin: auto 0 auto auto;
+        font-size: 85%;
+      }
+      .item-right > div {
+        font-size: 75%;
+        color: #9e9e9e;
+      }
+      .more-options {
+        margin-left: 16px;
+      }
+      .collapsible-items {
+        margin: 16px 0;
+        display: none;
+      }
+      .opened {
+        display: block;
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-start-justified);
+      }
+      .collapsible-item {
+        width: var(--collapsible-item-width, 25%);
+        margin: 0 0 16px 0;
+        font-size: 75%;
+        padding: 3px;
+        font-weight: bold;
+      }
+      .collapsible-item > div{
+        color: #757575;
+        font-weight: 300;
+      }
+
+      /* dialog */
+      paper-dialog {
+        width: 100%;
+        margin: 0;
+        overflow: initial;
+        @apply(--layout-fixed-bottom);
+      }
+      paper-menu {
+        margin: 0;
+      }
+      paper-icon-item {
+        color: #6A7180;
+      }
+
+      /* toast */
+      paper-toast {
+        margin: 0;
+      }
+      paper-toast > span {
+        color: #eeff41;
+        text-transform: uppercase;
+        margin-left: 10px;
+        font-style: italic;
+      }
+      paper-toast.undo-remove {
+        color: #1ddb8b;
+      }
+    </style>
+
+  </template>
+</dom-module>
