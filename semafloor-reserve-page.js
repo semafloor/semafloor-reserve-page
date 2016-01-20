@@ -66,6 +66,8 @@ Polymer({
     // This is a good place to perform any work related to your element's
     // visual state or active behavior (measuring sizes, beginning animations,
     // loading resources, etc).
+    // this.fire('reserve-page-attached');
+    this.fire('reserve-page-attached');
   },
 
   detached: function() {
@@ -126,6 +128,14 @@ Polymer({
     this.set('_dataReady', true);
     // update iron-list after switching to new page.
     this.$[this.selectedTab + 'List'].updateList();
+  },
+
+  // importHref workaround.
+  // reserve page shows nothing wnen it's in the midst of loading list and switch to other page
+  // and come back to the page.
+  // Needs to notifyResize the iron-pages in this case.
+  updateReservePages: function() {
+    this.$.reservePages.notifyResize();
   },
 
 });
