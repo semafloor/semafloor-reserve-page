@@ -130,7 +130,7 @@ Polymer({
   updateListStyles: function(_isPhone, _isDesktop) {
     // update number of column for collapsible item.
     var _itemWidth = _isPhone ? '50%': _isDesktop ? '25%' : '33%';
-    (this.domHost || Polymer).updateStyles({
+    this.updateStyles({
       '--collapsible-item-width': _itemWidth
     });
   },
