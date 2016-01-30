@@ -1,12 +1,11 @@
 {
   "name": "semafloor-reserve-page",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "authors": [
     "semafloor <wes_ngrongsen@hotmail.com>"
   ],
   "description": "Semafloor's My Reservations Page.",
   "keywords": [
-    "web-component",
     "polymer",
     "seed",
     "semafloor"
@@ -33,7 +32,8 @@
     "iron-media-query": "PolymerElements/iron-media-query#~1.0.8",
     "paper-menu": "PolymerElements/paper-menu#~1.2.1",
     "paper-toast": "PolymerElements/paper-toast#~1.1.1",
-    "semafloor-icons": "semafloor/semafloor-icons#~0.1.1"
+    "semafloor-icons": "semafloor/semafloor-icons#~0.1.1",
+    "lodash": "lodash/lodash#^4.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

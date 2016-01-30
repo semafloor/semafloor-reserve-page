@@ -24,6 +24,10 @@ Polymer({
       value: 99,
       notify: true
     },
+    uid: {
+      type: String,
+      value: 'google:9999'
+    },
 
     _page: {
       type: Number,

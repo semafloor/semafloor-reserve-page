@@ -110,6 +110,21 @@
       paper-toast.undo-remove {
         color: #1ddb8b;
       }
+
+      /* no reservations */
+      .empty-tab {
+        font-weight: bold;
+        color: #bdbdbd;
+        font-size: 20px;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+      .empty-tab > iron-icon {
+        --iron-icon-width: 84px;
+        --iron-icon-height: 84px;
+        --iron-icon-fill-color: #bdbdbd;
+        margin: 24px 0;
+      }
     </style>
 
   </template>

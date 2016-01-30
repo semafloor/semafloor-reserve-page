@@ -30,34 +30,44 @@
       location="[[_location]]" data="{{_reservations}}" on-firebase-value="_onFirebaseValue">
     </firebase-collection>
 
-    <iron-list id="reserveList" items="[[_reservations]]">
-      <template strip-whitespace>
-        <div class="reserve-item" aria-expanded$="[[_isExpanded(index)]]" aria-controls$="[[_isCollapsible(index)]]" on-tap="_toggle">
-          <div class="item-container">
-            <div class="item-left">
-              [[item.room]]
-              <div class="">[[item.site]]</div>
-            </div>
+    <template is="dom-if" if="[[_isReservationsEmpty(_reservations)]]" restamp="true">
+      <div class="empty-tab">
+        <iron-icon icon="icons:done-all"></iron-icon>
+        Reservation list is empty!
+      </div>
+    </template>
 
-            <div class="item-right">
-              [[item.period]]
-              <div class="">[[item.subject]]</div>
-            </div>
-
-            <paper-icon-button icon="icons:more-vert" class="more-options" on-tap="_optionsMenu"></paper-icon-button>
-          </div>
-
-          <div id$="[[_isCollapsible(index)]]" class="collapsible-items">
-            <template is="dom-repeat" items="[[item.details]]" index-as="index" as="detail" strip-whitespace>
-              <div class="collapsible-item">
-                [[detail.label]]
-                <div>[[_isObject(detail.data)]]</div>
+    <template is="dom-if" if="[[!_isReservationsEmpty(_reservations)]]" restamp="true">
+      <iron-list id="reserveList" items="[[_reservations]]">
+        <template strip-whitespace>
+          <div class="reserve-item" aria-expanded$="[[_isExpanded(index)]]" aria-controls$="[[_isCollapsible(index)]]" on-tap="_toggle">
+            <div class="item-container">
+              <div class="item-left">
+                [[item.room]]
+                <div class="">[[item.site]]</div>
               </div>
-            </template>
+
+              <div class="item-right">
+                [[item.period]]
+                <div class="">[[item.subject]]</div>
+              </div>
+
+              <paper-icon-button icon="icons:more-vert" class="more-options" on-tap="_optionsMenu"></paper-icon-button>
+            </div>
+
+            <div id$="[[_isCollapsible(index)]]" class="collapsible-items">
+              <template is="dom-repeat" items="[[_toArray(item.details)]]" index-as="index" as="detail" strip-whitespace>
+                <div class="collapsible-item">
+                  [[detail.name]]
+                  <!-- <div>[[_isObject(detail.data)]]</div> -->
+                  <div>[[detail.value]]</div>
+                </div>
+              </template>
+            </div>
           </div>
-        </div>
-      </template>
-    </iron-list>
+        </template>
+      </iron-list>
+    </template>
 
     <!-- options dialog -->
     <paper-dialog id="optionsDialog" with-backdrop>

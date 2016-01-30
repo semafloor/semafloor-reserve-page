@@ -11,6 +11,10 @@ Polymer({
       value: 99,
       notify: true
     },
+    uid: {
+      type: String,
+      value: 'google:9999'
+    },
 
     _reservations: {
       type: Object,
@@ -52,7 +56,8 @@ Polymer({
 
   observers: [
     '_onQueryChanged(_isPhone, _isDesktop)',
-    '_updateFirebaseLocation(name)'
+    // '_updateFirebaseLocation(name)'
+    '_updateFirebaseLocation(uid)'
   ],
 
   attached: function() {
@@ -82,13 +87,59 @@ Polymer({
   },
 
   _onFirebaseValue: function(ev) {
-    this.set('count', ev.detail.val().length);
-    this.set('_reservations', ev.detail.val());
+    if (!ev.detail.val()) {
+      return;
+    }
+
+    var _sortedReservations = this._sortReservations(ev.detail.val().allreservations);
+    var _totalReservationsSize = ev.detail.val().totalReservations;
+    console.time('sort-all-reservations');
+    this.set('_reservations', _totalReservationsSize < 1 ? null : _sortedReservations);
+    console.timeEnd('sort-all-reservations');
+    this.set('count', _totalReservationsSize < 1 ? 0 : _.size(_sortedReservations));
     this.fire('data-ready', this.name);
+
+    // this.set('count', ev.detail.val().length);
+    // this.set('_reservations', ev.detail.val());
+    // this.fire('data-ready', this.name);
   },
-  _updateFirebaseLocation: function(_name) {
+  // _updateFirebaseLocation: function(_name) {
+  //   this.set('_location',
+  //     'https://semafloor-webapp.firebaseio.com/json/' + _name + '-booking');
+  // },
+  _updateFirebaseLocation: function(_uid) {
     this.set('_location',
-      'https://semafloor-webapp.firebaseio.com/json/' + _name + '-booking');
+      'https://semafloor-webapp.firebaseio.com/users/google/' + _uid + '/reservations');
+  },
+  _sortReservations: function(_allreservations) {
+    // sort Firebase object by both 'date' and 'period' ascendingly.
+    // after sorting, _allreservations will transform from type Object into type Array.
+    var _sorted = _.orderBy(_allreservations, ['date', 'period'], ['asc', 'asc']);
+    var _now = new Date();
+
+    // filter _sorted reservations according to current tab page.
+    if (this.name === 'today') {
+      // return only those reservations that belong to 'today'.
+      return _.filter(_sorted, { 'date':  [_now.getFullYear(),
+        ('0' + (_now.getMonth() + 1)).slice(-2), _now.getDate()].join('-') });
+    }else if (this.name === 'thisweek') {
+      var _d = _now.getDay();
+      var _min = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() - _d);
+      var _max = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() + 6 - _d);
+      // return only those reservations that belong to 'thisweek'.
+      return _.filter(_sorted, function(data) {
+        return data.date >= [_min.getFullYear(), ('0' + (_min.getMonth() + 1)).slice(-2),
+          _min.getDate()].join('-') && data.date <= [_max.getFullYear(),
+            ('0' + (_max.getMonth() + 1)).slice(-2), _max.getDate()].join('-');
+      });
+    }else {
+      var _maxd = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() + 6 - _now.getDay());
+      // return only those reservations that belong to 'upcoming'.
+      return _.filter(_sorted, function(data) {
+        return data.date > [_maxd.getFullYear(), ('0' + (_maxd.getMonth() + 1)).slice(-2),
+          _maxd.getDate()].join('-');
+      });
+    }
   },
 
   _isExpanded: function(_idx) {
@@ -118,7 +169,7 @@ Polymer({
           _target.classList.add('opened');
         }
         // update size for item after toggle.
-        this.$.reserveList.updateSizeForItem(ev.model.index);
+        this.$$('#reserveList').updateSizeForItem(ev.model.index);
         // update iron-list to fit list on screen with new height.
         this.async(function() {
           this.updateList();
@@ -135,7 +186,9 @@ Polymer({
     });
   },
   updateList: function() {
-    this.$.reserveList.fire('iron-resize');
+    if (!_.isEmpty(this._reservations)) {
+      this.$$('#reserveList').fire('iron-resize');
+    }
   },
 
   _onQueryChanged: function(_isPhone, _isDesktop) {
@@ -143,35 +196,71 @@ Polymer({
     this.updateList();
   },
 
-  _isObject: function(_data) {
-    return _.isObject(_data) ? _data.tStart + ' - ' + _data.tEnd : _data;
-  },
+  // _isObject: function(_data) {
+  //   return _.isObject(_data) ? _data.tStart + ' - ' + _data.tEnd : _data;
+  // },
 
   _optionsMenu: function(ev) {
+    console.log(ev);
     var _target = ev.target;
 
     while (_target && _target.tagName !== 'PAPER-ICON-BUTTON') {
       _target = _target.parentElement;
     }
 
-    this.set('_selectedIdx', ev.model.index);
+    this.set('_selectedIdx', ev.model.item.id);
     this.set('_selectedItem', ev.model.item);
     this.$.optionsDialog.open();
   },
 
+
   // TODO: simple removing item from list for Firebase.
   _removeItem: function(ev) {
+    // close options dialog.
     this._dismissOptions();
 
-    // var $array = this._reservations;
-    // var $idx = this._selectedIdx;
-    // var $remove = _.remove($array, function(el, idx, arr) {
-    //   return idx === $idx;
-    // });
-    // console.log($remove);
-    // console.log($array);
-    // console.log(this._reservations);
-    this._openReserveToast('The selected item has been removed.', false);
+    // access logged in user's database to read all reservations.
+    var _listAjaxRef = new Firebase('https://semafloor-webapp.firebaseio.com/users/google/' +
+      this.uid + '/reservations/allreservations');
+    var _itemToRemove = this._selectedItem;
+    var _that = this;
+    // if accessed user's database successfully...
+    _listAjaxRef.once('value', function(snapshot) {
+      var _refToRemove = '';
+      snapshot.forEach(function(n) {
+        // check if selected item object is equal to traversed object from Firebase.
+        if (_.isEqual(n.val(), _itemToRemove)) {
+          // save ref URL.
+          _refToRemove = n.ref();
+          // break forEach loop.
+          return true;
+        }
+      });
+      // if ref to remove an item exists...
+      if (!!_refToRemove) {
+        // use transaction to remove item safely.
+        _refToRemove.transaction(function(data) {
+          if (data === null) {
+            return;
+          }else {
+            // return null to remove object.
+            return null;
+          }
+        }, function(error, committed, snapshot) {
+          if (error) {
+            console.error(error);
+          }else if (!committed) {
+            console.warn('Data not found!');
+          }
+          // removed for better experience when removing an item.
+          // else {
+          //   _that._openReserveToast('The selected item has been removed.', false);
+          // }
+        });
+        // show toast when item is removed.
+        _that._openReserveToast('The selected item has been removed.', false);
+      }
+    });
   },
 
   _dismissOptions: function() {
@@ -188,12 +277,44 @@ Polymer({
     this.set('_msg', _msg);
     this.async(function() {
       _reserveToast.open();
-    });
+    }, 1);
   },
 
   // TODO: undo operation to restore removed item.
-  _undoItemRemoval: function() {
-    this._openReserveToast('Removed item has been restored!', true);
+  _undoItemRemoval: function(ev) {
+    var _listAjaxRef = new Firebase('https://semafloor-webapp.firebaseio.com/users/google/' +
+      this.uid + '/reservations/allreservations');
+    var _selectedItemToRestore = this._selectedItem;
+    var _that = this;
+    // if accessed user's database successfully...
+    _listAjaxRef.once('value', function(snapshot) {
+      // restore removed item by Firebase.push method.
+      _listAjaxRef.push(_selectedItemToRestore, function(error) {
+        if (error) {
+          console.error(error);
+        }
+        // removed for better experience when restoring a removed item.
+        // else {
+        //   _that._openReserveToast('Removed item has been restored!', true);
+        // }
+      });
+      // show undo removal toast.
+      _that._openReserveToast('Removed item has been restored!', true);
+    });
+  },
+
+  // Objects coerced to Array.
+  _toArray: function(_detail) {
+    return _.map(_.keys(_detail) , function(n) {
+      return {
+        name: n,
+        value: _detail[n]
+      };
+    });
+  },
+
+  _isReservationsEmpty: function(_reservations) {
+    return _.isEmpty(_reservations);
   },
 
 });
