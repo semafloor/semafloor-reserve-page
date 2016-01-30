@@ -187,6 +187,7 @@ Polymer({
   },
   updateList: function() {
     if (!_.isEmpty(this._reservations)) {
+      // if dom-if has restamp, iron-list will be detached once dom-if is false.
       this.$$('#reserveList').fire('iron-resize');
     }
   },

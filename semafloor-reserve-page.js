@@ -130,8 +130,11 @@ Polymer({
     // set _dataReady to indicate data already fetched and just switch to page
     // for the future new select.
     this.set('_dataReady', true);
-    // update iron-list after switching to new page.
-    this.$[this.selectedTab + 'List'].updateList();
+    // update iron-list after switching to new page ASYNC-ly.
+    // asyncly as iron-list now inside dom-if, wait until iron-list being rendered.
+    this.async(function() {
+      this.$[this.selectedTab + 'List'].updateList();
+    }, 1);
   },
 
   // importHref workaround.

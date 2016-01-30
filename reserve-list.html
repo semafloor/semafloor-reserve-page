@@ -37,7 +37,7 @@
       </div>
     </template>
 
-    <template is="dom-if" if="[[!_isReservationsEmpty(_reservations)]]" restamp="true">
+    <template is="dom-if" if="[[!_isReservationsEmpty(_reservations)]]">
       <iron-list id="reserveList" items="[[_reservations]]">
         <template strip-whitespace>
           <div class="reserve-item" aria-expanded$="[[_isExpanded(index)]]" aria-controls$="[[_isCollapsible(index)]]" on-tap="_toggle">
