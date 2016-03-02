@@ -67,10 +67,8 @@ Polymer({
     // In this case, call this.updateListStyles at attached stage.
     this.updateListStyles(this._isPhone, this._isDesktop);
     this.updateList();
-    // fire list-attached event.
-    // this.fire('list-attached', this.name);
 
-    var _dialog = this.$.optionsDialog;
+    var _dialog = this.$$('#optionsDialog');
     _dialog.animationConfig = {
       'entry': {
         name: 'transform-animation',
@@ -85,6 +83,8 @@ Polymer({
         transformTo: 'translateY(100%)'
       }
     };
+    // fire list-attached event.
+    // this.fire('list-attached', this.name);
   },
 
   _onFirebaseValue: function(ev) {
@@ -218,7 +218,7 @@ Polymer({
       '--collapsible-item-width': _itemWidth
     });
   },
-  updateList: function() {
+  updateList: function(ev) {
     if (!_.isEmpty(this._reservations)) {
       // if dom-if has restamp, iron-list will be detached once dom-if is false.
       this.$$('#reserveList').fire('iron-resize');
@@ -244,6 +244,8 @@ Polymer({
 
     this.set('_selectedIdx', ev.model.item.id);
     this.set('_selectedItem', ev.model.item);
+
+    // this._lazifyDialog('_isOptionsOpened', 'optionsDialog');
     this.$.optionsDialog.open();
   },
 
@@ -255,7 +257,7 @@ Polymer({
 
     // access logged in user's database to read all reservations.
     var _listAjaxRef = new Firebase('https://semafloor-webapp.firebaseio.com/users/google/' +
-      this.uid + '/reservations/allreservations');
+      this.uid + '/reservations');
     var _itemToRemove = this._selectedItem;
     var _that = this;
     // if accessed user's database successfully...
@@ -317,7 +319,7 @@ Polymer({
   // TODO: undo operation to restore removed item.
   _undoItemRemoval: function(ev) {
     var _listAjaxRef = new Firebase('https://semafloor-webapp.firebaseio.com/users/google/' +
-      this.uid + '/reservations/allreservations');
+      this.uid + '/reservations');
     var _selectedItemToRestore = this._selectedItem;
     var _that = this;
     // if accessed user's database successfully...
@@ -336,6 +338,36 @@ Polymer({
       _that._openReserveToast('Removed item has been restored!', true);
     });
   },
+
+  // _lazifyDialog: function(_isDialogOpened, _dialog) {
+  //   console.log(_isDialogOpened, _dialog);
+  //   if (!this[_isDialogOpened]) {
+  //     this.set(_isDialogOpened, !0);
+  //     this.async(function() {
+  //       console.log(this.$$('#' + _dialog), Polymer.dom(this).querySelector('paper-dialog'));
+  //       var _dialog = this.$$('#' + _dialog);
+  //       _dialog.animationConfig = {
+  //         'entry': {
+  //           name: 'transform-animation',
+  //           node: _dialog,
+  //           transformFrom: 'translateY(100%)',
+  //           transformTo: 'translateY(0)'
+  //         },
+  //         'exit': {
+  //           name: 'transform-animation',
+  //           node: _dialog,
+  //           transformFrom: 'translateY(0)',
+  //           transformTo: 'translateY(100%)'
+  //         }
+  //       };
+  //       this.async(function() {
+  //         _dialog.open();
+  //       }, 1);
+  //     }, 1);
+  //   }else {
+  //     this.$$('#' + _dialog).open();
+  //   }
+  // },
 
   // Objects coerced to Array.
   _toArray: function(_detail) {

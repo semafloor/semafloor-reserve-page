@@ -62,11 +62,11 @@
   </head>
   <body>
     <template is="dom-bind" strip-whitespace>
-      <app-drawer-layout>
+      <app-drawer-layout force-narrow>
         <app-drawer swipe-open></app-drawer>
 
         <app-header-layout>
-          <app-header fixed reveals effects="waterfall">
+          <app-header condenses reveals effects="waterfall">
             <app-toolbar>
               <paper-icon-button id="menu" icon="icons:menu" drawer-toggle></paper-icon-button>
               Reservations Demo
@@ -115,11 +115,12 @@
         window.setTimeout(function() {
           var _app = document.querySelector('semafloor-reserve-page');
           var _tel = _app.getElementsByTagName('*').length;
+          _app.uid = 'google:103450531185198654718';
           console.log('Total element nodes with Lazy-Loading: ', _tel);
         }, 1000);
       });
 
-      demo.tab = 'today';
+      demo.tab = 'thisweek';
 
       demo._onTransitionend = function(ev) {
         if (ev.target.tagName !== 'PAPER-RIPPLE') {
