@@ -22,7 +22,9 @@ Example:
     <style include="semafloor-reserve-page-theme"></style>
 
     <iron-pages id="reservePages" selected="{{_page}}" attr-for-selected="name">
-      <paper-spinner-lite active name="waiting"></paper-spinner-lite>
+      <template is="dom-if" if="[[_isSpinnerOpened]]" restamp="true" strip-whitespace>
+        <paper-spinner-lite active name="waiting"></paper-spinner-lite>
+      </template>
       <reserve-list id="todayList" name="today" count="{{todayCount}}" uid="[[uid]]"></reserve-list>
       <reserve-list id="thisweekList" name="thisweek" count="{{thisweekCount}}" uid="[[uid]]"></reserve-list>
       <reserve-list id="upcomingList" name="upcoming" count="{{upcomingCount}}" uid="[[uid]]"></reserve-list>

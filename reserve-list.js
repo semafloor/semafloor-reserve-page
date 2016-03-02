@@ -13,6 +13,7 @@ Polymer({
     },
     uid: {
       type: String,
+      // google:103450531185198654718
       value: 'google:9999'
     },
 
@@ -87,18 +88,21 @@ Polymer({
   },
 
   _onFirebaseValue: function(ev) {
+    console.log(ev.detail.val());
     if (!ev.detail.val()) {
       return;
     }
 
-    var _sortedReservations = this._sortReservations(ev.detail.val().allreservations);
-    var _totalReservationsSize = ev.detail.val().totalReservations;
+    var _sortedReservations = this._sortReservations(ev.detail.val());
+    // var _totalReservationsSize = ev.detail.val().totalReservations;
+    // this.set('_reservations', _totalReservationsSize < 1 ? null : _sortedReservations);
+    // this.set('count', _totalReservationsSize < 1 ? 0 : _.size(_sortedReservations));
     console.time('sort-all-reservations');
-    this.set('_reservations', _totalReservationsSize < 1 ? null : _sortedReservations);
+    this.set('_reservations', _sortedReservations);
     console.timeEnd('sort-all-reservations');
-    this.set('count', _totalReservationsSize < 1 ? 0 : _.size(_sortedReservations));
-    this.fire('data-ready', this.name);
+    this.set('count', _.size(_sortedReservations));
 
+    this.fire('data-ready', this.name);
     // this.set('count', ev.detail.val().length);
     // this.set('_reservations', ev.detail.val());
     // this.fire('data-ready', this.name);
@@ -115,30 +119,58 @@ Polymer({
     // sort Firebase object by both 'date' and 'period' ascendingly.
     // after sorting, _allreservations will transform from type Object into type Array.
     var _sorted = _.orderBy(_allreservations, ['date', 'period'], ['asc', 'asc']);
-    var _now = new Date();
+    // var _now = new Date();
+    // TODO: Testing purpose.
+    var _now = new Date('2016-02-16');
+    var _maxDate;
+    var _maxDateString;
+    var _filtered = [];
+    console.log(_sorted);
 
     // filter _sorted reservations according to current tab page.
     if (this.name === 'today') {
+      _maxDateString = [
+        _now.getFullYear(),
+        ('0' + (_now.getMonth() + 1)).slice(-2),
+        _now.getDate()
+      ].join('-');
       // return only those reservations that belong to 'today'.
-      return _.filter(_sorted, { 'date':  [_now.getFullYear(),
-        ('0' + (_now.getMonth() + 1)).slice(-2), _now.getDate()].join('-') });
+      _filtered = _.filter(_sorted, { 'date': _maxDateString });
+      console.log('today: ', _filtered, _.size(_filtered));
+      return _filtered;
     }else if (this.name === 'thisweek') {
       var _d = _now.getDay();
-      var _min = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() - _d);
-      var _max = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() + 6 - _d);
+      var _minDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() - _d);
+      _maxDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() + 6 - _d);
+      var _minDateString = [
+        _minDate.getFullYear(),
+        ('0' + (_minDate.getMonth() + 1)).slice(-2),
+        _minDate.getDate()
+      ].join('-');
+      _maxDateString = [
+        _maxDate.getFullYear(),
+        ('0' + (_maxDate.getMonth() + 1)).slice(-2),
+        _maxDate.getDate()
+      ].join('-');
       // return only those reservations that belong to 'thisweek'.
-      return _.filter(_sorted, function(data) {
-        return data.date >= [_min.getFullYear(), ('0' + (_min.getMonth() + 1)).slice(-2),
-          _min.getDate()].join('-') && data.date <= [_max.getFullYear(),
-            ('0' + (_max.getMonth() + 1)).slice(-2), _max.getDate()].join('-');
+      _filtered = _.filter(_sorted, function(data) {
+        return data.date >= _minDateString && data.date <= _maxDateString;
       });
+      console.log('thisweek: ', _filtered, _.size(_filtered));
+      return _filtered;
     }else {
-      var _maxd = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() + 6 - _now.getDay());
+      _maxDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate() + 6 - _now.getDay());
+      _maxDateString = [
+        _maxDate.getFullYear(),
+        ('0' + (_maxDate.getMonth() + 1)).slice(-2),
+        _maxDate.getDate()
+      ].join('-');
       // return only those reservations that belong to 'upcoming'.
-      return _.filter(_sorted, function(data) {
-        return data.date > [_maxd.getFullYear(), ('0' + (_maxd.getMonth() + 1)).slice(-2),
-          _maxd.getDate()].join('-');
+      _filtered = _.filter(_sorted, function(data) {
+        return data.date > _maxDateString;
       });
+      console.log('upcoming: ', _filtered, _.size(_filtered));
+      return _filtered;
     }
   },
 
@@ -169,10 +201,11 @@ Polymer({
           _target.classList.add('opened');
         }
         // update size for item after toggle.
+        console.log(ev);
         this.$$('#reserveList').updateSizeForItem(ev.model.index);
         // update iron-list to fit list on screen with new height.
+        this.updateList();
         this.async(function() {
-          this.updateList();
         });
       }
     }
@@ -318,4 +351,10 @@ Polymer({
     return _.isEmpty(_reservations);
   },
 
+  // TODO: Lazify toast.
+  // TODO: Lazify dialog.
+  // TODO: Lazify spinner.
+  // TODO: iron-list miraculously not working anymore. Don't worry scrollTarge comes in rescue!
+  // var aa = document.querySelector('semafloor-reserve-page');
+  // aa.uid = 'google:103450531185198654718';
 });

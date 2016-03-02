@@ -26,6 +26,7 @@ Polymer({
     },
     uid: {
       type: String,
+      // google:103450531185198654718
       value: 'google:9999'
     },
 
@@ -99,10 +100,20 @@ Polymer({
     // https://youtu.be/iIV1xPFXmBs?list=PLNYkxOF6rcICcHeQY02XLvoGL34rZFWZn;
     // showSpinner if failed to meet that 100ms.
     spinnerTimeout = this.async(function() {
-      this.set('_page', 'waiting');
+      if (!this._isSpinnerOpened) {
+        this.set('_isSpinnerOpened', !0);
+        this.async(function() {
+          this.set('_page', 'waiting');
+          // reset _tabTransitionEnd on every new select starts.
+          this.set('_tabTransitionEnd', false);
+        }, 1);
+      }else {
+        this.set('_page', 'waiting');
+        // reset _tabTransitionEnd on every new select starts.
+        this.set('_tabTransitionEnd', false);
+      }
     }, 100);
-    // reset _tabTransitionEnd on every new select starts.
-    this.set('_tabTransitionEnd', false);
+
   },
   onTransitionend: function(ev) {
     // return when tab not yet trensition end OR tab not tap.
@@ -119,6 +130,7 @@ Polymer({
       // when data fetched from Firebase, set _dataReady then switch to page.
       // if data still pending from Firebase, pass it on to _onDataReady then.
       if (this._dataReady) {
+        console.log(this.selectedTab);
         this.set('_page', this.selectedTab);
       }
     }
@@ -126,6 +138,7 @@ Polymer({
   _onDataReady: function(ev) {
     // For the first fetch from Firebase, this will run for only once.
     // switch to page when data is fetched from Firebase.
+    console.log(this.selectedTab);
     this.set('_page', this.selectedTab);
     // set _dataReady to indicate data already fetched and just switch to page
     // for the future new select.
@@ -145,4 +158,7 @@ Polymer({
     this.$.reservePages.notifyResize();
   },
 
+  // TODO: Just realised this element is so broken.
+// var aa = document.querySelector('semafloor-reserve-page');
+// aa.uid = 'google:103450531185198654718';
 });

@@ -41,14 +41,16 @@
         };
       }
       paper-tab {
-        --paper-tab-ink: rgba(255, 255, 141, 0.5);
+        /*--paper-tab-ink: rgba(255, 255, 141, 0.5);*/
         text-transform: uppercase;
       }
       paper-tab.iron-selected {
         color: #FFFF8D;
       }
       paper-badge {
-        --paper-badge-margin-left: -6px;
+        /* workaround: due to unknown bug in Firefox */
+        left: initial !important;
+        /*--paper-badge-margin-left: -6px;*/
         --paper-badge-background: #FFFF8D;
         --paper-badge-text-color: #004D40;
       }
@@ -61,11 +63,10 @@
   <body>
     <template is="dom-bind" strip-whitespace>
       <app-drawer-layout>
-        <app-header-layout drawer>
-        </app-header-layout>
+        <app-drawer swipe-open></app-drawer>
 
-        <app-header-layout main>
-          <app-header condenses reveals effects="waterfall">
+        <app-header-layout>
+          <app-header fixed reveals effects="waterfall">
             <app-toolbar>
               <paper-icon-button id="menu" icon="icons:menu" drawer-toggle></paper-icon-button>
               Reservations Demo
@@ -109,6 +110,14 @@
     <script>
       var demo = document.querySelector('template[is=dom-bind]');
       var page = 'reserve';
+
+      window.addEventListener('reserve-page-attached', function() {
+        window.setTimeout(function() {
+          var _app = document.querySelector('semafloor-reserve-page');
+          var _tel = _app.getElementsByTagName('*').length;
+          console.log('Total element nodes with Lazy-Loading: ', _tel);
+        }, 1000);
+      });
 
       demo.tab = 'today';
 
