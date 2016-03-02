@@ -1,6 +1,6 @@
 {
   "name": "semafloor-reserve-page",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "authors": [
     "semafloor <wes_ngrongsen@hotmail.com>"
   ],
@@ -30,8 +30,7 @@
     "iron-media-query": "PolymerElements/iron-media-query#^1.0.8",
     "paper-menu": "PolymerElements/paper-menu#^1.2.1",
     "paper-toast": "PolymerElements/paper-toast#^1.1.1",
-    "semafloor-icons": "semafloor/semafloor-icons#^0.1.1",
-    "lodash": "lodash/lodash#^4.0.1"
+    "semafloor-icons": "semafloor/semafloor-icons#^0.1.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
@@ -40,6 +39,7 @@
     "paper-badge": "PolymerElements/paper-badge#^1.1.1",
     "app-layout": "polymerlabs/app-layout#^0.0.11",
     "productionizer": "semafloor/productionizer#^0.2.1",
-    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^1.0.2"
+    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^1.0.2",
+    "lodash": "lodash/lodash#^4.5.1"
   }
 }

@@ -31,6 +31,9 @@
         margin-right: 8px;
       }
 
+      app-toolbar+app-toolbar {
+        background-color: #009688;
+      }
       paper-tabs {
         background-color: #009688;
         color: #fff;
@@ -58,6 +61,20 @@
         --paper-badge-margin-bottom: 16px;
       }
 
+      /* @media */
+      @media all and (min-width: 376px) {
+        paper-tabs {
+          width: calc(100% / 3);
+          min-width: 376px;
+        }
+
+        paper-tabs[bottom-item] {
+          position: initial;
+          bottom: initial;
+          left: initial;
+          right: initial;
+        }
+      }
     </style>
   </head>
   <body>
