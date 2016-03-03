@@ -26,8 +26,9 @@ Polymer({
     },
     uid: {
       type: String,
-      // google:103450531185198654718
-      value: 'google:9999'
+      // TODO: For testing purpose...
+      google:103450531185198654718
+      // value: 'google:9999'
     },
 
     _page: {
@@ -45,6 +46,11 @@ Polymer({
     _dataReady: {
       type: Boolean,
       value: false
+    },
+
+    _isLoading: {
+      type: Boolean,
+      value: !0
     },
 
   },
@@ -147,6 +153,8 @@ Polymer({
     // asyncly as iron-list now inside dom-if, wait until iron-list being rendered.
     this.async(function() {
       this.$[this.selectedTab + 'List'].updateList();
+
+      this.set('_isLoading', !1);
     }, 1);
   },
 
@@ -158,7 +166,10 @@ Polymer({
     this.$.reservePages.notifyResize();
   },
 
+  _computeLoadingCls: function(_isLoading) {
+    console.log(_isLoading);
+    return _isLoading ? '' : 'finish-loading';
+  },
+
   // TODO: Just realised this element is so broken.
-// var aa = document.querySelector('semafloor-reserve-page');
-// aa.uid = 'google:103450531185198654718';
 });

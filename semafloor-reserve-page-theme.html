@@ -14,10 +14,32 @@
         box-sizing: border-box;
       }
 
+      paper-spinner-lite,
+      iron-pages {
+        will-change: opacity;
+        transition: opacity ease-in .4s;
+      }
+
+      iron-pages {
+        opacity: 0;
+      }
+      iron-pages.finish-loading {
+        opacity: 1;
+      }
+
       paper-spinner-lite {
+        position: absolute;
+        top: calc(64px + 64px + 16px + 16px);
+        left: 50%;
+        margin: -15px 0 0 -15px;
+
         display: block;
-        margin: 40px auto;
+        opacity: 1;
+        /*margin: 40px auto;*/
         --paper-spinner-color: #1ddbd8;
+      }
+      paper-spinner-lite.finish-loading {
+        opacity: 0;
       }
     </style>
 

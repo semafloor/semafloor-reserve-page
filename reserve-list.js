@@ -13,7 +13,6 @@ Polymer({
     },
     uid: {
       type: String,
-      // google:103450531185198654718
       value: 'google:9999'
     },
 
@@ -53,11 +52,11 @@ Polymer({
       type: String,
       value: ''
     },
+
   },
 
   observers: [
     '_onQueryChanged(_isPhone, _isDesktop)',
-    // '_updateFirebaseLocation(name)'
     '_updateFirebaseLocation(uid)'
   ],
 
@@ -65,9 +64,6 @@ Polymer({
     // Only at attached stage, this.updateStyles can be utilised.
     // else only Polymer.updateStyles can be used.
     // In this case, call this.updateListStyles at attached stage.
-    this.updateListStyles(this._isPhone, this._isDesktop);
-    this.updateList();
-
     var _dialog = this.$$('#optionsDialog');
     _dialog.animationConfig = {
       'entry': {
@@ -83,6 +79,9 @@ Polymer({
         transformTo: 'translateY(100%)'
       }
     };
+
+    this.updateListStyles(this._isPhone, this._isDesktop);
+    this.updateList();
     // fire list-attached event.
     // this.fire('list-attached', this.name);
   },
@@ -125,7 +124,6 @@ Polymer({
     var _maxDate;
     var _maxDateString;
     var _filtered = [];
-    console.log(_sorted);
 
     // filter _sorted reservations according to current tab page.
     if (this.name === 'today') {
@@ -201,7 +199,6 @@ Polymer({
           _target.classList.add('opened');
         }
         // update size for item after toggle.
-        console.log(ev);
         this.$$('#reserveList').updateSizeForItem(ev.model.index);
         // update iron-list to fit list on screen with new height.
         this.updateList();
@@ -235,7 +232,6 @@ Polymer({
   // },
 
   _optionsMenu: function(ev) {
-    console.log(ev);
     var _target = ev.target;
 
     while (_target && _target.tagName !== 'PAPER-ICON-BUTTON') {
@@ -370,14 +366,14 @@ Polymer({
   // },
 
   // Objects coerced to Array.
-  _toArray: function(_detail) {
-    return _.map(_.keys(_detail) , function(n) {
-      return {
-        name: n,
-        value: _detail[n]
-      };
-    });
-  },
+  // _toArray: function(_detail) {
+  //   return _.map(_.keys(_detail) , function(n) {
+  //     return {
+  //       name: n,
+  //       value: _detail[n]
+  //     };
+  //   });
+  // },
 
   _isReservationsEmpty: function(_reservations) {
     return _.isEmpty(_reservations);
@@ -387,6 +383,4 @@ Polymer({
   // TODO: Lazify dialog.
   // TODO: Lazify spinner.
   // TODO: iron-list miraculously not working anymore. Don't worry scrollTarge comes in rescue!
-  // var aa = document.querySelector('semafloor-reserve-page');
-  // aa.uid = 'google:103450531185198654718';
 });
