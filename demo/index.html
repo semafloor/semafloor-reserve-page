@@ -6,25 +6,32 @@
     <title>semafloor-reserve-page Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
     <script src="../../lodash/dist/lodash.min.js"></script>
-    <link rel="import" href="../semafloor-reserve-page.html">
-    <link rel="import" href="../../semafloor-icons/semafloor-icons.html">
-    <link rel="import" href="../../iron-icons/iron-icons.html">
+    <link rel="import" href="semafloor-main.html">
 
-    <link rel="import" href="../../app-layout/app-layout.html">
+    <!-- <link rel="import" href="../semafloor-reserve-page.html"> -->
+    <!-- <link rel="import" href="../../semafloor-icons/semafloor-icons.html"> -->
+    <!-- <link rel="import" href="../../iron-icons/iron-icons.html"> -->
+
+    <!-- <link rel="import" href="../../app-layout/app-layout.html">
     <link rel="import" href="../../app-layout/app-scroll-effects/app-scroll-effects.html">
 
     <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
     <link rel="import" href="../../paper-tabs/paper-tabs.html">
-    <link rel="import" href="../../paper-badge/paper-badge.html">
+    <link rel="import" href="../../paper-badge/paper-badge.html"> -->
 
     <style is="custom-style">
       body {
+        padding: 0;
         margin: 0;
         font-family: 'Roboto', 'Noto', 'Helvetica', sans-serif;
         -webkit-font-smoothing: antialiased;
       }
 
-      app-header {
+      semafloor-main {
+        --semafloor-current-page-height: calc(100vh - 113px);
+      }
+
+      /*app-header {
         color: #009688;
       }
       paper-icon-button {
@@ -44,25 +51,22 @@
         };
       }
       paper-tab {
-        /*--paper-tab-ink: rgba(255, 255, 141, 0.5);*/
         text-transform: uppercase;
       }
       paper-tab.iron-selected {
         color: #FFFF8D;
       }
       paper-badge {
-        /* workaround: due to unknown bug in Firefox */
         left: initial !important;
-        /*--paper-badge-margin-left: -6px;*/
         --paper-badge-background: #FFFF8D;
         --paper-badge-text-color: #004D40;
       }
       paper-badge[for=thisweekTab] {
         --paper-badge-margin-bottom: 16px;
-      }
+      }*/
 
       /* @media */
-      @media all and (min-width: 376px) {
+      /*@media all and (min-width: 376px) {
         paper-tabs {
           width: calc(100% / 3);
           min-width: 376px;
@@ -74,11 +78,23 @@
           left: initial;
           right: initial;
         }
-      }
+      }*/
     </style>
   </head>
   <body>
-    <template is="dom-bind" strip-whitespace>
+    <!-- 38 nodes clean on CH/ OP before optimization -->
+    <!-- 47 nodes clean on FF before optimization -->
+    <!-- 30 nodes app shell on CH/ OP & FF before optimization -->
+    <!-- 354 nodes reserve page on CH/ OP before optimization -->
+    <!-- 354 nodes reserve page on FF before optimization-->
+
+    <!-- 37 nodes clean on CH/ OP after optimization -->
+    <!-- 35 nodes clean on FF after optimization -->
+    <!-- 42 nodes app shell on CH/ OP after optimization -->
+    <!-- 52 nodes app shell on FF after optimization -->
+    <!-- 181 nodes reserve page on CH/ OP after optimization -->
+    <!-- 182 nodes reserve page on FF after optimization -->
+    <!-- <template is="dom-bind" strip-whitespace>
       <app-drawer-layout force-narrow>
         <app-drawer swipe-open></app-drawer>
 
@@ -95,7 +111,6 @@
                   <paper-badge for="todayTab" label="[[todayCount]]"></paper-badge>
                 </paper-tab>
                 <paper-tab name="thisweek">
-                  <!-- according to MD's specs, split long sentence into two lines -->
                   <span>this<br><span id="thisweekTab">week</span></span>
                   <paper-badge for="thisweekTab" label="[[thisweekCount]]"></paper-badge>
                 </paper-tab>
@@ -107,51 +122,59 @@
             </app-toolbar>
           </app-header>
 
-          <!-- 38 nodes clean on CH/ OP before optimization -->
-          <!-- 47 nodes clean on FF before optimization -->
-          <!-- 30 nodes app shell on CH/ OP & FF before optimization -->
-          <!-- 354 nodes reserve page on CH/ OP before optimization -->
-          <!-- 354 nodes reserve page on FF before optimization-->
-
-          <!-- 37 nodes clean on CH/ OP after optimization -->
-          <!-- 35 nodes clean on FF after optimization -->
-          <!-- 42 nodes app shell on CH/ OP after optimization -->
-          <!-- 52 nodes app shell on FF after optimization -->
-          <!-- 181 nodes reserve page on CH/ OP after optimization -->
-          <!-- 182 nodes reserve page on FF after optimization -->
           <semafloor-reserve-page id="reserve" selected-tab="{{tab}}" today-count="{{todayCount}}" thisweek-count="{{thisweekCount}}" upcoming-count="{{upcomingCount}}"></semafloor-reserve-page>
         </app-header-layout>
       </app-drawer-layout>
-    </template>
+    </template> -->
+    <semafloor-main></semafloor-main>
 
     <script>
-      var demo = document.querySelector('template[is=dom-bind]');
-      var page = 'reserve';
+      // var demo = document.querySelector('template[is=dom-bind]');
+      // var page = 'reserve';
+      //
+      // window.addEventListener('reserve-page-attached', function() {
+      //   window.setTimeout(function() {
+      //     var _app = document.querySelector('semafloor-reserve-page');
+      //     var _tel = _app.getElementsByTagName('*').length;
+      //     _app.uid = 'google:103450531185198654718';
+      //     console.log('Total element nodes with Lazy-Loading: ', _tel);
+      //   }, 1000);
+      // });
+      //
+      // demo.tab = 'thisweek';
+      //
+      // demo._onTransitionend = function(ev) {
+      //   if (ev.target.tagName !== 'PAPER-RIPPLE') {
+      //     return;
+      //   }
+      //
+      //   // console.log('on-transitionend');
+      //   this.$.reserve.onTransitionend(ev);
+      // };
+      // demo._onIronSelect = function() {
+      //   // console.log('on-iron-select');
+      //   console.log(demo.tab);
+      //   this.$.reserve.onIronSelect();
+      // };
 
-      window.addEventListener('reserve-page-attached', function() {
-        window.setTimeout(function() {
-          var _app = document.querySelector('semafloor-reserve-page');
-          var _tel = _app.getElementsByTagName('*').length;
-          _app.uid = 'google:103450531185198654718';
-          console.log('Total element nodes with Lazy-Loading: ', _tel);
-        }, 1000);
+      var _main = document.querySelector('semafloor-main');
+
+      _main.addEventListener('main-page-attached', function() {
+        var _tel = _main.getElementsByTagName('*').length;
+        console.log('Total element nodes w/ Lazy-Loading: ', _tel);
       });
 
-      demo.tab = 'thisweek';
-
-      demo._onTransitionend = function(ev) {
-        if (ev.target.tagName !== 'PAPER-RIPPLE') {
-          return;
-        }
-
-        // console.log('on-transitionend');
-        this.$.reserve.onTransitionend(ev);
-      };
-      demo._onIronSelect = function() {
-        // console.log('on-iron-select');
-        console.log(demo.tab);
-        this.$.reserve.onIronSelect();
-      };
+      var _prexY = 0;
+      var _nextY = 0;
+      var _direction = '';
+      window.addEventListener('scroll', function(ev) {
+        console.time('scrolling');
+        _prevY = _nextY;
+        _nextY = ev.target.scrollingElement.scrollTop;
+        _direction = _nextY - _prevY < 0 ? 'up' : 'down';
+        console.timeEnd('scrolling');
+        console.log('Scrolling ' + _direction + 'wards...');
+      });
 
     </script>
 
