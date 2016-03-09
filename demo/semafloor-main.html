@@ -310,7 +310,8 @@
               on-profile-page-attached="_onPageAttached"></semafloor-profile-page>
           </template>
           <template is="dom-if" if="[[_isReservePageOpened]]" restamp="true" strip-whitespace>
-            <semafloor-reserve-page page="reserve" uid="[[uid]]"
+            <semafloor-reserve-page id="reservePage" page="reserve" uid="[[uid]]"
+              post-y="[[_postY]]"
               on-reserve-page-attached="_onPageAttached"></semafloor-reserve-page>
           </template>
           <template is="dom-if" if="[[_isCurrentPageOpened]]" restamp="true" strip-whitespace>
@@ -382,20 +383,26 @@
           value: [ 'today', 'this week', 'upcoming' ]
         },
 
+        _postY: Number,
+
       },
 
       observers: [
         '_hashDidChange(urlHash, _forceUpdateHash)',
         '_updateUid(authUser)',
-        '_logCategory(category)'
       ],
-
-      _logCategory: function(_category) {
-        console.log('_logCategory', _category);
-      },
 
       attached: function() {
         var _redirectIfMobile = window.navigator.maxTouchPoints > 0 && window.outerWidth < 1367;
+        var _header = this.$.header;
+        var _thisSet = this.set.bind(this);
+        // Breaking change in v0.0.13 of app-layout as app-header-transfrom has been replaced
+        // by app-header's getScrollState() method.
+        window.addEventListener('scroll', function() {
+          var _postY = _header.getScrollState().top;
+          _thisSet('_postY', _postY);
+        });
+
         this.set('authRedirect', _redirectIfMobile);
         // workaround to force update tabs according to hash value.
         this.async(function() {
@@ -498,6 +505,10 @@
           _authToast.open();
         }, 1);
       },
+      // _onAppHeaderTransform: function(ev) {
+      //   console.log('top: ', ev.detail.top, 'progress: ', ev.detail.progress);
+      //   this.set('_postY', ev.detail.top);
+      // },
 
       _intepretHash: function(_urlHash) {
         var _capturingGroup = /^([a-z]+)\/([a-z]+)/i.exec(_urlHash);
@@ -529,8 +540,34 @@
           this.set(_isPageOpened, !0);
         }
 
-        this.set('pageTitle', _pageTitle);
+        // var _thisSet = this.set.bind(this);
+        // var _detectScrollDirection = function(ev) {
+        //   console.time('_detectScrollDirection');
+        //   if (window.semafloorHash !== 'reserve') {
+        //     console.log('remove scroller');
+        //     document.removeEventListener('scroll', _detectScrollDirection, !1);
+        //   }
+        //
+        //   var _preY = window._postY || 0;
+        //   var _postY = ev.target.scrollingElement.scrollTop || 0;
+        //   var _directY = _postY - _preY < 0 ? 'up' : 'down';
+        //   window._preY = _preY;
+        //   window._postY = _postY;
+        //   _thisSet('_preY', _preY);
+        //   _thisSet('_postY', _postY);
+        //   console.timeEnd('_detectScrollDirection');
+        //   console.log(_preY, _postY, _directY);
+        //   console.log('Scrolling ' + _directY + 'wards...');
+        // };
+        //
+        // if (_categoryFromHash === 'reserve') {
+        //   console.log('set scroller');
+        //   // var _thisSet = this.set.bind(this);
+        //   document.addEventListener('scroll', _detectScrollDirection, !1);
+        // }
 
+        this.set('pageTitle', _pageTitle);
+        window.semafloorHash = _categoryFromHash;
         // workaround as needed to resetlayout of app-header when transition from
         // no hash to URL with hash value.
         this.$.header._scrollTop = 0;

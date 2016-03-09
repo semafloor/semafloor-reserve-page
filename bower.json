@@ -27,18 +27,20 @@
     "iron-pages": "PolymerElements/iron-pages#^1.0.4",
     "firebase-element": "GoogleWebComponents/firebase-element#^1.0.9",
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.9",
-    "iron-media-query": "PolymerElements/iron-media-query#^1.0.8",
+    "iron-media-query": "polymerelements/iron-media-query#^1.0.8",
     "paper-menu": "PolymerElements/paper-menu#^1.2.1",
     "paper-toast": "PolymerElements/paper-toast#^1.1.1",
     "semafloor-icons": "semafloor/semafloor-icons#^0.1.1",
-    "iron-scroll-threshold": "polymerelements/iron-scroll-threshold#^1.0.1"
+    "iron-scroll-threshold": "polymerelements/iron-scroll-threshold#^1.0.1",
+    "iron-selector": "polymerelements/iron-selector#^1.2.4",
+    "paper-fab": "polymerelements/paper-fab#^1.2.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
     "web-component-tester": "*",
     "paper-tabs": "PolymerElements/paper-tabs#^1.2.4",
     "paper-badge": "PolymerElements/paper-badge#^1.1.1",
-    "app-layout": "polymerlabs/app-layout#^0.0.11",
+    "app-layout": "polymerlabs/app-layout#^0.0.13",
     "productionizer": "semafloor/productionizer#^0.2.1",
     "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^1.0.2",
     "lodash": "lodash/lodash#^4.5.1",

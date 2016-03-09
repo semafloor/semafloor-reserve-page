@@ -1,30 +1,21 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<!-- <link rel="import" href="../iron-pages/iron-pages.html"> -->
-<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
 
-<!-- <link rel="import" href="../paper-spinner/paper-spinner-lite.html"> -->
-<!--
-An element providing a solution to no problem in particular.
+<link rel="import" href="../paper-fab/paper-fab.html">
 
-Example:
-
-    <semafloor-reserve-page></semafloor-reserve-page>
-
-@group Seed Elements
-@element semafloor-reserve-page
-@demo demo/index.html
-@hero hero.svg
--->
 <dom-module id="semafloor-reserve-page">
   <template strip-whitespace>
     <style>
       :host {
-        user-select: none;
-        box-sizing: border-box;
-
         display: block;
+        box-sizing: border-box;
+        user-select: none;
+
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
       }
 
@@ -34,109 +25,269 @@ Example:
 
       .reserve-page-container {
         position: relative;
-        @apply(--layout-vertical);
+      }
+
+      .loading {
+
+      }
+
+      .type-title-container {
+        height: 64px;
+        @apply(--layout-horizontal);
         @apply(--layout-center-center);
       }
-      .reserve-page-container.horizontal {
+      .type-title-bottomsheet {
+        height: 64px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #212121;
+        opacity: 1;
+        will-change: opacity, transform;
+        /* Chrome's ease-out > out-sine */
+        transition: opacity linear .2s, transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
+
         @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
+      .type-title-bottomsheet > .type-title {
+        line-height: 32px;
+        font-weight: 500;
+      }
+      .type-title {
+        font-weight: 400;
+        line-height: 26px;
+        margin: 0 16px;
+        text-transform: capitalize;
+      }
+      .type-title.today,
+      .type-title.this-week,
+      .type-title.upcoming {
+        border-top: 1px solid #bdbdbd;
+        color: #bdbdbd;
+        transition: border-top ease-in .2s, color ease-in .2s;
+      }
+      .type-title.today.iron-selected {
+        border-top: 2px solid #f44336;
+        color: #f44336;
+      }
+      .type-title.this-week.iron-selected {
+        border-top: 2px solid #2196F3;
+        color: #2196F3;
+      }
+      .type-title.upcoming.iron-selected {
+        border-top: 2px solid #4caf50;
+        color: #4caf50;
       }
 
-      .reserve-list {
-        /*height: 500px;
-        width: 300px;*/
-        width: 300px;
-        padding-top: 16px;
-        padding-bottom: 16px;
-        --iron-list-items-container: {
-          max-width: 800px;
-          margin: auto;
-          margin-top: 60px;
-          margin-bottom: 10px;
-        };
+      .each-list-item {
+        min-height: 64px;
+        padding: 12px 16px;
+        margin: 8px auto;
       }
 
+      paper-fab {
+        position: fixed;
+        bottom: calc(64px + 16px);
+        right: 16px;
+        border-radius: 50%;
+        will-change: opacity, transform;
+        /* Chrome's ease-out > out-sine */
+        transition: opacity linear .2s,
+                    transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s,
+                    background-color cubic-bezier(.39, .58, .57, 1) .2s;
+        background-color: #1ddbd8;
+      }
+      paper-fab.today {
+        background-color: #f44336;
+      }
+      paper-fab.this-week {
+        background-color: #2196f3;
+      }
+      paper-fab.upcoming {
+        background-color: #4caf50;
+      }
     </style>
 
+    <iron-media-query query="max-width: 400px" query-matches="{{_isSmallScreen}}">
+    </iron-media-query>
+
     <div class="reserve-page-container">
-      <iron-list id="reserveList" class="reserve-list" items="[[reservations]]" scroll-target="[[scroller]]">
-        <template strip-whitespace>
-          <div>
-            [[item]]
+      <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
+        <iron-selector class="type-title-container" selected="{{_selectedPage}}" attr-for-selected="page">
+          <template is="dom-repeat" items="[[_typeTitles]]" index-as="index">
+            <div class$="type-title [[_computeTitleCls(index)]]" page="[[item]]">
+              [[_computeTitleName(index)]]
+            </div>
+          </template>
+        </iron-selector>
+      </template>
+
+      <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
+        <iron-pages selected="[[_selectedPage]]" attr-for-selected="page">
+          <div class="loading" page="loading"></div>
+
+          <div class="" page="today">
+            <template id="list" is="dom-repeat" items="[[reservations]]" index-as="index" strip-whitespace>
+              <div class="each-list-item">
+                [[item]]
+              </div>
+            </template>
           </div>
-        </template>
-      </iron-list>
 
-      <div class="today-column">
+          <div class="" page="thisweek">
+            haha
+            <!-- <template id="list" is="dom-repeat" items="[[reservations]]" index-as="index" strip-whitespace>
+              <div class="each-list-item">
+                [[item]]
+              </div>
+            </template> -->
+          </div>
 
-      </div>
+          <div class="" page="upcoming">
+            lol
+            <!-- <template id="list" is="dom-repeat" items="[[reservations]]" index-as="index" strip-whitespace>
+              <div class="each-list-item">
+                [[item]]
+              </div>
+            </template> -->
+          </div>
+        </iron-pages>
+      </template>
 
-      <div class="thisweek-column">
+      <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
+        <div class="today">
+          <div class="">
 
-      </div>
+          </div>
 
-      <div class="upcoming-column">
+          <template is="dom-repeat" items="" index-as="index" strip-whitespace>
+          </template>
+        </div>
 
-      </div>
+        <div class="thisweek">
+          <div class="">
+
+          </div>
+
+          <template is="dom-repeat" items="" index-as="index" strip-whitespace>
+          </template>
+        </div>
+
+        <div class="upcoming">
+          <div class="">
+
+          </div>
+
+          <template is="dom-repeat" items="" index-as="index" strip-whitespace>
+          </template>
+        </div>
+      </template>
 
     </div>
 
+    <paper-fab id="reserveFab" icon="icons:add" class$="[[_computeFabCls(_selectedPage)]]"></paper-fab>
+
+    <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
+      <iron-selector id="typeTitleBottomsheet" class="type-title-bottomsheet" selected="{{_selectedPage}}" attr-for-selected="page">
+        <template is="dom-repeat" items="[[_typeTitles]]" index-as="index">
+          <div class$="type-title [[_computeTitleCls(index)]]" page="[[item]]">
+            [[item]]
+          </div>
+        </template>
+      </iron-selector>
+    </template>
+
     <iron-scroll-threshold id="scrollThreshold"
-      lower-threshold="100"
-      on-lower-threshold="_loadMoreData"
-      lower-triggered="{{_lowerTriggered}}"
-      scroll-target="[[scroller]]"></iron-scroll-threshold>
+      scroll-target="[[scroller]]"
+      on-lower-threshold="_loadMoreData"></iron-scroll-threshold>
   </template>
-
   <script>
-    'use strict';
-
     Polymer({
       is: 'semafloor-reserve-page',
 
       properties: {
         reservations: Array,
-        scroller: HTMLElement,
+
+        _typeTitles: {
+          type: Array,
+          value: [ 'today', 'thisweek', 'upcoming' ]
+        },
+        _selectedPage: {
+          type: String,
+          value: 'today'
+        },
+
+        postY: Number,
 
         _mockList: Array,
-        _lowerTriggered: Boolean,
       },
 
       observers: [
-        '_onLowerTriggered(_lowerTriggered)'
+        '_translateBottomsheet(postY)'
       ],
 
       ready: function() {
-        var _mockList = [];
+        var _data = [];
 
         for (var i = 0; i < 999; i++) {
-          _mockList[i] = i;
+          _data[i] = i;
         }
-        _mockList = _mockList.slice();
-        this.set('reservations', _mockList.splice(0, 59));
-        this.set('_mockList', _mockList);
+        _data = _data.slice();
+
+        this.set('reservations', _data.splice(0, 20));
+        this.set('_mockList', _data);
       },
 
       attached: function() {
         this.set('scroller', Polymer.dom(this.ownerDocument).querySelector('html'));
+
+        console.log('reserve-page-attached');
         this.fire('reserve-page-attached');
-        console.log('reservePageAttached');
+      },
+
+      _computeTitleCls: function(_typeTitleIdx) {
+        var _cls = ['today', 'this-week', 'upcoming'];
+        return _cls[_typeTitleIdx];
+      },
+      _computeFabCls: function(_selectedPage) {
+        var _idx = ['today', 'thisweek', 'upcoming'].indexOf(_selectedPage);
+        var _cls = ['today', 'this-week', 'upcoming'];
+        return _cls[_idx];
+      },
+      _computeTitleName: function(_idx) {
+        return ['today', 'this week', 'upcoming'][_idx];
       },
 
       _loadMoreData: function() {
-        console.log('_loadMoreData');
-        var _nextLoad = this._mockList.splice(0, 19);
-        var _nextLoadLength = _nextLoad.length;
-        for (var i = 0; i < _nextLoadLength; i++) {
-          this.push('reservations', _nextLoad[i]);
+        var _nextSlice = this.splice('_mockList', 0, 20);
+        var _nextSliceLen = _nextSlice.length;
+
+        for (var i = 0; i < _nextSliceLen; i++) {
+          this.$$('#list').push('items', _nextSlice[i]);
         }
 
         this.$.scrollThreshold.clearTriggers();
       },
 
-      _onLowerTriggered: function(_lowerTriggered) {
-        console.log('_onLowerTriggered: ', _lowerTriggered);
+      _translateBottomsheet: function(_postY) {
+        // SUprisingly this doesn't trigger much painting as I'd have expected.
+        // Maybe due to something else is triggerting reflow, repaint and composite,
+        // so this becomes part of it?
+        var _bottomSheet = this.$$('#typeTitleBottomsheet');
+        var _fab = this.$.reserveFab;
+        // var _fabBottom = _fab.style.bottom;
+        if (_bottomSheet) {
+          console.log(_postY);
+          _fab.style.opacity = Math.max(0, 1 - _postY / 350);
+          _bottomSheet.style.opacity = Math.max(0, 1 - _postY / 350);
+          // Huh?! this.transform won't work but this works?
+          this.translate3d('0', _postY + 'px', 0, _bottomSheet);
+          this.translate3d('0', (_postY * 2)+ 'px', 0, _fab);
+        }
       },
 
-    })
+    });
   </script>
 </dom-module>
