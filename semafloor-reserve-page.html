@@ -25,6 +25,12 @@
 
       .reserve-page-container {
         position: relative;
+        padding-bottom: 128px;
+      }
+      .reserve-page-container.horizontal {
+        padding-bottom: 16px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
       }
 
       .loading {
@@ -43,8 +49,9 @@
         left: 0;
         right: 0;
         background-color: #212121;
+        padding: 0 16px;
         opacity: 1;
-        will-change: opacity, transform;
+        will-change: transform;
         /* Chrome's ease-out > out-sine */
         transition: opacity linear .2s, transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
 
@@ -52,9 +59,16 @@
         @apply(--layout-center-center);
       }
       .type-title-bottomsheet > .type-title {
-        line-height: 32px;
+        line-height: normal;
         font-weight: 500;
       }
+      .each-type-and-count {
+        padding-top: 8px;
+        text-align: center;
+
+        @apply(--layout-vertical);
+      }
+
       .type-title {
         font-weight: 400;
         line-height: 26px;
@@ -85,6 +99,7 @@
         min-height: 64px;
         padding: 12px 16px;
         margin: 8px auto;
+        border-bottom: 1px solid #ddd;
       }
 
       paper-fab {
@@ -92,7 +107,7 @@
         bottom: calc(64px + 16px);
         right: 16px;
         border-radius: 50%;
-        will-change: opacity, transform;
+        will-change: transform;
         /* Chrome's ease-out > out-sine */
         transition: opacity linear .2s,
                     transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s,
@@ -113,8 +128,8 @@
     <iron-media-query query="max-width: 400px" query-matches="{{_isSmallScreen}}">
     </iron-media-query>
 
-    <div class="reserve-page-container">
-      <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
+    <div class$="reserve-page-container[[_computePageContainerCls(_isSmallScreen)]]">
+      <!-- <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
         <iron-selector class="type-title-container" selected="{{_selectedPage}}" attr-for-selected="page">
           <template is="dom-repeat" items="[[_typeTitles]]" index-as="index">
             <div class$="type-title [[_computeTitleCls(index)]]" page="[[item]]">
@@ -122,93 +137,111 @@
             </div>
           </template>
         </iron-selector>
-      </template>
+      </template> -->
 
       <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
-        <iron-pages selected="[[_selectedPage]]" attr-for-selected="page">
+        <iron-pages selected="[[_page]]" attr-for-selected="page">
           <div class="loading" page="loading"></div>
 
-          <div class="" page="today">
-            <template id="list" is="dom-repeat" items="[[reservations]]" index-as="index" strip-whitespace>
+          <div class="" page="list">
+            <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
               <div class="each-list-item">
-                [[item]]
+                <!-- [[item]] -->
+                [[index]]
+                [[item.roomInfo.room]]
+                [[item.roomInfo.site]]
+                [[item.fromTime]]
+                [[item.toTime]]
+                [[item.subject]]
+
+                <!-- Reserved by [[item.person]]
+                Requestor [[item.requestor]]
+                Remarks [[item.remarks]]
+                Reserved on [[item.reservedDate]]
+                Room Reserved [[item.roomInfo.room]]
+                Reservation date [[item.date]]
+                Reservation time [[item.fromTime]] [[item.toTime]] -->
               </div>
             </template>
-          </div>
-
-          <div class="" page="thisweek">
-            haha
-            <!-- <template id="list" is="dom-repeat" items="[[reservations]]" index-as="index" strip-whitespace>
-              <div class="each-list-item">
-                [[item]]
-              </div>
-            </template> -->
-          </div>
-
-          <div class="" page="upcoming">
-            lol
-            <!-- <template id="list" is="dom-repeat" items="[[reservations]]" index-as="index" strip-whitespace>
-              <div class="each-list-item">
-                [[item]]
-              </div>
-            </template> -->
           </div>
         </iron-pages>
       </template>
 
       <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
         <div class="today">
-          <div class="">
-
+          <div class="type-title today iron-selected">
+            <div class="each-type-and-count">
+              <span> today </span>
+              [[_computeCount(0)]]
+            </div>
           </div>
 
-          <template is="dom-repeat" items="" index-as="index" strip-whitespace>
+          <template id="todayList" is="dom-repeat" items="[[_todayList]]" index-as="index" strip-whitespace>
+            <div class="each-list-item">
+              [[item]]
+            </div>
           </template>
         </div>
 
         <div class="thisweek">
-          <div class="">
-
+          <div class="type-title this-week iron-selected">
+            <div class="each-type-and-count">
+              <span> this week </span>
+              [[_computeCount(1)]]
+            </div>
           </div>
 
-          <template is="dom-repeat" items="" index-as="index" strip-whitespace>
+          <template id="thisweekList" is="dom-repeat" items="[[_thisweekList]]" index-as="index" strip-whitespace>
+            <div class="each-list-item">
+              [[item]]
+            </div>
           </template>
         </div>
 
         <div class="upcoming">
-          <div class="">
-
+          <div class="type-title upcoming iron-selected">
+            <div class="each-type-and-count">
+              <span> upcoming </span>
+              [[_computeCount(2)]]
+            </div>
           </div>
 
-          <template is="dom-repeat" items="" index-as="index" strip-whitespace>
+          <template id="upcomingList" is="dom-repeat" items="[[_upcomingList]]" index-as="index" strip-whitespace>
+            <div class="each-list-item">
+              [[item]]
+            </div>
           </template>
         </div>
       </template>
 
     </div>
 
-    <paper-fab id="reserveFab" icon="icons:add" class$="[[_computeFabCls(_selectedPage)]]"></paper-fab>
+    <paper-fab id="reserveFab" icon="icons:add" class$="[[_computeFabCls(_selectedPage, _isSmallScreen)]]" tab-index="0" on-tap="_reserveNew" on-transitionend="_reserveNew"></paper-fab>
 
     <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
       <iron-selector id="typeTitleBottomsheet" class="type-title-bottomsheet" selected="{{_selectedPage}}" attr-for-selected="page">
         <template is="dom-repeat" items="[[_typeTitles]]" index-as="index">
           <div class$="type-title [[_computeTitleCls(index)]]" page="[[item]]">
-            [[item]]
+            <div class="each-type-and-count">
+              <span> [[_computeTitleName(index)]] </span>
+              [[_computeCount(index)]]
+            </div>
           </div>
         </template>
       </iron-selector>
     </template>
 
-    <iron-scroll-threshold id="scrollThreshold"
-      scroll-target="[[scroller]]"
-      on-lower-threshold="_loadMoreData"></iron-scroll-threshold>
+    <iron-scroll-threshold id="scrollThreshold" scroll-target="[[scroller]]" on-lower-threshold="_loadMoreData"></iron-scroll-threshold>
+
   </template>
   <script>
     Polymer({
       is: 'semafloor-reserve-page',
 
       properties: {
-        reservations: Array,
+        uid: String,
+        reservations: Object,
+        postY: Number,
 
         _typeTitles: {
           type: Array,
@@ -218,26 +251,84 @@
           type: String,
           value: 'today'
         },
+        _page: String,
+        _readyToReserve: Boolean,
 
-        postY: Number,
+        _todayList: Array,
+        _thisweekList: Array,
+        _upcomingList: Array,
+
+        _todayView: Number,
+        _thisweekView: Number,
+        _upcomingView: Number,
 
         _mockList: Array,
       },
 
       observers: [
-        '_translateBottomsheet(postY)'
+        '_translateBottomsheet(postY)',
+        '_lazifyList(_selectedPage, reservations.today)'
       ],
 
       ready: function() {
+        // [[item.roomInfo.room]]
+        // [[item.roomInfo.site]]
+        // [[item.fromTime]]
+        // [[item.toTime]]
+        // [[item.subject]]
+        //
+        // Reserved by [[item.person]]
+        // Requestor [[item.requestor]]
+        // Remarks [[item.remarks]]
+        // Reserved on [[item.reservedDate]]
+        // Room Reserved [[item.roomInfo.room]]
+        // Reservation date [[item.date]]
+        // Reservation time [[item.fromTime]] [[item.toTime]]
         var _data = [];
+        var _lorem = [
+          'Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipisicing', 'elit',
+          'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut labore',  'et dolore magna',
+          'aliqua.', 'Ut enim ad minim veniam', 'quis nostrud', 'exercitation ullamco laboris',
+          'nisi ut', 'aliquip ex ea', 'commodo consequat.', 'Duis aute irure', 'dolor in',
+          'reprehenderit in', 'voluptate velit', 'esse cillum', 'dolore eu fugiat nulla pariatur.',
+          'Excepteur sint', 'occaecat cupidatat', 'non proident', 'sunt in', 'culpa qui officia',
+          'deserunt mollit', 'anim id est laborum.', '', '', '', '', '', '', '', '', '', '', ''
+        ];
+        var _loremLen = _lorem.length;
 
         for (var i = 0; i < 999; i++) {
-          _data[i] = i;
+          _data[i] = {
+            roomInfo: {
+              room: _lorem[Math.ceil(Math.random() * _loremLen)],
+              site: _lorem[Math.ceil(Math.random() * _loremLen)]
+            },
+            fromTime: _lorem[Math.ceil(Math.random() * _loremLen)],
+            toTime: _lorem[Math.ceil(Math.random() * _loremLen)],
+            subject: _lorem[Math.ceil(Math.random() * _loremLen)],
+            person: _lorem[Math.ceil(Math.random() * _loremLen)],
+            requestor: _lorem[Math.ceil(Math.random() * _loremLen)],
+            remarks: _lorem[Math.ceil(Math.random() * _loremLen)],
+            reservedDate: _lorem[Math.ceil(Math.random() * _loremLen)],
+            date: _lorem[Math.ceil(Math.random() * _loremLen)]
+          };
         }
         _data = _data.slice();
 
-        this.set('reservations', _data.splice(0, 20));
+        // this.set('reservations.all', _data.splice(0, 20));
+        this.set('reservations', {});
         this.set('_mockList', _data);
+
+        // TODO: testing purpose...
+        var _todayList = _data.splice(0, Math.random() * 155);
+        var _thisweekList = _data.splice(0, Math.random() * 15);
+        var _upcomingList = _data.splice(0, Math.random() * 15);
+
+        this.set('reservations.today', _todayList);
+        this.set('reservations.thisweek', _thisweekList);
+        this.set('reservations.upcoming', _upcomingList);
+        this.set('_todayCount', _todayList.length);
+        this.set('_thisweekCount', _thisweekList.length);
+        this.set('_upcomingCount', _upcomingList.length);
       },
 
       attached: function() {
@@ -251,26 +342,53 @@
         var _cls = ['today', 'this-week', 'upcoming'];
         return _cls[_typeTitleIdx];
       },
-      _computeFabCls: function(_selectedPage) {
+      _computeFabCls: function(_selectedPage, _isSmallScreen) {
+        if (!_isSmallScreen) {
+          return '';
+        }
+
         var _idx = ['today', 'thisweek', 'upcoming'].indexOf(_selectedPage);
         var _cls = ['today', 'this-week', 'upcoming'];
         return _cls[_idx];
       },
+      _computePageContainerCls: function(_isSmallScreen) {
+        return _isSmallScreen ? '' : ' horizontal';
+      },
       _computeTitleName: function(_idx) {
         return ['today', 'this week', 'upcoming'][_idx];
       },
-
-      _loadMoreData: function() {
-        var _nextSlice = this.splice('_mockList', 0, 20);
-        var _nextSliceLen = _nextSlice.length;
-
-        for (var i = 0; i < _nextSliceLen; i++) {
-          this.$$('#list').push('items', _nextSlice[i]);
-        }
-
-        this.$.scrollThreshold.clearTriggers();
+      _computeCount: function(_idx) {
+        var _listIdx = ['today', 'thisweek', 'upcoming'][_idx];
+        var _listName = '_' + _listIdx + 'Count';
+        return this[_listName];
       },
 
+      _loadMoreData: function() {
+        console.log('_loadMoreData');
+        var _selectedPage = this._selectedPage;
+        var _data = this.reservations[_selectedPage];
+        // var _nextSlice = this.splice('reservations.' + _selectedPage, 0, 5);
+        var _view = '_' + _selectedPage + 'View';
+        var _viewCount = this[_view] || 0;
+        console.log(_viewCount);
+        var _nextSlice = _data.slice(_viewCount, _viewCount + 5);
+        var _nextSliceLen  = _nextSlice.length;
+
+        for (var i = 0; i < _nextSliceLen; i++) {
+          // this.push('reservations.' + _selectedPage, _nextSlice[i]);
+          this.$$('#list').push('items', _nextSlice[i]);
+        }
+        this.set(_view, _viewCount + 5);
+        // // var _nextSlice = this.splice('_mockList', 0, 20);
+        // // var _nextSliceLen = _nextSlice.length;
+        // //
+        // // for (var i = 0; i < _nextSliceLen; i++) {
+        // //   this.$$('#list').push('items', _nextSlice[i]);
+        // // }
+        //
+        // console.log('_loadMoreData:', _selectedPage, this.reservations);
+        this.$.scrollThreshold.clearTriggers();
+      },
       _translateBottomsheet: function(_postY) {
         // SUprisingly this doesn't trigger much painting as I'd have expected.
         // Maybe due to something else is triggerting reflow, repaint and composite,
@@ -279,14 +397,43 @@
         var _fab = this.$.reserveFab;
         // var _fabBottom = _fab.style.bottom;
         if (_bottomSheet) {
-          console.log(_postY);
           _fab.style.opacity = Math.max(0, 1 - _postY / 350);
           _bottomSheet.style.opacity = Math.max(0, 1 - _postY / 350);
           // Huh?! this.transform won't work but this works?
-          this.translate3d('0', _postY + 'px', 0, _bottomSheet);
-          this.translate3d('0', (_postY * 2)+ 'px', 0, _fab);
+          this.translate3d('0', _postY + 'px', '0', _bottomSheet);
+          this.translate3d('0', (_postY * 2)+ 'px', '0', _fab);
         }
       },
+      _reserveNew: function(ev) {
+        this.debounce('debounceTransitionend', function() {
+          if (ev.type === 'tap') {
+            this.set('_readyToReserve', !0);
+          }else {
+            if (this._readyToReserve) {
+              var _parentNode = this.domHost;
+              this.set('_readyToReserve', !1);
+              _parentNode.animateReservePage();
+            }
+          }
+        }, 1);
+      },
+      _lazifyList: function(_selectedPage, _reservations) {
+        console.log('_lazifyList');
+        // console.log(_selectedPage, _reservations);
+        // this.set('_list', _reservations);
+
+        var _pageList = '_' + _selectedPage + 'List';
+        var _view = '_' + _selectedPage + 'View';
+        var _viewCount = this[_view] || 10;
+        var _slice = _reservations.slice(0, _viewCount);
+        this.set(_view, _viewCount);
+        this.set('_list', _slice);
+        // console.log(this._list, _slice);
+        this.set('_page', 'list');
+      },
+
+      // TODO: Polish _lazifyList & _loadMoreData as it works as expected before this.
+      // TODO: Cleanup ALL mock data when finished developing.
 
     });
   </script>

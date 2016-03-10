@@ -194,6 +194,16 @@
         display: none;
       }
 
+      semafloor-search-page {
+        /* Strange issue: will-change on opacity will break iron-overlay-manager? */
+        /*will-change: opacity;*/
+        opacity: 1;
+        transition: opacity ease-in .4s;
+      }
+      semafloor-search-page.animate-reserve {
+        opacity: 0;
+      }
+
       /* small desktop & tablet */
       @media all and (max-width: 1200px) {
         .main-toolbar {
@@ -324,7 +334,7 @@
           </template>
 
           <template is="dom-if" if="[[_isSearchPageOpened]]" restamp="true" strip-whitespace>
-            <semafloor-search-page page="search" uid="[[uid]]"
+            <semafloor-search-page id="searchPage" page="search" uid="[[uid]]"
             on-search-page-attached="_onPageAttached"></semafloor-search-page>
           </template>
         </iron-pages>
@@ -468,6 +478,13 @@
 
       _onPageAttached: function(ev) {
         var _isPageAttached = '_' + _.camelCase('is ' + ev.type);
+        if (this._animateReserve && ev.type.indexOf('search') >= 0) {
+          var _searchPage = this.$$('#searchPage');
+          var _searchPage = this.$$('#searchPage');
+          _searchPage.classList.add('animate-reserve');
+          window.location.hash = '#search/view';
+        }
+
         if (!this[_isPageAttached]) {
           this.set(_isPageAttached, !0);
           console.log('_onPageAttached', ev.type);
@@ -505,10 +522,6 @@
           _authToast.open();
         }, 1);
       },
-      // _onAppHeaderTransform: function(ev) {
-      //   console.log('top: ', ev.detail.top, 'progress: ', ev.detail.progress);
-      //   this.set('_postY', ev.detail.top);
-      // },
 
       _intepretHash: function(_urlHash) {
         var _capturingGroup = /^([a-z]+)\/([a-z]+)/i.exec(_urlHash);
@@ -536,35 +549,16 @@
           }
         }
 
-        if (!this[_isPageOpened]) {
+        if (!this[_isPageOpened] && !Polymer.isInstance(Polymer.dom(this.root).querySelector('semafloor-' + _categoryFromHash + '-page'))) {
           this.set(_isPageOpened, !0);
+        }else {
+          if (this._animateReserve && _categoryFromHash === 'search') {
+            this.set('_animateReserve', !1);
+            this.async(function() {
+              this.$$('#searchPage').classList.remove('animate-reserve');
+            }, 300);
+          }
         }
-
-        // var _thisSet = this.set.bind(this);
-        // var _detectScrollDirection = function(ev) {
-        //   console.time('_detectScrollDirection');
-        //   if (window.semafloorHash !== 'reserve') {
-        //     console.log('remove scroller');
-        //     document.removeEventListener('scroll', _detectScrollDirection, !1);
-        //   }
-        //
-        //   var _preY = window._postY || 0;
-        //   var _postY = ev.target.scrollingElement.scrollTop || 0;
-        //   var _directY = _postY - _preY < 0 ? 'up' : 'down';
-        //   window._preY = _preY;
-        //   window._postY = _postY;
-        //   _thisSet('_preY', _preY);
-        //   _thisSet('_postY', _postY);
-        //   console.timeEnd('_detectScrollDirection');
-        //   console.log(_preY, _postY, _directY);
-        //   console.log('Scrolling ' + _directY + 'wards...');
-        // };
-        //
-        // if (_categoryFromHash === 'reserve') {
-        //   console.log('set scroller');
-        //   // var _thisSet = this.set.bind(this);
-        //   document.addEventListener('scroll', _detectScrollDirection, !1);
-        // }
 
         this.set('pageTitle', _pageTitle);
         window.semafloorHash = _categoryFromHash;
@@ -595,6 +589,17 @@
         this.$.semafloorAuth.logout();
       },
 
+      animateReservePage: function() {
+        this.set('_animateReserve', !0);
+
+        if (!this._isSearchPageOpened) {
+          this.set('_isSearchPageOpened', !0);
+        }else {
+          this.$$('#searchPage').classList.add('animate-reserve');
+          window.location.hash = '#search/view';
+        }
+      },
+
       // TODO: Using slimmed down version of _checkIfUserExists(authUser), check _updateUid(authUser).
       // TODO: Redirect to home page if hash is empty.
       // TODO: No longer double tabs in a page. No more disaster! Just like google search, today, thisweek and upcoming all show in one page and show horizontally if screen size is large enough.
@@ -603,6 +608,7 @@
       // TODO: Fix all spinner on all pages (skip search-page, done: room, current, profile, containerised: room, profile).
       // TODO: Add Semafloor logo maybe?
       // TODO: Awaiting Polymer to support native customProp (tabs' selection bar needs polyfill).
+      // TODO: To remove all will-change: opacity that will cause dialog to fall behind backdrop.
     });
   </script>
 </dom-module>
