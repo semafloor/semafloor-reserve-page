@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="full-view.html">
+<link rel="import" href="list-view.html">
 
 <link rel="import" href="../iron-icons/iron-icons.html">
 
@@ -7,6 +9,22 @@
 <link rel="import" href="../iron-media-query/iron-media-query.html">
 
 <link rel="import" href="../paper-fab/paper-fab.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+
+<link rel="import" href="../firebase-element/firebase-collection.html">
+
+<link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-down-animation.html">
+<!-- <link rel="import" href="../neon-animation/neon-animatable-behavior.html"> -->
+<!-- <link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../neon-animation/animations/hero-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-down-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html"> -->
 
 <dom-module id="semafloor-reserve-page">
   <template strip-whitespace>
@@ -31,6 +49,10 @@
         padding-bottom: 16px;
         @apply(--layout-horizontal);
         @apply(--layout-center-justified);
+      }
+
+      .full-list-view-page {
+        background-color: #eee;
       }
 
       .loading {
@@ -98,7 +120,7 @@
       .each-list-item {
         min-height: 64px;
         padding: 12px 16px;
-        margin: 8px auto;
+        margin: 8px 0;
         border-bottom: 1px solid #ddd;
       }
 
@@ -123,10 +145,71 @@
       paper-fab.upcoming {
         background-color: #4caf50;
       }
+
+      paper-dialog.list-view-detail-dialog {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+      paper-dialog.list-view-detail-dialog > .fake-toolbar {
+        background-color: #00796b;
+        color: #f5f5f5;
+        font-size: 20px;
+        height: 64px;
+        margin-top: 0;
+        padding: 0 16px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .fake-toolbar > paper-icon-button {
+        margin-right: 8px;
+      }
+      .fake-toolbar > paper-button {
+        font-size: 14px;
+        margin-left: auto;
+        margin-right: 0;
+      }
+      .list-view-detail-container {
+        height: calc(100% - 64px - 44px);
+        @apply(--layout-scroll);
+      }
+      .each-detail {
+        min-height: 48px;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 24px;
+        margin: 8px 0;
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+      .each-detail > span {
+        min-height: 20px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        color: #737373;
+      }
+
+      paper-toast {
+        color: #cddc39;
+      }
+      paper-toast > span {
+        cursor: pointer;
+
+        color: #eeff41;
+        text-transform: uppercase;
+        margin-left: 10px;
+        font-style: italic;
+      }
+      paper-toast.undo-remove {
+        /*color: #1ddb8b;*/
+      }
     </style>
 
     <iron-media-query query="max-width: 400px" query-matches="{{_isSmallScreen}}">
     </iron-media-query>
+
+    <firebase-collection id="reserveBase" location="[[_location]]" data="{{reservations}}" on-firebase-value="_onFirebaseValue"></firebase-collection>
 
     <div class$="reserve-page-container[[_computePageContainerCls(_isSmallScreen)]]">
       <!-- <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
@@ -143,9 +226,11 @@
         <iron-pages selected="[[_page]]" attr-for-selected="page">
           <div class="loading" page="loading"></div>
 
-          <div class="" page="list">
+          <!-- <list-view id="list" page="list" items="[[_list]]" on-item-tap="_switchPage"></list-view> -->
+
+          <div id="listView" class="" page="list">
             <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
-              <div class="each-list-item">
+              <div class="each-list-item" on-tap="_showDetail">
                 <!-- [[item]] -->
                 [[index]]
                 [[item.roomInfo.room]]
@@ -164,6 +249,10 @@
               </div>
             </template>
           </div>
+
+          <!-- <full-view id="fullListView" page="full" on-close="_switchPage"></full-view> -->
+          <!-- <div id="fullListView" class="full-list-view-page" page="full">
+          </div> -->
         </iron-pages>
       </template>
 
@@ -172,7 +261,7 @@
           <div class="type-title today iron-selected">
             <div class="each-type-and-count">
               <span> today </span>
-              [[_computeCount(0)]]
+              [[_todayCount]]
             </div>
           </div>
 
@@ -187,7 +276,7 @@
           <div class="type-title this-week iron-selected">
             <div class="each-type-and-count">
               <span> this week </span>
-              [[_computeCount(1)]]
+              [[_thisweekCount]]
             </div>
           </div>
 
@@ -202,7 +291,7 @@
           <div class="type-title upcoming iron-selected">
             <div class="each-type-and-count">
               <span> upcoming </span>
-              [[_computeCount(2)]]
+              [[_upcomingCount]]
             </div>
           </div>
 
@@ -224,7 +313,7 @@
           <div class$="type-title [[_computeTitleCls(index)]]" page="[[item]]">
             <div class="each-type-and-count">
               <span> [[_computeTitleName(index)]] </span>
-              [[_computeCount(index)]]
+              [[_computeCount(index, _todayCount, _thisweekCount, _upcomingCount)]]
             </div>
           </div>
         </template>
@@ -233,6 +322,60 @@
 
     <iron-scroll-threshold id="scrollThreshold" scroll-target="[[scroller]]" on-lower-threshold="_loadMoreData"></iron-scroll-threshold>
 
+    <template is="dom-if" if="[[_isListViewDetailOpened]]" restamp="true" strip-whitespace on-dom-change="_onDomChange">
+      <paper-dialog id="listViewDetailDialog" class="list-view-detail-dialog" entry-animation="slide-from-bottom-animation" exit-animation="slide-down-animation" on-iron-overlay-closed="_manipulateDocumentScrolling" with-backdrop>
+        <div class="fake-toolbar">
+          <paper-icon-button icon="icons:arrow-back" on-tap="_closeDetail" on-transitionend="_closeDetail"></paper-icon-button>
+          Reservation detail
+          <paper-button on-tap="_removeItem" on-transitionend="_removeItem">remove</paper-button>
+        </div>
+        <div class="list-view-detail-container">
+          <!-- Reserved by [[item.person]]
+          Requestor [[item.requestor]]
+          Remarks [[item.remarks]]
+          Reserved on [[item.reservedDate]]
+          Room Reserved [[item.roomInfo.room]]
+          Reservation date [[item.date]]
+          Reservation time [[item.fromTime]] [[item.toTime]] -->
+          <template is="dom-repeat" items="[[_listViewDetail]]" index-as="index" strip-whitespace>
+            <div class="each-detail">
+              Reserved by
+              <span>[[item.person]]</span>
+            </div>
+            <div class="each-detail">
+              Requestor
+              <span>[[item.requestor]]</span>
+            </div>
+            <div class="each-detail">
+              Remarks
+              <span>[[item.remarks]]</span>
+            </div>
+            <div class="each-detail">
+              Reserved on
+              <span>[[item.reservedDate]]</span>
+            </div>
+            <div class="each-detail">
+              Room reserved
+              <span>[[item.roomInfo.site]], [[item.roomInfo.room]]</span>
+            </div>
+            <div class="each-detail">
+              Reservation date
+              <span>[[item.date]]</span>
+            </div>
+            <div class="each-detail">
+              Reservation time
+              <span>[[item.fromTime]] - [[item.toTime]]</span>
+            </div>
+          </template>
+        </div>
+      </paper-dialog>
+    </template>
+
+    <paper-toast id="reserveToast" text="[[_msg]]">
+      <template is="dom-if" if="[[_showUndo]]" restamp="true" strip-whitespace>
+        <span role="button" tabindex="0" on-tap="_undoItemRemoval">undo</span>
+      </template>
+    </paper-toast>
   </template>
   <script>
     Polymer({
@@ -262,10 +405,33 @@
         _thisweekView: Number,
         _upcomingView: Number,
 
+        _todayCount: {
+          type: Number,
+          value: 0
+        },
+        _thisweekCount: {
+          type: Number,
+          value: 0
+        },
+        _upcomingCount: {
+          type: Number,
+          value: 0
+        },
+
+        _listViewDetail: Array,
+        _readyToCloseDetail: Boolean,
+
+        _location: String,
+
+        _readyToRemoveItem: Boolean,
+        _msg: String,
+        _showUndo: Boolean,
+
         _mockList: Array,
       },
 
       observers: [
+        '_updateFirebaseLocation(uid)',
         '_translateBottomsheet(postY)',
         '_lazifyList(_selectedPage, reservations.*)'
       ],
@@ -315,20 +481,20 @@
         _data = _data.slice();
 
         // this.set('reservations.all', _data.splice(0, 20));
-        this.set('reservations', {});
-        this.set('_mockList', _data);
+        // this.set('reservations', {});
+        // this.set('_mockList', _data);
 
         // TODO: testing purpose...
-        var _todayList = _data.splice(0, Math.random() * 155);
-        var _thisweekList = _data.splice(0, Math.random() * 15);
-        var _upcomingList = _data.splice(0, Math.random() * 15);
-
-        this.set('reservations.today', _todayList);
-        this.set('reservations.thisweek', _thisweekList);
-        this.set('reservations.upcoming', _upcomingList);
-        this.set('_todayCount', _todayList.length);
-        this.set('_thisweekCount', _thisweekList.length);
-        this.set('_upcomingCount', _upcomingList.length);
+        // var _todayList = _data.splice(0, Math.random() * 155);
+        // var _thisweekList = _data.splice(0, Math.random() * 15);
+        // var _upcomingList = _data.splice(0, Math.random() * 15);
+        //
+        // this.set('reservations.today', _todayList);
+        // this.set('reservations.thisweek', _thisweekList);
+        // this.set('reservations.upcoming', _upcomingList);
+        // this.set('_todayCount', _todayList.length);
+        // this.set('_thisweekCount', _thisweekList.length);
+        // this.set('_upcomingCount', _upcomingList.length);
       },
 
       attached: function() {
@@ -364,14 +530,16 @@
       },
 
       _loadMoreData: function() {
-        console.log('_loadMoreData');
+        if (typeof this.reservations[this._selectedPage] === 'undefined') {
+          return;
+        }
+
         var _selectedPage = this._selectedPage;
         var _data = this.reservations[_selectedPage];
-        // var _nextSlice = this.splice('reservations.' + _selectedPage, 0, 5);
         var _view = '_' + _selectedPage + 'View';
         var _viewCount = this[_view] || 0;
         var _dataCount = this['_' + _selectedPage + 'Count'];
-        console.log(_view, _viewCount, _dataCount);
+        // console.log(_view, _viewCount, _dataCount);
         // No need to load more data when everything has been loaded into the
         // items of the dom-repeat. _viewCount has reached or exceeded total
         // count of the selected type/ page (eg. _todayCount).
@@ -389,14 +557,6 @@
           this.$$('#list').push('items', _nextSlice[i]);
         }
         this.set(_view, _viewCount + 5);
-        // // var _nextSlice = this.splice('_mockList', 0, 20);
-        // // var _nextSliceLen = _nextSlice.length;
-        // //
-        // // for (var i = 0; i < _nextSliceLen; i++) {
-        // //   this.$$('#list').push('items', _nextSlice[i]);
-        // // }
-        //
-        // console.log('_loadMoreData:', _selectedPage, this.reservations);
         this.$.scrollThreshold.clearTriggers();
       },
       _translateBottomsheet: function(_postY) {
@@ -405,7 +565,6 @@
         // so this becomes part of it?
         var _bottomSheet = this.$$('#typeTitleBottomsheet');
         var _fab = this.$.reserveFab;
-        // var _fabBottom = _fab.style.bottom;
         if (_bottomSheet) {
           _fab.style.opacity = Math.max(0, 1 - _postY / 350);
           _bottomSheet.style.opacity = Math.max(0, 1 - _postY / 350);
@@ -428,19 +587,18 @@
         }, 1);
       },
       _lazifyList: function(_selectedPage, _reservations) {
-        console.log('_lazifyList', _selectedPage, _reservations.path);
-        // this.set('_list', _reservations);
+        // console.log('_lazifyList', _selectedPage, _reservations.path, typeof _reservations.base[_selectedPage] == 'undefined');
         // Since _reservations is of type Object, the observer will run once
         // this is initialized with an {}. However, we only want this method
         // to run only when has it some items (eg. Array) inside.
-        if (_.isEmpty(_reservations.base)) {
+        if (typeof _reservations.base[_selectedPage] === 'undefined') {
           return;
         }
 
         var _pageList = '_' + _selectedPage + 'List';
         var _view = '_' + _selectedPage + 'View';
         var _viewCount = this[_view] || 10;
-        console.log('_lazifyList', _pageList, _view, _viewCount, _reservations, this['reservations']['today']);
+        // console.log('_lazifyList', _pageList, _view, _viewCount, _reservations, this['reservations']['today']);
         var _slice = _reservations.base[_selectedPage].slice(0, _viewCount);
         this.set(_view, _viewCount);
         // Assign sliced list into the dom-repeat.
@@ -449,6 +607,194 @@
         this.set('_page', 'list');
       },
 
+      _showDetail: function(ev) {
+        // console.log(ev, ev.model.item);
+        var _selectedItem = ev.model.item;
+        var _isListViewDetailOpened = this._isListViewDetailOpened;
+
+        this.set('_listViewDetail', [_selectedItem]);
+        this._manipulateDocumentScrolling('hidden');
+        if (_isListViewDetailOpened) {
+          this.async(function() {
+            this.$$('#listViewDetailDialog').open();
+          }, 1);
+        }else {
+          this.set('_isListViewDetailOpened', !0);
+        }
+      },
+      _onDomChange: function(ev) {
+        // console.log(ev);
+        if (ev.target.if) {
+          this.async(function() {
+            this.$$('#listViewDetailDialog').open();
+          }, 1);
+        }
+      },
+      _closeDetail: function(ev) {
+        this.debounce('_closeDetail', function() {
+          if (ev.type === 'tap') {
+            this.set('_readyToCloseDetail', !0);
+          }else {
+            if (this._readyToCloseDetail) {
+              this.set('_readyToCloseDetail', !1);
+              this.$$('#listViewDetailDialog').close();
+            }
+          }
+        }, 1);
+      },
+      _removeItem: function(ev) {
+        this.debounce('_removeItem', function() {
+          var _type = ev.type === 'tap';
+          if (_type) {
+            this.set('_readyToRemoveItem', !0);
+          }else {
+            if (this._readyToRemoveItem) {
+              this.set('_readyToRemoveItem', !1);
+              // Close dialog first.
+              this.$$('#listViewDetailDialog').close();
+
+              var _reserveBaseRef = new Firebase(this._location);
+              // As the detail itself is an Object, in order to be able to iterate thru
+              // by dom-repeat, wrapped it inside Array. Hence, [0] is always the value.
+              var _itemToRemove = this._listViewDetail[0];
+              var _thisOpenReserveToast = this._openReserveToast.bind(this);
+              // console.log('_removeItem', _reserveBaseRef, _itemToRemove[0]);
+              // If accessed user's database successfully...
+              _reserveBaseRef.once('value', function(snapshot) {
+                var _refToRemove = '';
+                snapshot.forEach(function(n) {
+                  // Check if selected item object is equal to traversed object from Firebase.
+                  if (_.isEqual(n.val(), _itemToRemove)) {
+                    // Save the reference URL.
+                    _refToRemove = n.ref();
+                    // Then break the forEach loop.
+                    return !0;
+                  }
+                });
+                // If ref to remove an item exists...
+                if (!!_refToRemove) {
+                  _refToRemove.transaction(function(data) {
+                    if (data === null) {
+                      return;
+                    }else {
+                      // Return null to remove object.
+                      return null;
+                    }
+                  }).then(function(val) {
+                    if (!val.committed) {
+                      console.warn('Data not found!');
+                    }
+                    // console.log(val.committed, val.snapshot);
+                  }).catch(function(error) {
+                    console.error(error);
+                  });
+                  _thisOpenReserveToast('The selected item has been removed.', !0);
+                }
+              }).catch(function(error) {
+                console.error(error);
+              });
+            }
+          }
+        }, 1);
+      },
+      _openReserveToast: function(_msg, _showUndo) {
+        var _reserveToast = this.$.reserveToast;
+        if (_reserveToast.opened) {
+          _reserveToast.close();
+        }
+        this.toggleClass('undo-remove', _showUndo, _reserveToast);
+        this.set('_showUndo', _showUndo);
+        this.set('_msg', _msg);
+        this.async(function() {
+          _reserveToast.open();
+        }, 1);
+      },
+      _undoItemRemoval: function(ev) {
+        var _reserveBaseRef = new Firebase(this._location);
+        var _selectedItemToRestore = this._listViewDetail[0];
+        var _thisOpenReserveToast = this._openReserveToast.bind(this);
+        // If accessed user's database successfully...
+        _reserveBaseRef.once('value', function(snapshot) {
+          // Undo deleted item by Firebase.push method.
+          _reserveBaseRef.push(_selectedItemToRestore).catch(function(error) {
+            console.error(error);
+          });
+          _thisOpenReserveToast('Removed item has been recovered!', !1);
+        }).catch(function(error) {
+          console.error(error);
+        });
+      },
+
+      _updateFirebaseLocation: function(_uid) {
+        this.set('_location',
+         '//semafloor-webapp.firebaseio.com/users/google/' + _uid + '/reservations');
+      },
+      _onFirebaseValue: function(ev) {
+        var _val = ev.detail.val();
+        if (!_val) {
+          return;
+        }
+
+        var _sortedVal = this._sortVal(_val);
+        var _todayCount = _sortedVal['today'].length;
+        var _thisweekCount = _sortedVal['thisweek'].length;
+        var _upcomingCount = _sortedVal['upcoming'].length;
+        this.set('_todayCount', _todayCount);
+        this.set('_thisweekCount', _thisweekCount);
+        this.set('_upcomingCount', _upcomingCount);
+
+        this.set('reservations', _sortedVal);
+        this.fire('reserve-page-firebase-ready');
+        console.log('_onFirebaseValue');
+      },
+      _sortVal: function(_val) {
+        // Sort Firebase value by both 'date' and 'period' ascendingly.
+        // After sorting, _val will be coerced into type Array from type Object .
+        var _sorted = _.orderBy(_val, ['date', 'period'], ['asc', 'asc']);
+        // var _now = new Date();
+        // TODO: Testing purpose...
+        // Note: new Date('2016-1-1 00:00') !== new Date('2016-01-01T00:00')
+        // But: new Date('2016-1-1 00:00').getTime === new Date('2016-01-01 00:00').getTime()
+        var _now = new Date('2016-02-16 00:00');
+        var _nowTime = _now.getTime();
+        var _nowDay = _now.getDay();
+        var _ff = _now.getFullYear();
+        var _mm = _now.getMonth() + 1;
+        var _dd = _now.getDate();
+        var _maxDd = _dd - _nowDay + 6; // By deducting the day number then add 6 will offset to Sat.
+        var _fd = _ff + '-' + _mm + '-' + _maxDd + ' 00:00';
+        var _maxNow = new Date(_fd).getTime();
+        var _computedDate;
+        var _todayFiltered = [];
+        var _thisweekFiltered = [];
+        var _upcomingFiltered = [];
+        var _sortedLen = _sorted.length;
+        // Filter all data into 3 different types: today, thisweek, and upcoming.
+        for (var i = 0; i < _sortedLen; i++) {
+          _computedDate = new Date(_sorted[i].date + ' 00:00').getTime();
+          if (_computedDate === _nowTime) {
+            // console.log('===: ', _maxNow, _sorted[i].date);
+            _todayFiltered.push(_sorted[i]);
+          }else if (_computedDate > _maxNow) {
+            // console.log('>: ', _maxNow, _sorted[i].date);
+            _upcomingFiltered.push(_sorted[i]);
+          }else {
+            // console.log('><: ', _maxNow, _sorted[i].date);
+            _thisweekFiltered.push(_sorted[i]);
+          }
+        }
+        // Return everything filtered wrapped inside an Object.
+        return {
+          'today': _todayFiltered,
+          'thisweek': _thisweekFiltered,
+          'upcoming': _upcomingFiltered
+        };
+      },
+
+      _manipulateDocumentScrolling: function(_state) {
+        var _overflow = typeof _state == 'object' ? '' : _state || '';
+        document.body.style.overflow = _overflow;
+      },
       // TODO: Polish _lazifyList & _loadMoreData as it works as expected before this.
       // TODO: Cleanup ALL mock data when finished developing.
 
