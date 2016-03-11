@@ -267,7 +267,7 @@
 
       observers: [
         '_translateBottomsheet(postY)',
-        '_lazifyList(_selectedPage, reservations.today)'
+        '_lazifyList(_selectedPage, reservations.*)'
       ],
 
       ready: function() {
@@ -370,7 +370,17 @@
         // var _nextSlice = this.splice('reservations.' + _selectedPage, 0, 5);
         var _view = '_' + _selectedPage + 'View';
         var _viewCount = this[_view] || 0;
-        console.log(_viewCount);
+        var _dataCount = this['_' + _selectedPage + 'Count'];
+        console.log(_view, _viewCount, _dataCount);
+        // No need to load more data when everything has been loaded into the
+        // items of the dom-repeat. _viewCount has reached or exceeded total
+        // count of the selected type/ page (eg. _todayCount).
+        if (_viewCount >= _dataCount) {
+          // Always clearTriggers() before leaving this method.
+          this.$.scrollThreshold.clearTriggers();
+          return;
+        }
+
         var _nextSlice = _data.slice(_viewCount, _viewCount + 5);
         var _nextSliceLen  = _nextSlice.length;
 
@@ -418,17 +428,24 @@
         }, 1);
       },
       _lazifyList: function(_selectedPage, _reservations) {
-        console.log('_lazifyList');
-        // console.log(_selectedPage, _reservations);
+        console.log('_lazifyList', _selectedPage, _reservations.path);
         // this.set('_list', _reservations);
+        // Since _reservations is of type Object, the observer will run once
+        // this is initialized with an {}. However, we only want this method
+        // to run only when has it some items (eg. Array) inside.
+        if (_.isEmpty(_reservations.base)) {
+          return;
+        }
 
         var _pageList = '_' + _selectedPage + 'List';
         var _view = '_' + _selectedPage + 'View';
         var _viewCount = this[_view] || 10;
-        var _slice = _reservations.slice(0, _viewCount);
+        console.log('_lazifyList', _pageList, _view, _viewCount, _reservations, this['reservations']['today']);
+        var _slice = _reservations.base[_selectedPage].slice(0, _viewCount);
         this.set(_view, _viewCount);
+        // Assign sliced list into the dom-repeat.
         this.set('_list', _slice);
-        // console.log(this._list, _slice);
+        // Then change iron-page to reveal the list data at 'list' page.
         this.set('_page', 'list');
       },
 
