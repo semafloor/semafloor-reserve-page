@@ -27,7 +27,7 @@
       query-matches="{{_isDesktop}}"></iron-media-query>
 
     <firebase-collection id="listAjax"
-      location="[[_location]]" data="{{_reservations}}" on-firebase-value="_onFirebaseValue">
+      <!-- location="[[_location]]" data="{{_reservations}}" on-firebase-value="_onFirebaseValue"> -->
     </firebase-collection>
 
     <template is="dom-if" if="[[_isReservationsEmpty(_reservations)]]" restamp="true" strip-whitespace>
@@ -85,7 +85,7 @@
                 <div>[[item.fromTime]] - [[item.toTime]]</div>
               </div>
             </div>
-          </div>
+          <!-- </div> -->
         </template>
       </iron-list>
     </template>

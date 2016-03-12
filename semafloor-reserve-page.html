@@ -120,9 +120,33 @@
       .each-list-item {
         min-height: 64px;
         padding: 12px 16px;
-        margin: 8px 0;
         border-bottom: 1px solid #ddd;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
       }
+      .list-item-left-col {
+        color: #455a64;
+        text-transform: capitalize;
+        text-align: right;
+        font-size: 20px;
+        margin-left: 12px;
+        margin-right: auto;
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+      .list-item-left-col > span {
+        font-size: 12px;
+        color: #737373;
+      }
+      .list-item-right-col {
+        color: #424242;
+        font-size: 22px;
+        margin-left: 8px;
+        margin-right: 8px;
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+
 
       paper-fab {
         position: fixed;
@@ -191,18 +215,36 @@
       }
 
       paper-toast {
-        color: #cddc39;
+        color: #1ddb8b;
+      }
+      paper-toast > ::content > span {
+        margin-right: 12px;
       }
       paper-toast > span {
         cursor: pointer;
 
         color: #eeff41;
         text-transform: uppercase;
-        margin-left: 10px;
+        margin-right: 0;
         font-style: italic;
       }
       paper-toast.undo-remove {
-        /*color: #1ddb8b;*/
+        color: #f5f5f5;
+      }
+
+      .empty-tab {
+        color: #bdbdbd;
+        font-size: 24px;
+        font-weight: 700;
+        padding: 16px;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+      .empty-tab > iron-icon {
+        margin: 24px 0;
+        --iron-icon-width: 84px;
+        --iron-icon-height: 84px;
+        --iron-icon-fill-color: #bdbdbd;
       }
     </style>
 
@@ -226,18 +268,28 @@
         <iron-pages selected="[[_page]]" attr-for-selected="page">
           <div class="loading" page="loading"></div>
 
+          <template is="dom-if" if="[[_isEmptyPageOpened]]" restamp="true" strip-whitespace>
+            <div class="empty-tab" page="empty">
+              <iron-icon icon="icons:done-all"></iron-icon>
+              Reservation list is empty!
+            </div>
+          </template>
+
           <!-- <list-view id="list" page="list" items="[[_list]]" on-item-tap="_switchPage"></list-view> -->
 
           <div id="listView" class="" page="list">
             <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
                 <!-- [[item]] -->
-                [[index]]
-                [[item.roomInfo.room]]
-                [[item.roomInfo.site]]
-                [[item.fromTime]]
-                [[item.toTime]]
-                [[item.subject]]
+                <!-- [[index]] -->
+                <div class="list-item-left-col">
+                  [[item.roomInfo.room]]
+                  <span>[[item.roomInfo.site]]</span>
+                </div>
+
+                <div class="list-item-right-col">
+                  [[item.fromTime]] - [[item.toTime]]
+                </div>
 
                 <!-- Reserved by [[item.person]]
                 Requestor [[item.requestor]]
@@ -338,6 +390,10 @@
           Reservation date [[item.date]]
           Reservation time [[item.fromTime]] [[item.toTime]] -->
           <template is="dom-repeat" items="[[_listViewDetail]]" index-as="index" strip-whitespace>
+            <div class="each-detail">
+              Title
+              <span>[[item.subject]]</span>
+            </div>
             <div class="each-detail">
               Reserved by
               <span>[[item.person]]</span>
@@ -595,8 +651,20 @@
           return;
         }
 
-        var _pageList = '_' + _selectedPage + 'List';
         var _view = '_' + _selectedPage + 'View';
+        // Switch empty page when the list is empty.
+        if (_.isEmpty(_reservations.base[_selectedPage])) {
+          console.log('_lazifyList > _isEmpty:', _selectedPage);
+          if (!this._isEmptyPageOpened) {
+            this.set('_isEmptyPageOpened', !0);
+          }
+          this.set(_view, 0);
+          this.set('_list', []);
+          this.set('_page', 'empty');
+          return;
+        }
+
+        // var _pageList = '_' + _selectedPage + 'List';
         var _viewCount = this[_view] || 10;
         // console.log('_lazifyList', _pageList, _view, _viewCount, _reservations, this['reservations']['today']);
         var _slice = _reservations.base[_selectedPage].slice(0, _viewCount);
