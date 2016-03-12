@@ -45,11 +45,6 @@
         position: relative;
         padding-bottom: 128px;
       }
-      .reserve-page-container.horizontal {
-        padding-bottom: 16px;
-        @apply(--layout-horizontal);
-        @apply(--layout-center-justified);
-      }
 
       .full-list-view-page {
         background-color: #eee;
@@ -246,14 +241,46 @@
         --iron-icon-height: 84px;
         --iron-icon-fill-color: #bdbdbd;
       }
+
+      /* @media for small desktop & tablet */
+      @media all and (min-width: 600px) {
+        .reserve-page-container {
+          @apply(--layout-horizontal);
+          @apply(--layout-center-justified);
+          @apply(--layout-wrap);
+        }
+
+        .reserve-page-container {
+          padding: 16px;
+        }
+
+        .each-list-item {
+          min-width: 376px;
+        }
+
+        paper-dialog.list-view-detail-dialog {
+          /*height: auto;*/
+          height: 640px;
+          width: 360px;
+          margin: 20px 40px;
+        }
+
+        paper-fab {
+          bottom: 24px;
+          right: 24px;
+        }
+      }
+
     </style>
 
-    <iron-media-query query="max-width: 400px" query-matches="{{_isSmallScreen}}">
+    <!-- <iron-media-query query="max-width: 400px" query-matches="{{_isSmallScreen}}"> -->
+    <iron-media-query query="max-width: 599px" query-matches="{{_isSmallScreen}}">
     </iron-media-query>
 
     <firebase-collection id="reserveBase" location="[[_location]]" data="{{reservations}}" on-firebase-value="_onFirebaseValue"></firebase-collection>
 
-    <div class$="reserve-page-container[[_computePageContainerCls(_isSmallScreen)]]">
+    <!-- <div class$="reserve-page-container[[_computePageContainerCls(_isSmallScreen)]]"> -->
+    <div class="reserve-page-container">
       <!-- <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
         <iron-selector class="type-title-container" selected="{{_selectedPage}}" attr-for-selected="page">
           <template is="dom-repeat" items="[[_typeTitles]]" index-as="index">
@@ -275,8 +302,6 @@
             </div>
           </template>
 
-          <!-- <list-view id="list" page="list" items="[[_list]]" on-item-tap="_switchPage"></list-view> -->
-
           <div id="listView" class="" page="list">
             <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
@@ -290,21 +315,9 @@
                 <div class="list-item-right-col">
                   [[item.fromTime]] - [[item.toTime]]
                 </div>
-
-                <!-- Reserved by [[item.person]]
-                Requestor [[item.requestor]]
-                Remarks [[item.remarks]]
-                Reserved on [[item.reservedDate]]
-                Room Reserved [[item.roomInfo.room]]
-                Reservation date [[item.date]]
-                Reservation time [[item.fromTime]] [[item.toTime]] -->
               </div>
             </template>
           </div>
-
-          <!-- <full-view id="fullListView" page="full" on-close="_switchPage"></full-view> -->
-          <!-- <div id="fullListView" class="full-list-view-page" page="full">
-          </div> -->
         </iron-pages>
       </template>
 
@@ -318,8 +331,17 @@
           </div>
 
           <template id="todayList" is="dom-repeat" items="[[_todayList]]" index-as="index" strip-whitespace>
-            <div class="each-list-item">
-              [[item]]
+            <div class="each-list-item" on-tap="_showDetail">
+              <!-- [[item]] -->
+              <!-- [[index]] -->
+              <div class="list-item-left-col">
+                [[item.roomInfo.room]]
+                <span>[[item.roomInfo.site]]</span>
+              </div>
+
+              <div class="list-item-right-col">
+                [[item.fromTime]] - [[item.toTime]]
+              </div>
             </div>
           </template>
         </div>
@@ -333,8 +355,17 @@
           </div>
 
           <template id="thisweekList" is="dom-repeat" items="[[_thisweekList]]" index-as="index" strip-whitespace>
-            <div class="each-list-item">
-              [[item]]
+            <div class="each-list-item" on-tap="_showDetail">
+              <!-- [[item]] -->
+              <!-- [[index]] -->
+              <div class="list-item-left-col">
+                [[item.roomInfo.room]]
+                <span>[[item.roomInfo.site]]</span>
+              </div>
+
+              <div class="list-item-right-col">
+                [[item.fromTime]] - [[item.toTime]]
+              </div>
             </div>
           </template>
         </div>
@@ -348,13 +379,21 @@
           </div>
 
           <template id="upcomingList" is="dom-repeat" items="[[_upcomingList]]" index-as="index" strip-whitespace>
-            <div class="each-list-item">
-              [[item]]
+            <div class="each-list-item" on-tap="_showDetail">
+              <!-- [[item]] -->
+              <!-- [[index]] -->
+              <div class="list-item-left-col">
+                [[item.roomInfo.room]]
+                <span>[[item.roomInfo.site]]</span>
+              </div>
+
+              <div class="list-item-right-col">
+                [[item.fromTime]] - [[item.toTime]]
+              </div>
             </div>
           </template>
         </div>
       </template>
-
     </div>
 
     <paper-fab id="reserveFab" icon="icons:add" class$="[[_computeFabCls(_selectedPage, _isSmallScreen)]]" tab-index="0" on-tap="_reserveNew" on-transitionend="_reserveNew"></paper-fab>
@@ -382,13 +421,16 @@
           <paper-button on-tap="_removeItem" on-transitionend="_removeItem">remove</paper-button>
         </div>
         <div class="list-view-detail-container">
-          <!-- Reserved by [[item.person]]
+          <!--
+          Title [[item.subject]]
+          Reserved by [[item.person]]
           Requestor [[item.requestor]]
           Remarks [[item.remarks]]
           Reserved on [[item.reservedDate]]
           Room Reserved [[item.roomInfo.room]]
           Reservation date [[item.date]]
-          Reservation time [[item.fromTime]] [[item.toTime]] -->
+          Reservation time [[item.fromTime]] [[item.toTime]]
+          -->
           <template is="dom-repeat" items="[[_listViewDetail]]" index-as="index" strip-whitespace>
             <div class="each-detail">
               Title
@@ -573,9 +615,9 @@
         var _cls = ['today', 'this-week', 'upcoming'];
         return _cls[_idx];
       },
-      _computePageContainerCls: function(_isSmallScreen) {
-        return _isSmallScreen ? '' : ' horizontal';
-      },
+      // _computePageContainerCls: function(_isSmallScreen) {
+      //   return _isSmallScreen ? '' : ' horizontal';
+      // },
       _computeTitleName: function(_idx) {
         return ['today', 'this week', 'upcoming'][_idx];
       },
@@ -811,7 +853,16 @@
         this.set('_thisweekCount', _thisweekCount);
         this.set('_upcomingCount', _upcomingCount);
 
-        this.set('reservations', _sortedVal);
+        // If _isSmallScreen is true, set _sortedVal to 'reservations'.
+        // Otherwise, separately set to corresponding list.
+        if (this._isSmallScreen) {
+          this.set('reservations', _sortedVal);
+        }else {
+          this.set('_todayList', _sortedVal.today);
+          this.set('_thisweekList', _sortedVal.thisweek);
+          this.set('_upcomingList', _sortedVal.upcoming);
+        }
+
         this.fire('reserve-page-firebase-ready');
         console.log('_onFirebaseValue');
       },
