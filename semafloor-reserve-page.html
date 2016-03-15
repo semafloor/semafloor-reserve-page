@@ -585,6 +585,12 @@
         uid: String,
         reservations: Object,
         postY: Number,
+        scroller: {
+          type: HTMLElement,
+          value: function() {
+            return Polymer.dom(this.ownerDocument).querySelector('html');
+          }
+        },
 
         _typeTitles: {
           type: Array,
@@ -621,6 +627,7 @@
           value: 0
         },
 
+        _isListViewDetailOpened: Boolean,
         _listViewDetail: Array,
         _readyToCloseDetail: Boolean,
 
