@@ -13,12 +13,21 @@
   <body>
 
     <!-- You can use the document as a place to set up your fixtures. -->
-    <semafloor-reserve-page></semafloor-reserve-page>
+    <test-fixture id="reserve">
+      <template strip-whitespace>
+        <semafloor-reserve-page></semafloor-reserve-page>
+      </template>
+    </test-fixture>
 
     <script>
-      var el = document.querySelector('semafloor-reserve-page');
-
       suite('<semafloor-reserve-page>', function() {
+        var el;
+        var _documentScroller;
+
+        setup(function() {
+          el = fixture('reserve');
+          _documentScroller = Polymer.dom(el.ownerDocument).querySelector('html');
+        });
 
         test('uid should be empty string', function() {
           assert.equal(el.uid, undefined);
@@ -30,6 +39,13 @@
 
         test('diplay page should initially be empty', function() {
           assert.equal(el._page, 'empty');
+        });
+
+        test('show document scroller', function(done) {
+          flush(function() {
+            assert.equal(el.scroller, _documentScroller);
+            done();
+          });
         });
       });
     </script>
