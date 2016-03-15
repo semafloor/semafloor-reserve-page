@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../semafloor-reserve-page.html">
+  </head>
+  <body>
+
+    <!-- You can use the document as a place to set up your fixtures. -->
+    <semafloor-reserve-page></semafloor-reserve-page>
+
+    <script>
+      var el = document.querySelector('semafloor-reserve-page');
+
+      suite('<semafloor-reserve-page>', function() {
+
+        test('uid should be empty string', function() {
+          assert.equal(el.uid, undefined);
+        });
+
+        test('selected page initially should be today', function() {
+          assert.equal(el._selectedPage, 'today');
+        });
+
+        test('diplay page should initially be empty', function() {
+          assert.equal(el._page, 'empty');
+        });
+      });
+    </script>
+
+  </body>
+</html>

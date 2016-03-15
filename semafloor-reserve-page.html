@@ -1,7 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<link rel="import" href="../iron-icons/iron-icons.html">
-
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../iron-selector/iron-selector.html">
 <link rel="import" href="../iron-media-query/iron-media-query.html">
@@ -16,13 +14,6 @@
 
 <link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
 <link rel="import" href="../neon-animation/animations/slide-down-animation.html">
-<!-- <link rel="import" href="../neon-animation/neon-animatable-behavior.html"> -->
-<!-- <link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
-<link rel="import" href="../neon-animation/animations/hero-animation.html">
-<link rel="import" href="../neon-animation/animations/scale-down-animation.html">
-<link rel="import" href="../neon-animation/animations/scale-up-animation.html">
-<link rel="import" href="../neon-animation/animations/fade-in-animation.html">
-<link rel="import" href="../neon-animation/animations/fade-out-animation.html"> -->
 
 <dom-module id="semafloor-reserve-page">
   <template strip-whitespace>
@@ -315,7 +306,6 @@
         }
 
         paper-dialog.list-view-detail-dialog {
-          /*height: auto;*/
           height: 640px;
           width: 360px;
           margin: 20px 40px;
@@ -336,7 +326,6 @@
 
     <firebase-collection id="reserveBase" location="[[_location]]" on-firebase-child-removed="_onFirebaseRemoved" on-firebase-value="_onFirebaseValue"></firebase-collection>
 
-    <!-- <div class$="reserve-page-container[[_computePageContainerCls(_isSmallScreen)]]"> -->
     <div class="reserve-page-container">
       <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
         <iron-pages selected="[[_page]]" attr-for-selected="page">
@@ -352,7 +341,6 @@
           <div id="listView" class="" page="list">
             <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[item]] -->
                 <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
@@ -417,7 +405,6 @@
 
             <template id="todayList" is="dom-repeat" items="[[_todayList]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[item]] -->
                 <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
@@ -451,7 +438,6 @@
 
             <template id="thisweekList" is="dom-repeat" items="[[_thisweekList]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[item]] -->
                 <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
@@ -485,7 +471,6 @@
 
             <template id="upcomingList" is="dom-repeat" items="[[_upcomingList]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[item]] -->
                 <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
@@ -682,90 +667,90 @@
         // Reservation time [[item.fromTime]] [[item.toTime]]
 
         // --- Start of mock data testing... ---
-        var _data = [];
-        var _lorem = {
-          roomInfo: {
-            room: [
-              'freedom tower', 'taipei 101', 'the shard', 'twin towers', 'willis tower',
-              'acetyls', 'aromatics', 'bitumen', 'hydrocarbon', 'lubricant', 'olefin',
-              'dow jones', 'euronext', 'FTSE', 'hangseng', 'nikkei',
-              'austen', 'dickens', 'eliot', 'rowling', 'twain',
-              'daffodil', 'golden wattle', 'hibiscus', 'orchid', 'protea', 'rafflesia', 'rose', 'tulip',
-              'courage', 'excellence', 'one team', 'respect', 'values',
-              'alpha', 'beta', 'delta', 'gamma', 'kappa', 'omega', 'sigma', 'zeta',
-              'angsana', 'cendana', 'chengal', 'jati', 'meranti', 'seraya', 'teak',
-              'batu caves', 'batu ferringi', 'cherating', 'gunung ledang', 'jonker street', 'kinabalu', 'KLCC', 'lake melati', 'limestone', 'minangkabau', 'putrajaya', 'silat', 'songket', 'wellness room',
-              'degas', 'michaelangelo', 'monet', 'picasso', 'renoir', 'sisley', 'van gogh',
-              'anise', 'cardamom', 'cinnamon', 'clove', 'peppercorn', 'sesame', 'tamarind', 'tumeric',
-              'amethyst', 'diamond', 'emerald', 'garnet', 'pearl', 'sapphire', 'topaz', 'zircon',
-              'benz', 'edison', 'einstein', 'fleming', 'franklin', 'graham', 'newton', 'whitney',
-              'collaborate', 'create', 'fun', 'grow', 'idea', 'innovate', 'inspire', 'lead', 'meet', 'team', 'think'
-            ],
-            site: [
-              'KLB - Tower 5', 'KLB - Tower 2A', 'SUITE'
-            ]
-          },
-          fromTime: [
-            '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
-            '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-            '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00',
-            '21:30', '22:00', '22:30', '23:00', '23:30'
-          ],
-          toTime: [
-            '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
-            '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-            '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00',
-            '21:30', '22:00', '22:30', '23:00', '23:30'
-          ],
-          subject: [
-            'WYSIWYG', 'PTAL', 'LGTM', 'ASAP', 'LMAO', 'DRY', 'WYD', 'IMHO', 'AFAIK'
-          ],
-          person: [
-            'John Doe', 'Marrionette', '^ w ^', 'Mary Doe', 'Alexander The Great', 'Hyper Junior',
-            'Manchester The Great Thief', 'JTR', 'Doley', 'Suggest an edit'
-          ],
-          requestor: [
-            'John Doe', 'Marrionette', '^ w ^', 'Mary Doe', 'Alexander The Great', 'Hyper Junior',
-            'Manchester The Great Thief', 'JTR', 'Doley', 'Suggest an edit', '', '', '', '', ''
-          ],
-          remarks: [
-            'WYSIWYG', 'PTAL', 'LGTM', 'ASAP', 'LMAO', 'DRY', 'WYD', 'IMHO', 'AFAIK', '', '', ''
-          ],
-          reservedDate: [
-            '2016-01-01', '2014-03-14', '2018-07-06', '2015-10-15'
-          ],
-          date: [
-            '2016-01-01', '2014-03-14', '2018-07-06', '2015-10-15'
-          ]
-        }
-        var _roomLen = _lorem.roomInfo.room.length;
-        var _siteLen = _lorem.roomInfo.site.length;
-        var _fromTimeLen = _lorem.fromTime.length;
-        var _toTimeLen = _lorem.toTime.length;
-        var _subjectLen = _lorem.subject.length;
-        var _personLen = _lorem.person.length;
-        var _requestorLen = _lorem.requestor.length;
-        var _remarksLen = _lorem.remarks.length;
-        var _reservedDateLen = _lorem.reservedDate.length;
-        var _dateLen = _lorem.date.length;
-
-        for (var i = 0; i < 999; i++) {
-          _data[i] = {
-            roomInfo: {
-              room: _lorem.roomInfo.room[Math.floor(Math.random() * _roomLen)],
-              site: _lorem.roomInfo.site[Math.floor(Math.random() * _siteLen)]
-            },
-            fromTime: _lorem.fromTime[Math.floor(Math.random() * _fromTimeLen)],
-            toTime: _lorem.toTime[Math.floor(Math.random() * _toTimeLen)],
-            subject: _lorem.subject[Math.floor(Math.random() * _subjectLen)],
-            person: _lorem.person[Math.floor(Math.random() * _personLen)],
-            requestor: _lorem.requestor[Math.floor(Math.random() * _requestorLen)],
-            remarks: _lorem.remarks[Math.floor(Math.random() * _remarksLen)],
-            reservedDate: _lorem.reservedDate[Math.floor(Math.random() * _reservedDateLen)],
-            date: _lorem.date[Math.floor(Math.random() * _dateLen)]
-          };
-        }
-        _data = _data.slice();
+        // var _data = [];
+        // var _lorem = {
+        //   roomInfo: {
+        //     room: [
+        //       'freedom tower', 'taipei 101', 'the shard', 'twin towers', 'willis tower',
+        //       'acetyls', 'aromatics', 'bitumen', 'hydrocarbon', 'lubricant', 'olefin',
+        //       'dow jones', 'euronext', 'FTSE', 'hangseng', 'nikkei',
+        //       'austen', 'dickens', 'eliot', 'rowling', 'twain',
+        //       'daffodil', 'golden wattle', 'hibiscus', 'orchid', 'protea', 'rafflesia', 'rose', 'tulip',
+        //       'courage', 'excellence', 'one team', 'respect', 'values',
+        //       'alpha', 'beta', 'delta', 'gamma', 'kappa', 'omega', 'sigma', 'zeta',
+        //       'angsana', 'cendana', 'chengal', 'jati', 'meranti', 'seraya', 'teak',
+        //       'batu caves', 'batu ferringi', 'cherating', 'gunung ledang', 'jonker street', 'kinabalu', 'KLCC', 'lake melati', 'limestone', 'minangkabau', 'putrajaya', 'silat', 'songket', 'wellness room',
+        //       'degas', 'michaelangelo', 'monet', 'picasso', 'renoir', 'sisley', 'van gogh',
+        //       'anise', 'cardamom', 'cinnamon', 'clove', 'peppercorn', 'sesame', 'tamarind', 'tumeric',
+        //       'amethyst', 'diamond', 'emerald', 'garnet', 'pearl', 'sapphire', 'topaz', 'zircon',
+        //       'benz', 'edison', 'einstein', 'fleming', 'franklin', 'graham', 'newton', 'whitney',
+        //       'collaborate', 'create', 'fun', 'grow', 'idea', 'innovate', 'inspire', 'lead', 'meet', 'team', 'think'
+        //     ],
+        //     site: [
+        //       'KLB - Tower 5', 'KLB - Tower 2A', 'SUITE'
+        //     ]
+        //   },
+        //   fromTime: [
+        //     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
+        //     '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+        //     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00',
+        //     '21:30', '22:00', '22:30', '23:00', '23:30'
+        //   ],
+        //   toTime: [
+        //     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
+        //     '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+        //     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00',
+        //     '21:30', '22:00', '22:30', '23:00', '23:30'
+        //   ],
+        //   subject: [
+        //     'WYSIWYG', 'PTAL', 'LGTM', 'ASAP', 'LMAO', 'DRY', 'WYD', 'IMHO', 'AFAIK'
+        //   ],
+        //   person: [
+        //     'John Doe', 'Marrionette', '^ w ^', 'Mary Doe', 'Alexander The Great', 'Hyper Junior',
+        //     'Manchester The Great Thief', 'JTR', 'Doley', 'Suggest an edit'
+        //   ],
+        //   requestor: [
+        //     'John Doe', 'Marrionette', '^ w ^', 'Mary Doe', 'Alexander The Great', 'Hyper Junior',
+        //     'Manchester The Great Thief', 'JTR', 'Doley', 'Suggest an edit', '', '', '', '', ''
+        //   ],
+        //   remarks: [
+        //     'WYSIWYG', 'PTAL', 'LGTM', 'ASAP', 'LMAO', 'DRY', 'WYD', 'IMHO', 'AFAIK', '', '', ''
+        //   ],
+        //   reservedDate: [
+        //     '2016-01-01', '2014-03-14', '2018-07-06', '2015-10-15'
+        //   ],
+        //   date: [
+        //     '2016-01-01', '2014-03-14', '2018-07-06', '2015-10-15'
+        //   ]
+        // }
+        // var _roomLen = _lorem.roomInfo.room.length;
+        // var _siteLen = _lorem.roomInfo.site.length;
+        // var _fromTimeLen = _lorem.fromTime.length;
+        // var _toTimeLen = _lorem.toTime.length;
+        // var _subjectLen = _lorem.subject.length;
+        // var _personLen = _lorem.person.length;
+        // var _requestorLen = _lorem.requestor.length;
+        // var _remarksLen = _lorem.remarks.length;
+        // var _reservedDateLen = _lorem.reservedDate.length;
+        // var _dateLen = _lorem.date.length;
+        //
+        // for (var i = 0; i < 999; i++) {
+        //   _data[i] = {
+        //     roomInfo: {
+        //       room: _lorem.roomInfo.room[Math.floor(Math.random() * _roomLen)],
+        //       site: _lorem.roomInfo.site[Math.floor(Math.random() * _siteLen)]
+        //     },
+        //     fromTime: _lorem.fromTime[Math.floor(Math.random() * _fromTimeLen)],
+        //     toTime: _lorem.toTime[Math.floor(Math.random() * _toTimeLen)],
+        //     subject: _lorem.subject[Math.floor(Math.random() * _subjectLen)],
+        //     person: _lorem.person[Math.floor(Math.random() * _personLen)],
+        //     requestor: _lorem.requestor[Math.floor(Math.random() * _requestorLen)],
+        //     remarks: _lorem.remarks[Math.floor(Math.random() * _remarksLen)],
+        //     reservedDate: _lorem.reservedDate[Math.floor(Math.random() * _reservedDateLen)],
+        //     date: _lorem.date[Math.floor(Math.random() * _dateLen)]
+        //   };
+        // }
+        // _data = _data.slice();
 
         // this.set('reservations.all', _data.splice(0, 20));
         // this.set('reservations', {});
@@ -818,18 +803,15 @@
         var _view = '_' + _selectedPage + 'View';
         var _count = '_' + _selectedPage + 'Count';
         var _anyMoreData = this[_view] < this[_count];
-        console.log(_selectedPage, _view, _count, _anyMoreData);
 
         return _loadingMoreData && _anyMoreData;
       },
       _isAnyMoreData: function(_view, _count, _isLargeDesktop) {
         var _isMore = _view < _count;
-        console.log('_isAnyMoreData:', _view, _count, _isMore);
         return _isMore && !_isLargeDesktop;
       },
       _computeLargeDesktopCls: function(_isLargeDesktop) {
         var _cls = _isLargeDesktop ? '' : 'end-of-list';
-        console.log('_isLargeDesktop:', _cls);
         return _cls;
       },
 
@@ -845,7 +827,6 @@
         }
 
         var _delayToLoadMoreData = Math.random() * 100 + Math.random() * 200;
-        console.log('_delayToLoadMoreData:', _delayToLoadMoreData);
         this.async(function() {
           var _selectedPage = this._selectedPage;
           var _data = this.reservations[_selectedPage];
@@ -856,7 +837,6 @@
           // No need to load more data when everything has been loaded into the
           // items of the dom-repeat. _viewCount has reached or exceeded total
           // count of the selected type/ page (eg. _todayCount).
-          console.log(_viewCount, _dataCount);
           if (_viewCount >= _dataCount) {
             // Always clearTriggers() before leaving this method.
             this.$.scrollThreshold.clearTriggers();
@@ -1011,13 +991,13 @@
 
         // Only load.
         function _setEmptyPage(_view, _count) {
-          console.log('_isEmpty');
+          // console.log('_isEmpty');
           this.set(_view, 0);
           this.set(_count, 0);
         }
         var _thisSetEmptyPage = _setEmptyPage.bind(this);
         if (_path === _selectedPage) {
-          console.log('haha', _selectedPage, _path, _reservations.value);
+          // console.log('haha', _selectedPage, _path, _reservations.value);
           if (_.isEmpty(_reservations.value)) {
             _thisSetEmptyPage(_view, _count);
             // Only set _list and _page when _path equals to _selectedPage
@@ -1031,7 +1011,7 @@
           }
         }else if (!!_path && _path !== _selectedPage){
           // Data is updated but not at current page.
-          console.log('lol', _selectedPage, _path, _reservations.value);
+          // console.log('lol', _selectedPage, _path, _reservations.value);
           _view = '_' + _path + 'View';
           _count = '_' + _path + 'Count';
           if (_.isEmpty(_reservations.value)) {
@@ -1040,7 +1020,7 @@
           }
         }else {
           // Switching page.
-          console.log('wa', _selectedPage, _path);
+          // console.log('wa', _selectedPage, _path);
           if (_.isEmpty(_reservations.base[_selectedPage])) {
             _thisSetEmptyPage(_view, _count);
             // Only set _list and _page when _path equals to _selectedPage
@@ -1053,12 +1033,9 @@
             return;
           }
         }
-        console.log('return...');
 
-        // var _pageList = '_' + _selectedPage + 'List';
         var _viewCount = this[_view] || 10;
         var _totalCount = _reservations.base[_selectedPage].length;
-        // console.log('_lazifyList', _pageList, _view, _viewCount, _reservations, this['reservations']['today']);
         var _slice = _reservations.base[_selectedPage].slice(0, _viewCount);
         this.set(_view, _viewCount);
         // Assign sliced list into the dom-repeat.
@@ -1070,7 +1047,7 @@
       },
       _lazifyMultipleList: function(_reservations) {
         var _type = _reservations.path.split('.')[1];
-        console.log('_lazifyMultipleList', _reservations, _type);
+        // console.log('_lazifyMultipleList', _reservations, _type);
         var _isTodayEmpty = _.isEmpty(_reservations.base.today);
         var _isThisweekEmpty = _.isEmpty(_reservations.base.thisweek);
         var _isUpcomingEmpty = _.isEmpty(_reservations.base.upcoming);
@@ -1274,13 +1251,7 @@
         // If _isSmallScreen is true, set _sortedVal to 'reservations'.
         // Otherwise, separately set to corresponding list.
         if (this._isSmallScreen) {
-          console.log(_sortedVal, _todayCount, _thisweekCount, _upcomingCount);
-          // this.set('reservations', {});
           this.set('reservations', _sortedVal);
-          console.log(this.reservations);
-          // this.set('reservations.today', _sortedVal.today);
-          // this.set('reservations.thisweek', _sortedVal.thisweek);
-          // this.set('reservations.upcoming', _sortedVal.upcoming);
         }else {
           this.set('reservations', _sortedVal);
           // this.set('_todayList', _sortedVal.today);
