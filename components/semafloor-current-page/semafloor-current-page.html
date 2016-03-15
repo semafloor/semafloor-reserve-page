@@ -1,0 +1,182 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="semafloor-current-page-theme.html">
+
+<!-- <link rel="import" href="../iron-icon/iron-icon.html"> -->
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+
+<link rel="import" href="../firebase-element/firebase-collection.html">
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <semafloor-current-page></semafloor-current-page>
+
+@group Seed Elements
+@element semafloor-current-page
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="semafloor-current-page">
+
+  <template strip-whitespace>
+    <style include="semafloor-current-page-theme"></style>
+
+    <iron-media-query query="min-width: 801px" query-matches="{{_veryLargeDesktop}}"></iron-media-query>
+
+    <firebase-collection id="listAjax"
+      location="[[_url]]" on-firebase-value="_onFirebaseValue">
+    </firebase-collection>
+
+    <template is="dom-if" if="[[_veryLargeDesktop]]" restamp="true" strip-whitespace>
+      <iron-image src="[[_newBackgroundImage]]" preload fade sizing="cover"></iron-image>
+    </template>
+
+    <iron-selector selected="{{selectedSite}}" attr-for-selected="site">
+      <div class="site-selectable" site="KLB - Tower 5">
+        <iron-icon icon="icons:language"></iron-icon>KLB - Tower 5
+      </div>
+      <div class="site-selectable" site="KLB - Tower 2A">
+        <iron-icon icon="icons:trending-up"></iron-icon>KLB - Tower 2A
+      </div>
+      <div class="site-selectable" site="SUITE">
+        <iron-icon icon="icons:group-work"></iron-icon>SUITE
+      </div>
+    </iron-selector>
+
+    <template is="dom-if" if="[[_isSpinnerOpened]]" restamp="true" strip-whitespace>
+      <div id="loadingSpinner" class="waiting-page">
+        <paper-spinner-lite active="[[_isLoading]]"></paper-spinner-lite>
+      </div>
+    </template>
+
+    <iron-pages id="currentPages" selected="[[_selectedPage]]" attr-for-selected="page">
+      <template is="dom-if" if="[[_isWeekendPageOpened]]" restamp="true" strip-whitespace>
+        <div class="weekend-page" page="weekend">
+          Hurrah! No reservations on weekends!
+        </div>
+      </template>
+
+      <div page="floor" class="floor-page">
+        <template is="dom-repeat" items="[[_floorsAtSelectedSite]]" index-as="index" strip-whitespace>
+          <div class="each-floor" on-tap="_unveilFloor" floor$="[[item]]">
+            <div class$="each-floor-status[[_isVacantFloor(_floorStatus, selectedSite, item)]]"></div>
+            [[item]]
+          </div>
+        </template>
+      </div>
+
+      <template is="dom-if" if="[[_isRoomPageOpened]]" restamp="true" strip-whitespace>
+        <div page="room" class="room-page">
+          <div class="site-selectable floor-selectable" on-tap="_backSite">[[selectedFloorName]]</div>
+          <template is="dom-repeat" items="[[_roomsAtSelectedFloor]]" index-as="index" strip-whitespace>
+            <div class="each-floor" on-tap="_unveilRoom" room$="[[item]]">
+              <div class$="each-floor-status[[_isVacantRoom(item)]]"></div>
+              [[item]]
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <template is="dom-if" if="[[_isInfoPageOpened]]" restamp="true" strip-whitespace>
+        <div page="info" class="info-page">
+          <div class="info-selection">
+            <div class="site-selectable floor-selectable" on-tap="_backSite">[[selectedFloorName]]</div>
+            <div class="site-selectable floor-selectable" on-tap="_backRoom">[[selectedRoomName]]</div>
+          </div>
+          <template is="dom-repeat" items="[[_infoAtSelectedRoom]]" index-as="index" strip-whitespace>
+            <div class="each-floor each-info-name">
+              <div class="each-info-button" on-tap="_showInfoOrSchedule">
+                <iron-icon class$="info-status[[_isVacantRoom(item)]]" icon="icons:radio-button-[[_isRoomOccupied(item)]]"></iron-icon>
+                <iron-icon class="icon-info" icon="icons:info"></iron-icon>
+                <iron-icon class="icon-schedule" icon="icons:query-builder"></iron-icon>
+              </div>
+
+              <div class="info-title">
+                [[item.name]]
+                <div class="info-locked">
+                  <iron-icon class$="info-lock[[_isRoomLocked(item.access)]]" icon="icons:lock[[_isRoomLocked(item.access)]]"></iron-icon>
+                  [[_isRoomLockedMsg(item.access)]]
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template is="dom-repeat" items="[[_detailAtSelectedRoom]]" index-as="index" strip-whitespace>
+            <div class="each-info">
+              Person<span>[[item.person]]</span>
+            </div>
+            <div class="each-info">
+              Subject<span>[[item.subject]]</span>
+            </div>
+            <div class="each-info">
+              Time<span>[[item.fromTime]] - [[item.toTime]]</span>
+            </div>
+          </template>
+        </div>
+      </template>
+    </iron-pages>
+
+    <template is="dom-if" if="[[_isInfoOrScheduleOpened]]" restamp="true" strip-whitespace>
+      <paper-dialog id="infoOrSchedule"
+        with-backdrop
+        auto-fit-on-attach
+        no-auto-focus
+        entry-animation="datepicker-slide-from-bottom-animation"
+        exit-animation="datepicker-slide-from-top-animation"
+        on-iron-overlay-closed="_dialogClosedDone">
+        <h2>[[_dialogTitle]]</h2>
+        <paper-dialog-scrollable>
+          <template is="dom-if" if="[[_isDialogInfo]]" strip-whitespace>
+            <template is="dom-repeat" items="[[_dialogList]]" index-as="index" strip-whitespace>
+              <div class="each-dialog-list">
+                Site
+                <span>[[item.site]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Floor
+                <span>[[item.floor]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Restricted
+                <span>[[_isRestricted(item.access)]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Capacity
+                <span>[[item.capacity]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Types
+                <template is="dom-repeat" items="[[_decodeTypes(item.types)]]" index-as="index" strip-whitespace>
+                  <paper-checkbox checked>[[item]]</paper-checkbox>
+                </template>
+              </div>
+            </template>
+          </template>
+
+          <template is="dom-if" if="[[!_isDialogInfo]]" strip-whitespace>
+            <template is="dom-repeat" items="[[_dialogList]]" index-as="index" strip-whitespace>
+              <div class="each-dialog-time">
+                [[item.fulltime]]
+                <span class$="[[_isVacantTime(item.result)]]"></span>
+              </div>
+            </template>
+          </template>
+        </paper-dialog-scrollable>
+
+        <span></span>
+      </paper-dialog>
+    </template>
+
+  </template>
+</dom-module>
+
+<script src="semafloor-current-page.js" charset="utf-8"></script>

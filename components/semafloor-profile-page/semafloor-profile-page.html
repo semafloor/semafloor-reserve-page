@@ -1,0 +1,134 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="semafloor-profile-page-theme.html">
+
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../paper-radio-button/paper-radio-button.html">
+
+<link rel="import" href="../firebase-element/firebase-collection.html">
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <semafloor-profile-page></semafloor-profile-page>
+
+@group Seed Elements
+@element semafloor-profile-page
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="semafloor-profile-page">
+  <template strip-whitespace>
+    <style include="semafloor-profile-page-theme"></style>
+
+    <firebase-collection id="firebaseProfile" location="[[_profileURL]]" on-firebase-value="_onFirebaseValue"></firebase-collection>
+
+    <div class="profile-page-container">
+      <template is="dom-if" if="[[_isLoading]]" restamp="true" strip-whitespace>
+        <div class$="loading [[_computeLoadingCls(_isLoading)]]"></div>
+      </template>
+
+      <div id="profileListContainer" class$="profile-list-container [[_computeLoadingCls(_isLoading)]]">
+        <div class="profile-list" ripple="uname" on-down="_onDown" on-up="_onUp">
+          User Name
+          <span>{{profile.username}}</span>
+          <paper-ripple id="uname"></paper-ripple>
+        </div>
+        <div class="profile-list" ripple="uid" on-down="_onDown" on-up="_onUp">
+          User ID
+          <span>{{profile.uid}}</span>
+          <paper-ripple id="uid"></paper-ripple>
+        </div>
+        <div class="profile-list" ripple="group" on-down="_onDown" on-up="_onUp">
+          Group
+          <span>{{profile.group}}</span>
+          <paper-ripple id="group"></paper-ripple>
+        </div>
+        <div class="profile-list email" data-profile="email" ripple="email"
+          on-transitionend="_changeDetail"
+          on-down="_onDown"
+          on-up="_onUp">
+          Email
+          <span>{{profile.email}}</span>
+          <paper-ripple id="email"></paper-ripple>
+        </div>
+        <div class="profile-list" ripple="role" on-down="_onDown" on-up="_onUp">
+          Role
+          <span>{{profile.role}}</span>
+          <paper-ripple id="role"></paper-ripple>
+        </div>
+        <div class="profile-list" ripple="room" on-down="_onDown" on-up="_onUp">
+          Room membership
+          <span>{{profile.room}}</span>
+          <paper-ripple id="room"></paper-ripple>
+        </div>
+        <div class="profile-list" ripple="floor" on-down="_onDown" on-up="_onUp">
+          Floor Membership
+          <span>{{profile.floor}}</span>
+          <paper-ripple id="floor"></paper-ripple>
+        </div>
+        <div class="profile-list tzone" data-profile="tzone" ripple="time"
+        on-down="_onDown"
+        on-up="_onUp"
+        on-transitionend="_changeDetail">
+        Time Zone
+        <span>{{profile.tzone}}</span>
+        <paper-ripple id="time"></paper-ripple>
+      </div>
+      <div class="profile-list" ripple="timeout" on-down="_onDown" on-up="_onUp">
+        Timeout
+        <span>{{profile.tout}}</span>
+        <paper-ripple id="timeout"></paper-ripple>
+      </div>
+    </div>
+
+    </div>
+
+    <template is="dom-if" if="[[_isChangeDialogOpened]]" restamp="true" strip-whitespace>
+      <paper-dialog id="changeDialog"
+        with-backdrop
+        auto-fit-on-attach
+        no-auto-focus
+        on-iron-overlay-closed="_manipulateDocumentScrolling">
+        <h2>[[_changeTitle]]</h2>
+        <paper-dialog-scrollable>
+          <div hidden$="[[!_isEmail(_changeDialog)]]">
+            Enter new email
+            <span>[[_changeEmail]]</span>
+            <paper-input id="changeEmail" class="profile-change-email"
+              label="Change email"
+              type="text"
+              auto-validate
+              value="{{_changeEmail}}"
+              invalid="{{_invalidEmail}}"
+              error-message="Invalid Email Address!"
+              placeholder="[[_placeholderEmail]]"
+              pattern="\w\S+@\w\S+\.\S+"></paper-input>
+          </div>
+
+          <div hidden$="[[_isEmail(_changeDialog)]]">
+            <paper-radio-group selected="{{_timezone::paper-radio-group-changed}}">
+              <paper-radio-button name="eight" label="GMT +8">GMT +8</paper-radio-button>
+              <paper-radio-button name="nine" label="GMT +9">GMT +9</paper-radio-button>
+            </paper-radio-group>
+          </div>
+        </paper-dialog-scrollable>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-tap="_confirmChange">Change</paper-button>
+        </div>
+      </paper-dialog>
+    </template>
+
+    <paper-toast id="profileToast" text="[[_message]]"></paper-toast>
+  </template>
+
+</dom-module>
+
+<script src="semafloor-profile-page.js"></script>

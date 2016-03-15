@@ -1,0 +1,140 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="semafloor-profile-page-theme">
+  <template strip-whitespace>
+    <style>
+      :host {
+        user-select: none;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+
+        display: block;
+        margin-top: 8px;
+        min-height: 64px;
+      }
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      .profile-page-container {
+        position: relative;
+      }
+
+      /* loading spinner */
+      .loading {
+        position: absolute;
+        top: calc(15px + 8px + 8px);
+        left: 50%;
+        margin: -15px 0 0 -15px;
+        height: 30px;
+        width: 30px;
+        border: 2px solid #ddd;
+        border-left-color: #009688;
+        border-radius: 50%;
+        animation: animation-rotate 950ms cubic-bezier(.64, 2, .56, .6) infinite;
+
+        opacity: 1;
+        will-change: opacity;
+        transition: opacity ease-in .2s;
+      }
+      /* loading spinner keyframes animation */
+      @-webkit-keyframes animation rotate {
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @keyframes animation-rotate {
+        100% {
+          -webkit-transform: rotate(360deg);
+                  transform: rotate(360deg);
+        }
+      }
+      .loading.finish-loading {
+        opacity: 0;
+      }
+
+      .profile-list-container {
+        max-height: 64px;
+        opacity: 0;
+        will-change: opacity;
+        transition: opacity ease-in .4s;
+      }
+      .profile-list-container.finish-loading {
+        max-height: none;
+        opacity: 1;
+      }
+
+      .profile-list {
+        position: relative;
+        border-bottom: 1px solid #ddd;
+        padding: 16px 0 16px 24px;
+        min-height: 64px;
+        margin: 0;
+
+      }
+      .profile-list.email,
+      .profile-list.tzone {
+        cursor: pointer;
+      }
+      .profile-list > span {
+        color: #737373;
+        display: block;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+      .profile-list:last-of-type {
+        margin-bottom: 64px;
+      }
+
+      paper-dialog {
+        box-shadow: none;
+      }
+      paper-dialog paper-input.profile-change-email {
+        --paper-input-container-focus-color: #1DDBD8;
+        margin-bottom: 16px;
+      }
+      .buttons > paper-button {
+        color: #1ddbd8;
+      }
+
+      paper-radio-group,
+      paper-radio-button {
+        display: block;
+        --paper-radio-button-checked-ink-color: #1DDBD8;
+        --paper-radio-button-checked-color: #1DDBD8;
+      }
+
+      paper-toast {
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* @media for large screen */
+      @media all and (min-width: 376px) {
+        :host {
+          min-width: 376px;
+          width: calc(100% / 2 - 16px);
+          max-width: 480px;
+          margin: 16px auto 1px;
+          /*@apply(--shadow-elevation-4dp);*/
+          box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                      0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                      0 2px 4px -1px rgba(0, 0, 0, 0.4);
+        }
+
+        paper-dialog {
+          width: calc(100% / 2 - 16px);
+          max-width: 320px;
+        }
+
+        paper-toast {
+          margin: 12px;
+          max-width: 360px;
+        }
+      }
+
+    </style>
+
+  </template>
+</dom-module>

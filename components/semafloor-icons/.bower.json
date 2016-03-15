@@ -1,0 +1,37 @@
+{
+  "name": "semafloor-icons",
+  "version": "0.1.3",
+  "authors": [
+    "Anonymous <anonymous@example.com>"
+  ],
+  "description": "An element providing a solution to no problem in particular.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "seed"
+  ],
+  "main": "semafloor-icons.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^3.4.0",
+    "productionizer": "semafloor/productionizer#~0.2.5"
+  },
+  "_release": "0.1.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.3",
+    "commit": "def1db21b5846725a4787eca884f5e3df3efc759"
+  },
+  "_source": "git://github.com/semafloor/semafloor-icons.git",
+  "_target": "^0.1.1",
+  "_originalSource": "semafloor/semafloor-icons"
+}
