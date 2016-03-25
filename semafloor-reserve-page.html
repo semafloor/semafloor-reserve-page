@@ -740,6 +740,8 @@ Example:
 
       _loadMoreData: function() {
         if (typeof this.reservations === 'undefined' || typeof this.reservations[this._selectedPage] === 'undefined') {
+          // Always clear the triggers of scroll threshold even if it's an no-op and returns.
+          this.$.scrollThreshold.clearTriggers();
           return;
         }
 
