@@ -3,7 +3,7 @@
 
 # semafloor-reserve-page
 
-A sub-element to display reservations of a user.
+A sub-element to display reservations of a user (which has 3 different categories: today, this week, and upcoming).
 
 ## Dependencies
 

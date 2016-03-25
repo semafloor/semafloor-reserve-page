@@ -16,13 +16,27 @@
 <link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
 <link rel="import" href="../neon-animation/animations/slide-down-animation.html">
 
+<!--
+A sub-element to display reservations of a user (which has 3 different categories: `today`, `this week`, and `upcoming`).
+
+Example:
+    <semafloor-reserve-page></semafloor-reserve-page>
+
+@group Semafloor
+@element semafloor-reserve-page
+@demo demo/index.html
+@hero hero.svg
+-->
 <dom-module id="semafloor-reserve-page">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
         box-sizing: border-box;
-        user-select: none;
+        -webkit-user-select: none;
+           -moz-user-select: none;
+            -ms-user-select: none;
+                user-select: none;
 
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
       }
@@ -38,10 +52,6 @@
 
       .full-list-view-page {
         background-color: #eee;
-      }
-
-      .loading {
-
       }
 
       .type-title-container {
@@ -60,7 +70,10 @@
         opacity: 1;
         will-change: transform;
         /* Chrome's ease-out > out-sine */
+        -webkit-transition: opacity linear .2s, -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
+        transition: opacity linear .2s, -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
         transition: opacity linear .2s, transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
+        transition: opacity linear .2s, transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s, -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
 
         @apply(--layout-horizontal);
         @apply(--layout-center-center);
@@ -87,6 +100,7 @@
       .type-title.upcoming {
         border-top: 1px solid #bdbdbd;
         color: #bdbdbd;
+        -webkit-transition: border-top ease-in .2s, color ease-in .2s;
         transition: border-top ease-in .2s, color ease-in .2s;
       }
       .type-title.today.iron-selected {
@@ -149,9 +163,19 @@
         border-radius: 50%;
         will-change: transform;
         /* Chrome's ease-out > out-sine */
+        -webkit-transition: opacity linear .2s,
+                    background-color cubic-bezier(.39, .58, .57, 1) .2s,
+                    -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
+        transition: opacity linear .2s,
+                    background-color cubic-bezier(.39, .58, .57, 1) .2s,
+                    -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
         transition: opacity linear .2s,
                     transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s,
                     background-color cubic-bezier(.39, .58, .57, 1) .2s;
+        transition: opacity linear .2s,
+                    transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s,
+                    background-color cubic-bezier(.39, .58, .57, 1) .2s,
+                    -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
         background-color: #1ddbd8;
       }
       paper-fab.today {
@@ -342,7 +366,6 @@
           <div id="listView" class="" page="list">
             <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
                   <span>[[item.roomInfo.site]]</span>
@@ -406,7 +429,6 @@
 
             <template id="todayList" is="dom-repeat" items="[[_todayList]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
                   <span>[[item.roomInfo.site]]</span>
@@ -439,7 +461,6 @@
 
             <template id="thisweekList" is="dom-repeat" items="[[_thisweekList]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
                   <span>[[item.roomInfo.site]]</span>
@@ -472,7 +493,6 @@
 
             <template id="upcomingList" is="dom-repeat" items="[[_upcomingList]]" index-as="index" strip-whitespace>
               <div class="each-list-item" on-tap="_showDetail">
-                <!-- [[index]] -->
                 <div class="list-item-left-col">
                   [[item.roomInfo.room]]
                   <span>[[item.roomInfo.site]]</span>
@@ -582,9 +602,21 @@
       is: 'semafloor-reserve-page',
 
       properties: {
+        /**
+         * Usually set by parent element. The token `uid` of the logged in user will be assigned here to allow the element to retrive reservations data from the user's Firebase.
+         */
         uid: String,
+        /**
+         * Once the reservations data is received from the server side, it is assigned here for further processing before actually showing on the screen.
+         */
         reservations: Object,
+        /**
+         * It is used to scroll the fab and bottomsheet away when the user is scrolling down the reservation list provided it has a height beyond the device screen size that displays it.
+         */
         postY: Number,
+        /**
+         * It is used to delegate the scroller inside this element to an outside element such as the document so that the document scrolling will take the full control of any list inside this element.
+         */
         scroller: {
           type: HTMLElement,
           value: function() {
@@ -660,128 +692,11 @@
       ],
 
       ready: function() {
-        // [[item.roomInfo.room]]
-        // [[item.roomInfo.site]]
-        // [[item.fromTime]]
-        // [[item.toTime]]
-        // [[item.subject]]
-        //
-        // Reserved by [[item.person]]
-        // Requestor [[item.requestor]]
-        // Remarks [[item.remarks]]
-        // Reserved on [[item.reservedDate]]
-        // Room Reserved [[item.roomInfo.room]]
-        // Reservation date [[item.date]]
-        // Reservation time [[item.fromTime]] [[item.toTime]]
-
-        // --- Start of mock data testing... ---
-        // var _data = [];
-        // var _lorem = {
-        //   roomInfo: {
-        //     room: [
-        //       'freedom tower', 'taipei 101', 'the shard', 'twin towers', 'willis tower',
-        //       'acetyls', 'aromatics', 'bitumen', 'hydrocarbon', 'lubricant', 'olefin',
-        //       'dow jones', 'euronext', 'FTSE', 'hangseng', 'nikkei',
-        //       'austen', 'dickens', 'eliot', 'rowling', 'twain',
-        //       'daffodil', 'golden wattle', 'hibiscus', 'orchid', 'protea', 'rafflesia', 'rose', 'tulip',
-        //       'courage', 'excellence', 'one team', 'respect', 'values',
-        //       'alpha', 'beta', 'delta', 'gamma', 'kappa', 'omega', 'sigma', 'zeta',
-        //       'angsana', 'cendana', 'chengal', 'jati', 'meranti', 'seraya', 'teak',
-        //       'batu caves', 'batu ferringi', 'cherating', 'gunung ledang', 'jonker street', 'kinabalu', 'KLCC', 'lake melati', 'limestone', 'minangkabau', 'putrajaya', 'silat', 'songket', 'wellness room',
-        //       'degas', 'michaelangelo', 'monet', 'picasso', 'renoir', 'sisley', 'van gogh',
-        //       'anise', 'cardamom', 'cinnamon', 'clove', 'peppercorn', 'sesame', 'tamarind', 'tumeric',
-        //       'amethyst', 'diamond', 'emerald', 'garnet', 'pearl', 'sapphire', 'topaz', 'zircon',
-        //       'benz', 'edison', 'einstein', 'fleming', 'franklin', 'graham', 'newton', 'whitney',
-        //       'collaborate', 'create', 'fun', 'grow', 'idea', 'innovate', 'inspire', 'lead', 'meet', 'team', 'think'
-        //     ],
-        //     site: [
-        //       'KLB - Tower 5', 'KLB - Tower 2A', 'SUITE'
-        //     ]
-        //   },
-        //   fromTime: [
-        //     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
-        //     '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-        //     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00',
-        //     '21:30', '22:00', '22:30', '23:00', '23:30'
-        //   ],
-        //   toTime: [
-        //     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
-        //     '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-        //     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00',
-        //     '21:30', '22:00', '22:30', '23:00', '23:30'
-        //   ],
-        //   subject: [
-        //     'WYSIWYG', 'PTAL', 'LGTM', 'ASAP', 'LMAO', 'DRY', 'WYD', 'IMHO', 'AFAIK'
-        //   ],
-        //   person: [
-        //     'John Doe', 'Marrionette', '^ w ^', 'Mary Doe', 'Alexander The Great', 'Hyper Junior',
-        //     'Manchester The Great Thief', 'JTR', 'Doley', 'Suggest an edit'
-        //   ],
-        //   requestor: [
-        //     'John Doe', 'Marrionette', '^ w ^', 'Mary Doe', 'Alexander The Great', 'Hyper Junior',
-        //     'Manchester The Great Thief', 'JTR', 'Doley', 'Suggest an edit', '', '', '', '', ''
-        //   ],
-        //   remarks: [
-        //     'WYSIWYG', 'PTAL', 'LGTM', 'ASAP', 'LMAO', 'DRY', 'WYD', 'IMHO', 'AFAIK', '', '', ''
-        //   ],
-        //   reservedDate: [
-        //     '2016-01-01', '2014-03-14', '2018-07-06', '2015-10-15'
-        //   ],
-        //   date: [
-        //     '2016-01-01', '2014-03-14', '2018-07-06', '2015-10-15'
-        //   ]
-        // }
-        // var _roomLen = _lorem.roomInfo.room.length;
-        // var _siteLen = _lorem.roomInfo.site.length;
-        // var _fromTimeLen = _lorem.fromTime.length;
-        // var _toTimeLen = _lorem.toTime.length;
-        // var _subjectLen = _lorem.subject.length;
-        // var _personLen = _lorem.person.length;
-        // var _requestorLen = _lorem.requestor.length;
-        // var _remarksLen = _lorem.remarks.length;
-        // var _reservedDateLen = _lorem.reservedDate.length;
-        // var _dateLen = _lorem.date.length;
-        //
-        // for (var i = 0; i < 999; i++) {
-        //   _data[i] = {
-        //     roomInfo: {
-        //       room: _lorem.roomInfo.room[Math.floor(Math.random() * _roomLen)],
-        //       site: _lorem.roomInfo.site[Math.floor(Math.random() * _siteLen)]
-        //     },
-        //     fromTime: _lorem.fromTime[Math.floor(Math.random() * _fromTimeLen)],
-        //     toTime: _lorem.toTime[Math.floor(Math.random() * _toTimeLen)],
-        //     subject: _lorem.subject[Math.floor(Math.random() * _subjectLen)],
-        //     person: _lorem.person[Math.floor(Math.random() * _personLen)],
-        //     requestor: _lorem.requestor[Math.floor(Math.random() * _requestorLen)],
-        //     remarks: _lorem.remarks[Math.floor(Math.random() * _remarksLen)],
-        //     reservedDate: _lorem.reservedDate[Math.floor(Math.random() * _reservedDateLen)],
-        //     date: _lorem.date[Math.floor(Math.random() * _dateLen)]
-        //   };
-        // }
-        // _data = _data.slice();
-
-        // this.set('reservations.all', _data.splice(0, 20));
-        // this.set('reservations', {});
-        // this.set('_mockList', _data);
-        //
-        // var _todayList = _data.splice(0, Math.random() * 155);
-        // var _thisweekList = _data.splice(0, Math.random() * 15);
-        // // var _upcomingList = _data.splice(0, Math.random() * 15);
-        // var _upcomingList = _data.splice(0, 11);
-        //
-        // this.set('reservations.today', _todayList);
-        // this.set('reservations.thisweek', _thisweekList);
-        // this.set('_todayCount', _todayList.length);
-        // this.set('_thisweekCount', _thisweekList.length);
-        // this.set('reservations.upcoming', []);
-        // this.set('_upcomingCount', 0);
-        // --- End of mock data testing... ---
       },
 
       attached: function() {
         this.set('scroller', Polymer.dom(this.ownerDocument).querySelector('html'));
 
-        console.log('reserve-page-attached');
         this.fire('reserve-page-attached');
       },
 
@@ -824,7 +739,6 @@
       },
 
       _loadMoreData: function() {
-        console.log('_loadMoreData:', '_isSmallScreen:', this._isSmallScreen, '_loadingMoreData:', this._loadingMoreData);
         if (typeof this.reservations === 'undefined' || typeof this.reservations[this._selectedPage] === 'undefined') {
           return;
         }
@@ -841,7 +755,6 @@
           var _view = '_' + _selectedPage + 'View';
           var _viewCount = this[_view] || 0;
           var _dataCount = this['_' + _selectedPage + 'Count'];
-          // console.log(_view, _viewCount, _dataCount);
           // No need to load more data when everything has been loaded into the
           // items of the dom-repeat. _viewCount has reached or exceeded total
           // count of the selected type/ page (eg. _todayCount).
@@ -864,8 +777,6 @@
         }, _delayToLoadMoreData);
       },
       _loadMoreMultipleData: function() {
-        console.log('_loadMoreMultipleData');
-
         var _todayView = this._todayView || 0;
         var _thisweekView = this._thisweekView || 0;
         var _upcomingView = this._upcomingView || 0;
@@ -975,7 +886,6 @@
         }, 1);
       },
       _lazifyList: function(_selectedPage, _reservations, _isSmallScreen) {
-        // console.log('_lazifyList', _selectedPage, _reservations.path, typeof _reservations.base[_selectedPage] == 'undefined');
         // Since _reservations is of type Object, the observer will run once
         // this is initialized with an {}. However, we only want this method
         // to run only when has it some items (eg. Array) inside.
@@ -999,13 +909,11 @@
 
         // Only load.
         function _setEmptyPage(_view, _count) {
-          // console.log('_isEmpty');
           this.set(_view, 0);
           this.set(_count, 0);
         }
         var _thisSetEmptyPage = _setEmptyPage.bind(this);
         if (_path === _selectedPage) {
-          // console.log('haha', _selectedPage, _path, _reservations.value);
           if (_.isEmpty(_reservations.value)) {
             _thisSetEmptyPage(_view, _count);
             // Only set _list and _page when _path equals to _selectedPage
@@ -1019,7 +927,6 @@
           }
         }else if (!!_path && _path !== _selectedPage){
           // Data is updated but not at current page.
-          // console.log('lol', _selectedPage, _path, _reservations.value);
           _view = '_' + _path + 'View';
           _count = '_' + _path + 'Count';
           if (_.isEmpty(_reservations.value)) {
@@ -1028,7 +935,6 @@
           }
         }else {
           // Switching page.
-          // console.log('wa', _selectedPage, _path);
           if (_.isEmpty(_reservations.base[_selectedPage])) {
             _thisSetEmptyPage(_view, _count);
             // Only set _list and _page when _path equals to _selectedPage
@@ -1055,7 +961,6 @@
       },
       _lazifyMultipleList: function(_reservations) {
         var _type = _reservations.path.split('.')[1];
-        // console.log('_lazifyMultipleList', _reservations, _type);
         var _isTodayEmpty = _.isEmpty(_reservations.base.today);
         var _isThisweekEmpty = _.isEmpty(_reservations.base.thisweek);
         var _isUpcomingEmpty = _.isEmpty(_reservations.base.upcoming);
@@ -1103,7 +1008,6 @@
 
           return;
         }else {
-          console.log('haha');
           if (_.isEmpty(_reservations.value)) {
             var _totalCount = _reservations.value.length;
             this.set(_view, 0);
@@ -1121,7 +1025,6 @@
       },
 
       _showDetail: function(ev) {
-        // console.log(ev, ev.model.item);
         var _selectedItem = ev.model.item;
         var _isListViewDetailOpened = this._isListViewDetailOpened;
 
@@ -1136,7 +1039,6 @@
         }
       },
       _onDomChange: function(ev) {
-        // console.log(ev);
         if (ev.target.if) {
           this.async(function() {
             this.$$('#listViewDetailDialog').open();
@@ -1171,7 +1073,6 @@
               // by dom-repeat, wrapped it inside Array. Hence, [0] is always the value.
               var _itemToRemove = this._listViewDetail[0];
               var _thisOpenReserveToast = this._openReserveToast.bind(this);
-              // console.log('_removeItem', _reserveBaseRef, _itemToRemove[0]);
               // If accessed user's database successfully...
               _reserveBaseRef.once('value', function(snapshot) {
                 var _refToRemove = '';
@@ -1197,7 +1098,6 @@
                     if (!val.committed) {
                       console.warn('Data not found!');
                     }
-                    // console.log(val.committed, val.snapshot);
                   }).catch(function(error) {
                     console.error(error);
                   });
@@ -1268,7 +1168,6 @@
         }
 
         this.fire('reserve-page-firebase-ready');
-        console.log('_onFirebaseValue');
       },
       _sortVal: function(_val) {
         // Sort Firebase value by both 'date' and 'period' ascendingly.
@@ -1296,13 +1195,10 @@
         for (var i = 0; i < _sortedLen; i++) {
           _computedDate = new Date(_sorted[i].date + ' 00:00').getTime();
           if (_computedDate === _nowTime) {
-            // console.log('===: ', _maxNow, _sorted[i].date);
             _todayFiltered.push(_sorted[i]);
           }else if (_computedDate > _maxNow) {
-            // console.log('>: ', _maxNow, _sorted[i].date);
             _upcomingFiltered.push(_sorted[i]);
           }else {
-            // console.log('><: ', _maxNow, _sorted[i].date);
             _thisweekFiltered.push(_sorted[i]);
           }
         }
@@ -1320,13 +1216,11 @@
       },
 
       _loadAllData: function(ev) {
-        console.log(ev.type, ev.target.tagName, ev.target.getAttribute('reserve-type'));
         var _type = ev.type;
         if (_type === 'tap') {
           this.set('_readyToLoadAllData', !0);
         }else {
           if (this._readyToLoadAllData) {
-            console.log(Polymer.dom(ev.target.domHost).node.getAttribute('reserve-type'));
             var _reserveType = Polymer.dom(ev.target.domHost).node.getAttribute('reserve-type');
             var _listName = '_' + _reserveType + 'List';
             var _view = '_' + _reserveType + 'View';
@@ -1334,7 +1228,6 @@
             var _list = this.$$('#' + _reserveType + 'List');
             var _viewCount = this[_view];
             var _totalCount = this[_count];
-            console.log(_reserveType, this.resrvations, this.reservations[_reserveType]);
             var _allData = this.reservations[_reserveType].slice(_viewCount, _totalCount);
             var _allDataLen = _allData.length;
 
@@ -1384,7 +1277,6 @@
       },
 
       _closeToast: function(ev) {
-        console.log(ev);
         var _target = ev.target;
 
         while (_target && _target.tagName !== 'PAPER-TOAST') {

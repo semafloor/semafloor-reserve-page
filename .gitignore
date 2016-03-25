@@ -7,3 +7,4 @@ src
 .yo-rc.json
 .gulpfile.babel.js
 package.json
+rough.js

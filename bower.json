@@ -4,7 +4,7 @@
   "authors": [
     "semafloor <wes_ngrongsen@hotmail.com>"
   ],
-  "description": "Semafloor's My Reservations Page.",
+  "description": "A sub-element to display reservations of a user (which has 3 different categories: today, this week, and upcoming).",
   "keywords": [
     "polymer",
     "seed",
@@ -33,13 +33,13 @@
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
-    "semafloor-icons": "semafloor/semafloor-icons#^0.1.1",
+    "semafloor-icons": "semafloor/semafloor-icons#^0.1.5",
     "web-component-tester": "*",
     "app-layout": "polymerlabs/app-layout#^0.0.13",
     "productionizer": "semafloor/productionizer#^0.2.1",
     "lodash": "lodash/lodash#^4.6.1",
     "semafloor-profile-page": "semafloor/semafloor-profile-page#^0.2.1",
-    "semafloor-search-page": "semafloor/semafloor-search-page#^0.4.7",
+    "semafloor-search-page": "semafloor/semafloor-search-page#^0.4.10",
     "semafloor-current-page": "semafloor/semafloor-current-page#^0.5.8",
     "semafloor-room-page": "semafloor/semafloor-room-page#^0.6.10"
   },
