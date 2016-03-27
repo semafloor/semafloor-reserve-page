@@ -204,6 +204,7 @@ Example:
         @apply(--layout-center);
       }
       .fake-toolbar > paper-icon-button {
+        --paper-icon-button-ink-color: #fff;
         margin-right: 8px;
       }
       .fake-toolbar > paper-button {
@@ -340,6 +341,87 @@ Example:
           bottom: 24px;
           right: 24px;
         }
+      }
+
+      /* dark theme */
+      :host(.dark-theme) .reserve-page-container {
+        background-color: #303030;
+        height: 100%;
+      }
+
+      :host(.dark-theme) .each-list-item {
+        border-bottom: 1px solid #3c3c3c;
+      }
+      :host(.dark-theme) .list-item-left-col {
+        color: #80cbc4;
+      }
+      :host(.dark-theme) .list-item-left-col > span {
+        color: #9e9e9e;
+      }
+      :host(.dark-theme) .list-item-right-col {
+        color: #bcbcbc;
+      }
+
+      .type-title.today,
+      .type-title.this-week,
+      .type-title.upcoming {
+        border-top: 1px solid #646464;
+        color: #646464;
+      }
+      :host(.dark-theme) .type-title.today.iron-selected {
+        border-top: 2px solid #d32f2f;
+        color: #d32f2f;
+      }
+      :host(.dark-theme) .type-title.this-week.iron-selected {
+        border-top: 2px solid #1976d2;
+        color: #1976d2;
+      }
+      :host(.dark-theme) .type-title.upcoming.iron-selected {
+        border-top: 2px solid #388e3c;
+        color: #388e3c;
+      }
+
+      :host(.dark-theme) paper-fab {
+        background-color: #1ddb8b;
+      }
+      :host(.dark-theme) paper-fab.today {
+        background-color: #d32f2f;
+      }
+      :host(.dark-theme) paper-fab.this-week {
+        background-color: #1976d2;
+      }
+      :host(.dark-theme) paper-fab.upcoming {
+        background-color: #388e3c;
+      }
+
+      :host(.dark-theme) paper-dialog.list-view-detail-dialog {
+        background-color: #424242;
+        color: #bcbcbc;
+      }
+      :host(.dark-theme) paper-dialog.list-view-detail-dialog > .fake-toolbar {
+        background-color: #424242;
+        border-bottom: 1px solid #646464;
+      }
+      :host(.dark-theme) .fake-toolbar > paper-button {
+        color: #80cbc4;
+        --paper-button-ink-color: #bcbcbc;
+      }
+      :host(.dark-theme) .each-detail {
+        color: #bcbcbc;
+      }
+      :host(.dark-theme) .each-detail > span {
+        color: #9e9e9e;
+      }
+
+      :host(.dark-theme) paper-toast {
+        background-color: #424242;
+        color: #80cbc4;
+      }
+      :host(.dark-theme) paper-toast > span {
+        color: #fbc02d;
+      }
+      :host(.dark-theme) paper-toast.undo-remove {
+        color: #fff;
       }
 
     </style>
@@ -603,6 +685,10 @@ Example:
 
       properties: {
         /**
+         * This sets the theme of the page. Light theme is the default theme. Other options can be found at the `Settings` page.
+         */
+        themeSelected: String,
+        /**
          * Usually set by parent element. The token `uid` of the logged in user will be assigned here to allow the element to retrive reservations data from the user's Firebase.
          */
         uid: String,
@@ -689,6 +775,7 @@ Example:
         '_updateFirebaseLocation(uid)',
         '_translateBottomsheet(postY)',
         '_lazifyList(_selectedPage, reservations.*, _isSmallScreen)',
+        '_updateThemeColor(themeSelected)',
       ],
 
       ready: function() {
@@ -1288,6 +1375,12 @@ Example:
         if (_target) {
           _target.close();
         }
+      },
+
+      _updateThemeColor: function(_themeSelected) {
+        var _isDarkTheme = _themeSelected === 'dark theme';
+        this.toggleClass('dark-theme', _isDarkTheme, this);
+        this.updateStyles();
       },
 
       // TODO: Add more data indicator at the bottom of each list if necessary.
