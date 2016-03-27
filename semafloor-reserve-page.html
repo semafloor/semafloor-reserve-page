@@ -1,1393 +1,1318 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
-<link rel="import" href="../iron-selector/iron-selector.html">
-<link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
 
-<link rel="import" href="../paper-fab/paper-fab.html">
-<link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
-<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+
+<link rel="import" href="../neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html">
 
 <link rel="import" href="../firebase-element/firebase-collection.html">
-
-<link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
-<link rel="import" href="../neon-animation/animations/slide-down-animation.html">
-
 <!--
-A sub-element to display reservations of a user (which has 3 different categories: `today`, `this week`, and `upcoming`).
+A sub-element to display all reservations in the next half an hour.
 
 Example:
-    <semafloor-reserve-page></semafloor-reserve-page>
+
+    <semafloor-current-page></semafloor-current-page>
 
 @group Semafloor
-@element semafloor-reserve-page
+@element semafloor-current-page
 @demo demo/index.html
 @hero hero.svg
 -->
-<dom-module id="semafloor-reserve-page">
+<dom-module id="semafloor-current-page">
+
   <template strip-whitespace>
     <style>
       :host {
-        display: block;
-        box-sizing: border-box;
         -webkit-user-select: none;
            -moz-user-select: none;
             -ms-user-select: none;
                 user-select: none;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
 
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        display: block;
+        position: relative;
       }
 
       * {
         box-sizing: border-box;
       }
 
-      .reserve-page-container {
-        position: relative;
-        padding-bottom: 128px;
-      }
-
-      .full-list-view-page {
-        background-color: #eee;
-      }
-
-      .type-title-container {
-        height: 64px;
+      /* site-selectable */
+      iron-selector {
+        padding: 8px;
+        margin-bottom: 8px;
         @apply(--layout-horizontal);
+      }
+      div.site-selectable {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        color: #9e9e9e;
+        border-radius: 50px;
+        font-size: 10px;
+        margin: 0 3px;
+        padding: 4px;
+        min-width: 84px;
+        width: calc(100% / 3);
+        height: 46px;
+        @apply(--layout-vertical);
         @apply(--layout-center-center);
       }
-      .type-title-bottomsheet {
-        height: 64px;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #212121;
-        padding: 0 16px;
-        opacity: 1;
-        will-change: transform;
-        /* Chrome's ease-out > out-sine */
-        -webkit-transition: opacity linear .2s, -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-        transition: opacity linear .2s, -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-        transition: opacity linear .2s, transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-        transition: opacity linear .2s, transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s, -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-
-        @apply(--layout-horizontal);
-        @apply(--layout-center-center);
-      }
-      .type-title-bottomsheet > .type-title {
-        line-height: normal;
-        font-weight: 500;
-      }
-      .each-type-and-count {
-        padding-top: 8px;
-        text-align: center;
-
-        @apply(--layout-vertical);
+      div.site-selectable.iron-selected {
+        border-color: #00897b;
+        background-color: #00897b;
+        color: #eee;
       }
 
-      .type-title {
-        font-weight: 400;
-        line-height: 26px;
-        margin: 0 16px;
-        text-transform: capitalize;
-      }
-      .type-title.today,
-      .type-title.this-week,
-      .type-title.upcoming {
-        border-top: 1px solid #bdbdbd;
-        color: #bdbdbd;
-        -webkit-transition: border-top ease-in .2s, color ease-in .2s;
-        transition: border-top ease-in .2s, color ease-in .2s;
-      }
-      .type-title.today.iron-selected {
-        border-top: 2px solid #f44336;
-        color: #f44336;
-      }
-      .type-title.this-week.iron-selected {
-        border-top: 2px solid #2196F3;
-        color: #2196F3;
-      }
-      .type-title.upcoming.iron-selected {
-        border-top: 2px solid #4caf50;
-        color: #4caf50;
-      }
-
-      .each-list-item {
-        cursor: pointer;
-        min-height: 64px;
-        padding: 12px 16px;
-        border-bottom: 1px solid #ddd;
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-      }
-      .list-item-left-col {
-        color: #455a64;
-        text-transform: capitalize;
-        font-size: 20px;
-        margin-left: 12px;
-        margin-right: auto;
-        @apply(--layout-vertical);
-        @apply(--layout-center-justified);
-      }
-      .list-item-left-col > span {
-        font-size: 12px;
-        color: #737373;
-      }
-      .list-item-right-col {
-        color: #424242;
-        font-size: 22px;
-        margin-left: 8px;
-        margin-right: 8px;
-        @apply(--layout-vertical);
-        @apply(--layout-center-justified);
-      }
-      .fetch-moar-data {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #0097a7;
-        color: #fafafa;
-        padding: 12px 16px;
-        text-align: center;
-      }
-
-      paper-fab {
-        position: fixed;
-        bottom: calc(64px + 16px);
-        right: 16px;
+      div.waiting-page {
+        position: absolute;
+        background-color: #fff;
+        width: 44px;
+        height: 44px;
+        padding: 8px;
         border-radius: 50%;
-        will-change: transform;
-        /* Chrome's ease-out > out-sine */
-        -webkit-transition: opacity linear .2s,
-                    background-color cubic-bezier(.39, .58, .57, 1) .2s,
-                    -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-        transition: opacity linear .2s,
-                    background-color cubic-bezier(.39, .58, .57, 1) .2s,
-                    -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-        transition: opacity linear .2s,
-                    transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s,
-                    background-color cubic-bezier(.39, .58, .57, 1) .2s;
-        transition: opacity linear .2s,
-                    transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s,
-                    background-color cubic-bezier(.39, .58, .57, 1) .2s,
-                    -webkit-transform cubic-bezier(0.39, 0.58, 0.57, 1) .2s;
-        background-color: #1ddbd8;
+        left: calc(50% - 22px);
+        top: 16px;
+        pointer-events: none;
+         @apply(--shadow-elevation-4dp);
+        /*box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                    0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.4);*/
+        opacity: 1;
+        transition: opacity ease-in .4s;
+        -webkit-transition: opacity ease-in .4s;
       }
-      paper-fab.today {
-        background-color: #f44336;
-      }
-      paper-fab.this-week {
-        background-color: #2196f3;
-      }
-      paper-fab.upcoming {
-        background-color: #4caf50;
+      paper-spinner-lite {
+        --paper-spinner-color: #1ddb8b;
       }
 
-      paper-dialog.list-view-detail-dialog {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-      }
-      paper-dialog.list-view-detail-dialog > .fake-toolbar {
-        background-color: #00796b;
-        color: #f5f5f5;
+      div.weekend-page {
+        color: #bdbdbd;
+        font-weight: 700;
         font-size: 20px;
+        text-align: center;
+        padding: 8px 12px;
+      }
+
+      iron-pages {
+        opacity: 1;
+        transition: opacity ease-in .2s;
+        -webkit-transition: opacity ease-in .2s;
+      }
+      div.each-floor-status {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 5px;
+        margin-left: -16px;
+        background-color: #76FF03;
+        border: 1px solid #4CAF50;
+        pointer-events: none;
+      }
+      div.each-floor-status.fully-occupied {
+        background-color: #F50057;
+        border: 1px solid #F44336;
+      }
+      div.each-floor-status.reserved {
+        background-color: #FFC400;
+        border: 1px solid #FF5722;
+      }
+      div.each-floor {
         height: 64px;
-        margin-top: 0;
-        padding: 0 16px;
+        padding-left: 24px;
+        border-bottom: 1px solid #ddd;
+        text-transform: capitalize;
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
-      .fake-toolbar > paper-icon-button {
-        --paper-icon-button-ink-color: #fff;
-        margin-right: 8px;
+
+      /*div.room-page {}*/
+      div.room-page {
+        padding-top: 8px;
       }
-      .fake-toolbar > paper-button {
+      div.room-page > div.floor-selectable {
+        margin-bottom: 8px;
+      }
+      div.room-page > .floor-selectable,
+      div.info-selection > .floor-selectable {
+        border-color: #00897b;
+        background-color: #00897b;
+        color: #eee;
+        text-transform: capitalize;
+        font-size: 16px;
+        width: calc(100% / 2);
+      }
+
+      /*div.info-page {}*/
+      div.info-selection {
+        padding: 8px;
+        margin-bottom: 8px;
+        @apply(--layout-horizontal);
+      }
+      div.each-floor.each-info-name {
+        min-height: 128px;
+        height: auto;
+        font-size: 38px;
+        text-align: right;
+        padding: 16px 24px;
+        background-color: #ECEFF1;
+        -webkit-box-align: initial;
+        -webkit-align-items: initial;
+        -ms-flex-align: initial;
+        -ms-grid-row-align: initial;
+        align-items: initial;
+        @apply(--layout-vertical);
+      }
+      div.each-info {
+        height: 64px;
+        padding-left: 24px;
+        border-bottom: 1px solid #ddd;
+        text-transform: capitalize;
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+      div.each-info > span {
+        color: #9e9e9e;
         font-size: 14px;
+        min-height: 16px;
+      }
+      div.info-title {
+        color: #263238;
+        text-transform: capitalize;;
+      }
+      div.each-info-button {
+        margin-bottom: 8px;
+        @apply(--layout-horizontal);
+      }
+      div.each-info-button > iron-icon.icon-info {
         margin-left: auto;
         margin-right: 0;
+        color: #6A7180;
       }
-      .list-view-detail-container {
-        height: calc(100% - 64px - 44px);
-        @apply(--layout-scroll);
+      div.each-info-button > iron-icon.icon-schedule {
+        margin-left: 24px;
+        margin-right: 0;
+        color: #6A7180;
       }
-      .each-detail {
-        min-height: 48px;
+      div.info-locked {
+        font-size: 11px;
+        text-transform: none;
+      }
+      iron-icon.info-status {
+        color: #00C853;
+      }
+      iron-icon.info-status.fully-occupied {
+        color: #D50000;
+      }
+      iron-icon.info-status.reserved {
+        color: #FF6D00;
+      }
+      iron-icon.info-lock {
+        color: #ff6f00;
+      }
+      iron-icon.info-lock-open {
+        color: #BCAAA4;
+      }
+
+      /* paper-dialog related */
+      paper-dialog {
+        box-shadow: none;
+      }
+      div.each-dialog-list {
+        margin-bottom: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         font-size: 16px;
         font-weight: 400;
         line-height: 24px;
-        margin: 8px 0;
         @apply(--layout-vertical);
-        @apply(--layout-center-justified);
       }
-      .each-detail > span {
-        min-height: 20px;
+      div.each-dialog-list > span,
+      div.each-dialog-list > paper-checkbox {
         font-size: 14px;
         font-weight: 400;
         line-height: 20px;
         color: #737373;
-        text-transform: capitalize;
       }
-
-      paper-toast {
-        color: #1ddb8b;
+      div.each-dialog-list > paper-checkbox {
+      display: block;
+      margin-bottom: 8px;
+        --paper-checkbox-checked-color: #1ddb8b;
+        --paper-checkbox-unchecked-color: #1ddb8b;
+        --paper-checkbox-checked-ink-color: #1ddb8b;
+        --paper-checkbox-unchecked-ink-color: #1ddb8b;
+        --paper-checkbox-label-color: #737373;
       }
-      paper-toast > ::content > span {
-        margin-right: 12px;
+      div.each-dialog-list > paper-checkbox:first-of-type {
+        margin-top: 3px;
       }
-      paper-toast > span {
-        cursor: pointer;
-
-        color: #eeff41;
-        text-transform: uppercase;
-        margin-right: 0;
-        font-style: italic;
-      }
-      paper-toast.undo-remove {
-        color: #f5f5f5;
-      }
-
-      .empty-tab {
-        color: #bdbdbd;
-        font-size: 24px;
-        font-weight: 700;
-        padding: 16px;
-        @apply(--layout-vertical);
-        @apply(--layout-center-center);
-      }
-      .empty-tab > iron-icon {
-        margin: 24px 0;
-        --iron-icon-width: 84px;
-        --iron-icon-height: 84px;
-        --iron-icon-fill-color: #bdbdbd;
-      }
-
-      .multiple-list-empty-tab-types {
+      div.each-dialog-time {
+        border-top: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        padding-left: 8px;
         @apply(--layout-horizontal);
       }
+      div.each-dialog-time:last-of-type {
+        border-bottom: 1px solid #ddd;
+      }
 
-      /* @media for small desktop & tablet */
+      div.each-dialog-time > span {
+        border-left: 1px solid #ddd;
+        margin-left: 8px;
+        background-color: #1ddb8b;
+        @apply(--layout-flex);
+      }
+      div.each-dialog-time > span.fully-occupied {
+        background-color: #ff1744;
+      }
+
+      /* Adding cursor */
+      div.site-selectable,
+      div.each-floor,
+      iron-icon.icon-info,
+      iron-icon.icon-schedule {
+        cursor: pointer;
+      }
+      div.each-info-name {
+        cursor: auto;
+      }
+
+      /* @media for anything in between 360P mobile and 600P Nexus 7 */
+      @media all and (min-width: 376px) {
+        div.site-selectable {
+          width: calc(376px / 3);
+          max-width: 128px;
+        }
+      }
+
+      /* @media for anything above or equal to Nexus 7 */
+      /*@media all and (min-width: 367px) {*/
       @media all and (min-width: 600px) {
-        .reserve-page-container {
-          @apply(--layout-horizontal);
-          @apply(--layout-around-justified);
-          @apply(--layout-wrap);
+        div.each-floor {
+          min-height: 64px;
         }
 
-        .reserve-page-container {
-          padding: 16px;
-        }
-
-        .each-list-item {
-          width: 325px;
-          max-width: 325px;
-        }
-
-        .today-col,
-        .this-week-col,
-        .upcoming-col {
-          padding: 24px 8px;
-          @apply(--layout-vertical);
-          @apply(--layout-center);
-        }
-        .fetch-moar-data {
-          left: initial;
-          right: initial;
-          width: 325px;
-          max-width: 325px;
-        }
-        .load-all-data {
-          padding: 12px 16px;
-          background-color: #0097a7;
-          color: #fff;
-          width: 100%;
-          margin-top: 8px;
-          font-size: 12px;
-          max-width: 325px;
-          text-transform: none;
-          position: relative;
-        }
-        .fetch-moar-data.today {
-          background-color: #d32f2f;
-        }
-        .fetch-moar-data.this-week {
-          background-color: #1976d2;
-        }
-        .fetch-moar-data.upcoming {
-          background-color: #388e3c;
-        }
-        .type-title.today.iron-selected {
-          width: 48px;
-        }
-        .type-title.this-week.iron-selected {
-          width: 84px;
-        }
-        .type-title.upcoming.iron-selected {
-          width: 84px;
-        }
-
-        paper-dialog.list-view-detail-dialog {
-          height: 640px;
+        div.weekend-page,
+        div.floor-page,
+        div.room-page,
+        div.info-page {
+          border-radius: 3px;
           width: 360px;
-          margin: 20px 40px;
+          margin: 8px auto;
+          overflow: auto;
+           @apply(--shadow-elevation-4dp);
+          /*box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                      0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                      0 2px 4px -1px rgba(0, 0, 0, 0.4);*/
+        }
+      }
+
+      /* @media for very large desktop */
+      /* 376 + 376 + 24 + 24 */
+      @media all and (min-width: 801px) and (min-height: 600px) {
+        :host {
+          height: var(--semafloor-current-page-height, calc(100vh - 64px));
         }
 
-        paper-fab {
-          bottom: 24px;
-          right: 24px;
+        iron-image {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          /* workaround to allow fade effects on iron-image when no src is defined initially. */
+          --iron-image-placeholder: {
+            background-color: #000;
+          };
+        }
+
+        iron-selector {
+          border-radius: 50px;
+          position: absolute;
+        }
+
+        iron-pages {
+          height: 100%;
+        }
+        paper-spinner-lite {
+          margin: 0;
+        }
+        div.weekend-page,
+        div.floor-page,
+        div.room-page,
+        div.info-page {
+          position: absolute;
+          background-color: #fff;
+          border-radius: 2px;
+          width: 376px;
+          overflow: auto;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          margin-top: 72px;
+          margin-left: 12px;
+        }
+        div.site-selectable.floor-selectable {
+          margin-top: 8px;
+        }
+
+        div.site-selectable {
+          min-width: calc(376px / 3);
+          max-width: 128px;
+        }
+
+        paper-dialog {
+          position: absolute;
+          left: 376px;
+          top: 48px;
+          width: 376px;
+          border-radius: 2px;
+        }
+
+        div.each-dialog-time {
+          padding-left: 20%;
+        }
+        div.each-dialog-time > span {
+          margin-left: 26%;
         }
       }
 
       /* dark theme */
-      :host(.dark-theme) .reserve-page-container {
-        background-color: #303030;
-        height: 100%;
+      :host(.dark-theme) {
+        color: #bcbcbc;
       }
 
-      :host(.dark-theme) .each-list-item {
+      :host(.dark-theme) div.waiting-page,
+      :host(.dark-theme) div.weekend-page,
+      :host(.dark-theme) div.floor-page,
+      :host(.dark-theme) div.room-page,
+      :host(.dark-theme) div.info-page {
+        background-color: #303030;
+      }
+
+      :host(.dark-theme) div.each-floor-status {
+        background-color: #64dd17;
+      }
+      :host(.dark-theme) div.each-floor-status.fully-occupied {
+        background-color: #c51162;
+      }
+      :host(.dark-theme) div.each-floor-status.reserved {
+        background-color: #ffab00;
+      }
+      :host(.dark-theme) div.each-floor {
         border-bottom: 1px solid #3c3c3c;
       }
-      :host(.dark-theme) .list-item-left-col {
-        color: #80cbc4;
+      :host(.dark-theme) div.site-selectable {
+        background-color: #424242;
+        border: 1px solid #303030;
+        color: #757575;
       }
-      :host(.dark-theme) .list-item-left-col > span {
-        color: #9e9e9e;
-      }
-      :host(.dark-theme) .list-item-right-col {
-        color: #bcbcbc;
+      :host(.dark-theme) div.site-selectable.iron-selected,
+      :host(.dark-theme) div.room-page > .floor-selectable,
+      :host(.dark-theme) div.info-selection > .floor-selectable {
+        border-color: #00695c;
+        background-color: #00695c;
+        color: #f5f5f5;
       }
 
-      .type-title.today,
-      .type-title.this-week,
-      .type-title.upcoming {
-        border-top: 1px solid #646464;
-        color: #646464;
+      :host(.dark-theme) div.each-floor.each-info-name {
+        background-color: rgba(33, 33, 33, .5);
+        border-top: 1px solid #3c3c3c;
       }
-      :host(.dark-theme) .type-title.today.iron-selected {
-        border-top: 2px solid #d32f2f;
-        color: #d32f2f;
+      :host(.dark-theme) div.each-info {
+        border-bottom: 1px solid #3c3c3c;
       }
-      :host(.dark-theme) .type-title.this-week.iron-selected {
-        border-top: 2px solid #1976d2;
-        color: #1976d2;
+      :host(.dark-theme) div.each-info > span {
+        color: #9e9e9e;
       }
-      :host(.dark-theme) .type-title.upcoming.iron-selected {
-        border-top: 2px solid #388e3c;
+      :host(.dark-theme) div.info-title {
+        color: #bcbcbc;
+      }
+      :host(.dark-theme) div.each-info-button > iron-icon.icon-info,
+      :host(.dark-theme) div.each-info-button > iron-icon.icon-schedule {
+        color: #3c3c3c;
+      }
+      :host(.dark-theme) iron-icon.info-status {
         color: #388e3c;
       }
+      :host(.dark-theme) iron-icon.info-status.fully-occupied {
+        color: #d32f2f;
+      }
+      :host(.dark-theme) iron-icon.info-status.reserved {
+        color: #f57c00;
+      }
+      :host(.dark-theme) div.info-locked {
+        /*color: #ff9800;*/
+      }
+      :host(.dark-theme) iron-icon.info-lock {
+        color: #ff9800;
+      }
+      :host(.dark-theme) iron-icon.info-lock-open {
+        color: #757575;
+      }
 
-      :host(.dark-theme) paper-fab {
-        background-color: #1ddb8b;
-      }
-      :host(.dark-theme) paper-fab.today {
-        background-color: #d32f2f;
-      }
-      :host(.dark-theme) paper-fab.this-week {
-        background-color: #1976d2;
-      }
-      :host(.dark-theme) paper-fab.upcoming {
-        background-color: #388e3c;
-      }
-
-      :host(.dark-theme) paper-dialog.list-view-detail-dialog {
+      :host(.dark-theme) paper-dialog {
         background-color: #424242;
         color: #bcbcbc;
       }
-      :host(.dark-theme) paper-dialog.list-view-detail-dialog > .fake-toolbar {
-        background-color: #424242;
-        border-bottom: 1px solid #646464;
+      :host(.dark-theme) paper-dialog > h2 {
+        color: #eee;
       }
-      :host(.dark-theme) .fake-toolbar > paper-button {
-        color: #80cbc4;
-        --paper-button-ink-color: #bcbcbc;
-      }
-      :host(.dark-theme) .each-detail {
-        color: #bcbcbc;
-      }
-      :host(.dark-theme) .each-detail > span {
+      :host(.dark-theme) div.each-dialog-list > span,
+      :host(.dark-theme) div.each-dialog-list > paper-checkbox {
         color: #9e9e9e;
       }
+      :host(.dark-theme) div.each-dialog-list > paper-checkbox {
+        --paper-checkbox-label-color: #9e9e9e;
 
-      :host(.dark-theme) paper-toast {
-        background-color: #424242;
-        color: #80cbc4;
+        --paper-checkbox-checkmark-color: #303030;
+        --paper-checkbox-checked-color: #80cbc4;
+        --paper-checkbox-checked-ink-color: #80cbc4;
+        --paper-checkbox-unchecked-color: #bcbcbc;
+        --paper-checkbox-unchecked-ink-color: #bcbcbc;
       }
-      :host(.dark-theme) paper-toast > span {
-        color: #fbc02d;
+      :host(.dark-theme) div.each-dialog-time {
+        border-top: 1px solid #646464;
+        border-left: 1px solid #646464;
+        border-right: 1px solid #646464;
+        color: #9e9e9e;
       }
-      :host(.dark-theme) paper-toast.undo-remove {
-        color: #fff;
+      :host(.dark-theme) div.each-dialog-time:last-of-type {
+        border-bottom: 1px solid #646464;
+      }
+      :host(.dark-theme) div.each-dialog-time > span {
+        border-left: 1px solid #646464;
+        background-color: #00c853;
+      }
+      :host(.dark-theme) div.each-dialog-time > span.fully-occupied {
+        background-color: #d50000;
       }
 
     </style>
 
-    <iron-media-query query="max-width: 599px" query-matches="{{_isSmallScreen}}">
-    </iron-media-query>
-    <iron-media-query query="min-width: 1080px" query-matches="{{_isLargeDesktop}}">
-    </iron-media-query>
+    <iron-media-query query="min-width: 801px" query-matches="{{_veryLargeDesktop}}"></iron-media-query>
 
-    <firebase-collection id="reserveBase" location="[[_location]]" on-firebase-child-removed="_onFirebaseRemoved" on-firebase-value="_onFirebaseValue"></firebase-collection>
+    <firebase-collection id="listAjax"
+      location="[[_url]]" on-firebase-value="_onFirebaseValue">
+    </firebase-collection>
 
-    <div class="reserve-page-container">
-      <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
-        <iron-pages selected="[[_page]]" attr-for-selected="page">
-          <div class="loading" page="loading"></div>
-
-          <template is="dom-if" if="[[_isEmptyPageOpened]]" restamp="true" strip-whitespace>
-            <div class="empty-tab" page="empty">
-              <iron-icon icon="icons:done-all"></iron-icon>
-              Reservation list is empty!
-            </div>
-          </template>
-
-          <div id="listView" class="" page="list">
-            <template id="list" is="dom-repeat" items="[[_list]]" index-as="index" strip-whitespace>
-              <div class="each-list-item" on-tap="_showDetail">
-                <div class="list-item-left-col">
-                  [[item.roomInfo.room]]
-                  <span>[[item.roomInfo.site]]</span>
-                </div>
-
-                <div class="list-item-right-col">
-                  [[item.fromTime]] - [[item.toTime]]
-                </div>
-              </div>
-            </template>
-            <template is="dom-if" if="[[_isLoadingMoreDataNeeded(_loadingMoreData)]]" restamp="true" strip-whitespace>
-              <div class="fetch-moar-data">
-                Fetching moar data...
-              </div>
-            </template>
-          </div>
-        </iron-pages>
-      </template>
-
-      <template is="dom-if" if="[[!_isSmallScreen]]" restamp="true" strip-whitespace>
-        <template is="dom-if" if="[[_isEmptyReservationsOnLargeScreen]]" restamp="true" strip-whitespace>
-          <div class="multiple-list-empty-page">
-            <div class="multiple-list-empty-tab-types">
-              <div class="type-title today iron-selected">
-                <div class="each-type-and-count">
-                  <span> today </span>
-                  [[_todayCount]]
-                </div>
-              </div>
-
-              <div class="type-title this-week iron-selected">
-                <div class="each-type-and-count">
-                  <span> this week </span>
-                  [[_thisweekCount]]
-                </div>
-              </div>
-
-              <div class="type-title upcoming iron-selected">
-                <div class="each-type-and-count">
-                  <span> upcoming </span>
-                  [[_upcomingCount]]
-                </div>
-              </div>
-            </div>
-
-            <div class="empty-tab" page="empty">
-              <iron-icon icon="icons:done-all"></iron-icon>
-              Reservation list is empty!
-            </div>
-          </div>
-        </template>
-
-        <template is="dom-if" if="[[!_isEmptyReservationsOnLargeScreen]]" restamp="true" strip-whitespace>
-          <div class="today-col">
-            <div class="type-title today iron-selected">
-              <div class="each-type-and-count">
-                <span> today </span>
-                [[_todayCount]]
-              </div>
-            </div>
-
-            <template id="todayList" is="dom-repeat" items="[[_todayList]]" index-as="index" strip-whitespace>
-              <div class="each-list-item" on-tap="_showDetail">
-                <div class="list-item-left-col">
-                  [[item.roomInfo.room]]
-                  <span>[[item.roomInfo.site]]</span>
-                </div>
-
-                <div class="list-item-right-col">
-                  [[item.fromTime]] - [[item.toTime]]
-                </div>
-              </div>
-            </template>
-            <template is="dom-if" if="[[_isAnyMoreData(_todayView, _todayCount, _isLargeDesktop)]]" restamp="true" strip-whitespace>
-              <paper-button class="load-all-data" reserve-type="today" on-tap="_loadAllData" on-transitionend="_loadAllData">
-                Click here to load all Today's data.
-              </paper-button>
-            </template>
-            <template is="dom-if" if="[[_isLoadingMoreDataNeeded(_loadingMoreData, 'today')]]" restamp="true" strip-whitespace>
-              <div class="fetch-moar-data today">
-                Fetching moar Today's data...
-              </div>
-            </template>
-          </div>
-
-          <div class="this-week-col">
-            <div class="type-title this-week iron-selected">
-              <div class="each-type-and-count">
-                <span> this week </span>
-                [[_thisweekCount]]
-              </div>
-            </div>
-
-            <template id="thisweekList" is="dom-repeat" items="[[_thisweekList]]" index-as="index" strip-whitespace>
-              <div class="each-list-item" on-tap="_showDetail">
-                <div class="list-item-left-col">
-                  [[item.roomInfo.room]]
-                  <span>[[item.roomInfo.site]]</span>
-                </div>
-
-                <div class="list-item-right-col">
-                  [[item.fromTime]] - [[item.toTime]]
-                </div>
-              </div>
-            </template>
-            <template is="dom-if" if="[[_isAnyMoreData(_thisweekView, _thisweekCount, _isLargeDesktop)]]" restamp="true" strip-whitespace>
-              <paper-button class="load-all-data" reserve-type="thisweek" on-tap="_loadAllData" on-transitionend="_loadAllData">
-                Click here to load all This Week's data.
-              </paper-button>
-            </template>
-            <template is="dom-if" if="[[_isLoadingMoreDataNeeded(_loadingMoreData, 'thisweek')]]" restamp="true" strip-whitespace>
-              <div class="fetch-moar-data this-week">
-                Fetching moar This week's data...
-              </div>
-            </template>
-          </div>
-
-          <div class="upcoming-col">
-            <div class="type-title upcoming iron-selected">
-              <div class="each-type-and-count">
-                <span> upcoming </span>
-                [[_upcomingCount]]
-              </div>
-            </div>
-
-            <template id="upcomingList" is="dom-repeat" items="[[_upcomingList]]" index-as="index" strip-whitespace>
-              <div class="each-list-item" on-tap="_showDetail">
-                <div class="list-item-left-col">
-                  [[item.roomInfo.room]]
-                  <span>[[item.roomInfo.site]]</span>
-                </div>
-
-                <div class="list-item-right-col">
-                  [[item.fromTime]] - [[item.toTime]]
-                </div>
-              </div>
-            </template>
-            <template is="dom-if" if="[[_isAnyMoreData(_upcomingView, _upcomingCount, _isLargeDesktop)]]" restamp="true" strip-whitespace>
-              <paper-button class="load-all-data" reserve-type="upcoming" on-tap="_loadAllData" on-transitionend="_loadAllData">
-                Click here to load all Upcoming's data.
-              </paper-button>
-            </template>
-            <template is="dom-if" if="[[_isLoadingMoreDataNeeded(_loadingMoreData, 'upcoming')]]" restamp="true" strip-whitespace>
-              <div class="fetch-moar-data upcoming">
-                Fetching moar Upcoming's data...
-              </div>
-            </template>
-          </div>
-        </template>
-      </template>
-    </div>
-
-    <paper-fab id="reserveFab" icon="icons:add" class$="[[_computeFabCls(_selectedPage, _isSmallScreen)]]" tab-index="0" on-tap="_reserveNew" on-transitionend="_reserveNew"></paper-fab>
-
-    <template is="dom-if" if="[[_isSmallScreen]]" restamp="true" strip-whitespace>
-      <iron-selector id="typeTitleBottomsheet" class="type-title-bottomsheet" selected="{{_selectedPage}}" attr-for-selected="page">
-        <template is="dom-repeat" items="[[_typeTitles]]" index-as="index">
-          <div class$="type-title [[_computeTitleCls(index)]]" page="[[item]]">
-            <div class="each-type-and-count">
-              <span> [[_computeTitleName(index)]] </span>
-              [[_computeCount(index, _todayCount, _thisweekCount, _upcomingCount)]]
-            </div>
-          </div>
-        </template>
-      </iron-selector>
+    <template is="dom-if" if="[[_veryLargeDesktop]]" restamp="true" strip-whitespace>
+      <iron-image src="[[_newBackgroundImage]]" preload fade sizing="cover"></iron-image>
     </template>
 
-    <template is="dom-if" if="[[_isListViewDetailOpened]]" restamp="true" strip-whitespace on-dom-change="_onDomChange">
-      <paper-dialog id="listViewDetailDialog" class="list-view-detail-dialog" entry-animation="slide-from-bottom-animation" exit-animation="slide-down-animation" on-iron-overlay-closed="_manipulateDocumentScrolling" with-backdrop>
-        <div class="fake-toolbar">
-          <paper-icon-button icon="icons:arrow-back" on-tap="_closeDetail" on-transitionend="_closeDetail"></paper-icon-button>
-          Reservation detail
-          <paper-button on-tap="_removeItem" on-transitionend="_removeItem">remove</paper-button>
+    <iron-selector selected="{{selectedSite}}" attr-for-selected="site">
+      <div class="site-selectable" site="KLB - Tower 5">
+        <iron-icon icon="icons:language"></iron-icon>KLB - Tower 5
+      </div>
+      <div class="site-selectable" site="KLB - Tower 2A">
+        <iron-icon icon="icons:trending-up"></iron-icon>KLB - Tower 2A
+      </div>
+      <div class="site-selectable" site="SUITE">
+        <iron-icon icon="icons:group-work"></iron-icon>SUITE
+      </div>
+    </iron-selector>
+
+    <template is="dom-if" if="[[_isSpinnerOpened]]" restamp="true" strip-whitespace>
+      <div id="loadingSpinner" class="waiting-page">
+        <paper-spinner-lite active="[[_isLoading]]"></paper-spinner-lite>
+      </div>
+    </template>
+
+    <iron-pages id="currentPages" selected="[[_selectedPage]]" attr-for-selected="page">
+      <template is="dom-if" if="[[_isWeekendPageOpened]]" restamp="true" strip-whitespace>
+        <div class="weekend-page" page="weekend">
+          Hurrah! No reservations on weekends!
         </div>
-        <div class="list-view-detail-container">
-          <!--
-          Title [[item.subject]]
-          Reserved by [[item.person]]
-          Requestor [[item.requestor]]
-          Remarks [[item.remarks]]
-          Reserved on [[item.reservedDate]]
-          Room Reserved [[item.roomInfo.room]]
-          Reservation date [[item.date]]
-          Reservation time [[item.fromTime]] [[item.toTime]]
-          -->
-          <template is="dom-repeat" items="[[_listViewDetail]]" index-as="index" strip-whitespace>
-            <div class="each-detail">
-              Title
-              <span>[[item.subject]]</span>
-            </div>
-            <div class="each-detail">
-              Reserved by
-              <span>[[item.person]]</span>
-            </div>
-            <div class="each-detail">
-              Requestor
-              <span>[[item.requestor]]</span>
-            </div>
-            <div class="each-detail">
-              Remarks
-              <span>[[item.remarks]]</span>
-            </div>
-            <div class="each-detail">
-              Reserved on
-              <span>[[item.reservedDate]]</span>
-            </div>
-            <div class="each-detail">
-              Room reserved
-              <span>[[item.roomInfo.site]], [[item.roomInfo.room]]</span>
-            </div>
-            <div class="each-detail">
-              Reservation date
-              <span>[[item.date]]</span>
-            </div>
-            <div class="each-detail">
-              Reservation time
-              <span>[[item.fromTime]] - [[item.toTime]]</span>
+      </template>
+
+      <div page="floor" class="floor-page">
+        <template is="dom-repeat" items="[[_floorsAtSelectedSite]]" index-as="index" strip-whitespace>
+          <div class="each-floor" on-tap="_unveilFloor" floor$="[[item]]">
+            <div class$="each-floor-status[[_isVacantFloor(_floorStatus, selectedSite, item)]]"></div>
+            [[item]]
+          </div>
+        </template>
+      </div>
+
+      <template is="dom-if" if="[[_isRoomPageOpened]]" restamp="true" strip-whitespace>
+        <div page="room" class="room-page">
+          <div class="site-selectable floor-selectable" on-tap="_backSite">[[selectedFloorName]]</div>
+          <template is="dom-repeat" items="[[_roomsAtSelectedFloor]]" index-as="index" strip-whitespace>
+            <div class="each-floor" on-tap="_unveilRoom" room$="[[item]]">
+              <div class$="each-floor-status[[_isVacantRoom(item)]]"></div>
+              [[item]]
             </div>
           </template>
         </div>
+      </template>
+
+      <template is="dom-if" if="[[_isInfoPageOpened]]" restamp="true" strip-whitespace>
+        <div page="info" class="info-page">
+          <div class="info-selection">
+            <div class="site-selectable floor-selectable" on-tap="_backSite">[[selectedFloorName]]</div>
+            <div class="site-selectable floor-selectable" on-tap="_backRoom">[[selectedRoomName]]</div>
+          </div>
+          <template is="dom-repeat" items="[[_infoAtSelectedRoom]]" index-as="index" strip-whitespace>
+            <div class="each-floor each-info-name">
+              <div class="each-info-button" on-tap="_showInfoOrSchedule">
+                <iron-icon class$="info-status[[_isVacantRoom(item)]]" icon="icons:radio-button-[[_isRoomOccupied(item)]]"></iron-icon>
+                <iron-icon class="icon-info" icon="icons:info"></iron-icon>
+                <iron-icon class="icon-schedule" icon="icons:query-builder"></iron-icon>
+              </div>
+
+              <div class="info-title">
+                [[item.name]]
+                <div class="info-locked">
+                  <iron-icon class$="info-lock[[_isRoomLocked(item.access)]]" icon="icons:lock[[_isRoomLocked(item.access)]]"></iron-icon>
+                  [[_isRoomLockedMsg(item.access)]]
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template is="dom-repeat" items="[[_detailAtSelectedRoom]]" index-as="index" strip-whitespace>
+            <div class="each-info">
+              Person<span>[[item.person]]</span>
+            </div>
+            <div class="each-info">
+              Subject<span>[[item.subject]]</span>
+            </div>
+            <div class="each-info">
+              Time<span>[[item.fromTime]] - [[item.toTime]]</span>
+            </div>
+          </template>
+        </div>
+      </template>
+    </iron-pages>
+
+    <template is="dom-if" if="[[_isInfoOrScheduleOpened]]" restamp="true" strip-whitespace>
+      <paper-dialog id="infoOrSchedule"
+        with-backdrop
+        auto-fit-on-attach
+        no-auto-focus
+        animation-config="[[_animationConfig]]"
+        on-iron-overlay-closed="_dialogClosedDone">
+        <h2>[[_dialogTitle]]</h2>
+        <paper-dialog-scrollable>
+          <template is="dom-if" if="[[_isDialogInfo]]" strip-whitespace>
+            <template is="dom-repeat" items="[[_dialogList]]" index-as="index" strip-whitespace>
+              <div class="each-dialog-list">
+                Site
+                <span>[[item.site]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Floor
+                <span>[[item.floor]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Restricted
+                <span>[[_isRestricted(item.access)]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Capacity
+                <span>[[item.capacity]]</span>
+              </div>
+              <div class="each-dialog-list">
+                Types
+                <template is="dom-repeat" items="[[_decodeTypes(item.types)]]" index-as="index" strip-whitespace>
+                  <paper-checkbox checked>[[item]]</paper-checkbox>
+                </template>
+              </div>
+            </template>
+          </template>
+
+          <template is="dom-if" if="[[!_isDialogInfo]]" strip-whitespace>
+            <template is="dom-repeat" items="[[_dialogList]]" index-as="index" strip-whitespace>
+              <div class="each-dialog-time">
+                [[item.fulltime]]
+                <span class$="[[_isVacantTime(item.result)]]"></span>
+              </div>
+            </template>
+          </template>
+        </paper-dialog-scrollable>
+
+        <span></span>
       </paper-dialog>
     </template>
 
-    <paper-toast id="reserveToast" text="[[_msg]]" on-tap="_closeToast">
-      <template is="dom-if" if="[[_showUndo]]" restamp="true" strip-whitespace>
-        <span role="button" tabindex="0" on-tap="_undoItemRemoval">undo</span>
-      </template>
-    </paper-toast>
-
-    <iron-scroll-threshold id="scrollThreshold" scroll-target="[[scroller]]" lower-triggered="{{_loadingMoreData}}" on-lower-threshold="_loadMoreData"></iron-scroll-threshold>
   </template>
-  <script>
-    Polymer({
-      is: 'semafloor-reserve-page',
+</dom-module>
 
-      properties: {
-        /**
-         * This sets the theme of the page. Light theme is the default theme. Other options can be found at the `Settings` page.
-         */
-        themeSelected: String,
-        /**
-         * Usually set by parent element. The token `uid` of the logged in user will be assigned here to allow the element to retrive reservations data from the user's Firebase.
-         */
-        uid: String,
-        /**
-         * Once the reservations data is received from the server side, it is assigned here for further processing before actually showing on the screen.
-         */
-        reservations: Object,
-        /**
-         * It is used to scroll the fab and bottomsheet away when the user is scrolling down the reservation list provided it has a height beyond the device screen size that displays it.
-         */
-        postY: Number,
-        /**
-         * It is used to delegate the scroller inside this element to an outside element such as the document so that the document scrolling will take the full control of any list inside this element.
-         */
-        scroller: {
-          type: HTMLElement,
-          value: function() {
-            return Polymer.dom(this.ownerDocument).querySelector('html');
+<script>
+  var _alphaFloors = [
+    'level 1','level 2','level 3','level 3A','level 5','level 6',
+    'level 7','level 8','level 9','level 10','level 11','level 12'];
+  var _alphaFloorsCode = [
+    '01level','02level','03level','04level','05level','06level',
+    '07level','08level','09level','10level','11level','12level'];
+  var _siteNames = ['KLB - Tower 5','KLB - Tower 2A','SUITE'];
+
+  Polymer({
+
+    is: 'semafloor-current-page',
+
+    properties: {
+      /**
+       * To set new theme for the page. Default theme is light theme.
+       * The value can be changed via `Settings` page.
+       */
+      themeSelected: String,
+      /**
+       * On first load, a site will selected to display all data inside that selected site.
+       * By default, the first site is always selected in this case.
+       */
+      selectedSite: {
+        type: String,
+        value: 'KLB - Tower 5'
+      },
+      /**
+       * This is to display the all data in that selected floor from user's input.
+       */
+      selectedFloor: String,
+      /**
+       * This is to show in the selected tab which floor has been selected by the user.
+       */
+      selectedFloorName: String,
+      /**
+       * This is used to show in the selected tab which room has been selected by the user.
+       */
+      selectedRoomName: String,
+
+      _animationConfig: Object,
+      _selectedPage: String,
+      _floorsAtSelectedSite: {
+        type: Array,
+        value: function() {
+          return _alphaFloors;
+        },
+        computed: '_computeFloorsAtSelection(selectedSite)'
+      },
+
+      _currentReservations: Array,
+      _allSitesData: Object,
+
+      _url: {
+        type: String,
+        value: function() {
+          function _getWeek(_fulldate) {
+            var _now = new Date(_fulldate.getFullYear(), _fulldate.getMonth(), _fulldate.getDate() - _fulldate.getDay() + 4);
+            var _onejan = new Date(_now.getFullYear(), 0, 1);
+
+            return Math.ceil(((_now - _onejan) / 86400000 + 1) / 7);
           }
-        },
 
-        _typeTitles: {
-          type: Array,
-          value: [ 'today', 'thisweek', 'upcoming' ]
-        },
-        _selectedPage: {
-          type: String,
-          value: 'today'
-        },
-        _page: {
-          type: String,
-          value: 'empty'
-        },
-        _readyToReserve: Boolean,
+          function _getMonthName(_month) {
+            var _monthName = [
+              'january', 'february', 'march', 'april', 'may', 'june',
+              'july', 'august', 'september', 'october', 'november', 'december'
+            ];
 
-        _todayList: Array,
-        _thisweekList: Array,
-        _upcomingList: Array,
+            return _monthName[_month];
+          }
 
-        _todayView: Number,
-        _thisweekView: Number,
-        _upcomingView: Number,
+          var _today = new Date();
+          var _baseRef = 'https://polymer-semaphore.firebaseio.com/mockMessages';
+          var _year = _today.getFullYear();
+          var _month = _.padStart(_today.getMonth(), 2, '0') + _getMonthName(_today.getMonth());
+          var _week = 'week' + _.padStart(_getWeek(_today), 2, '0');
+          var _date = _.padStart(_today.getDate(), 2, '0');
 
-        _todayCount: {
-          type: Number,
-          value: 0
-        },
-        _thisweekCount: {
-          type: Number,
-          value: 0
-        },
-        _upcomingCount: {
-          type: Number,
-          value: 0
-        },
-
-        _isListViewDetailOpened: Boolean,
-        _listViewDetail: Array,
-        _readyToCloseDetail: Boolean,
-
-        _location: String,
-
-        _readyToRemoveItem: Boolean,
-        _msg: String,
-        _showUndo: Boolean,
-
-        _isEmptyPageOpened: {
-          type: Boolean,
-          value: !0
-        },
-        _isEmptyReservationsOnLargeScreen: {
-          type: Boolean,
-          value: !0
-        },
-
-        _isLargeDesktop: Boolean,
-        _isSmallScreen: Boolean,
-
-        _loadingMoreData: Boolean,
-
-      },
-
-      observers: [
-        '_updateFirebaseLocation(uid)',
-        '_translateBottomsheet(postY)',
-        '_lazifyList(_selectedPage, reservations.*, _isSmallScreen)',
-        '_updateThemeColor(themeSelected)',
-      ],
-
-      ready: function() {
-      },
-
-      attached: function() {
-        this.set('scroller', Polymer.dom(this.ownerDocument).querySelector('html'));
-
-        this.fire('reserve-page-attached');
-      },
-
-      _computeTitleCls: function(_typeTitleIdx) {
-        var _cls = ['today', 'this-week', 'upcoming'];
-        return _cls[_typeTitleIdx];
-      },
-      _computeFabCls: function(_selectedPage, _isSmallScreen) {
-        if (!_isSmallScreen) {
-          return '';
+          return [_baseRef, _year, _month, _week, _date].join('/');
+          // TODO: For development purpose...
+          // return [_baseRef, _year, _month, 'week07', 17].join('/');
         }
+      },
+      _floorStatus: Object,
 
-        var _idx = ['today', 'thisweek', 'upcoming'].indexOf(_selectedPage);
-        var _cls = ['today', 'this-week', 'upcoming'];
-        return _cls[_idx];
+      _roomsAtSelectedFloor: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        computed: '_computeRoomsAtSelection(selectedSite, selectedFloor, _allSitesData)'
       },
-      _computeTitleName: function(_idx) {
-        return ['today', 'this week', 'upcoming'][_idx];
-      },
-      _computeCount: function(_idx) {
-        var _listIdx = ['today', 'thisweek', 'upcoming'][_idx];
-        var _listName = '_' + _listIdx + 'Count';
-        return this[_listName];
-      },
-      _isLoadingMoreDataNeeded: function(_loadingMoreData, _typeName) {
-        var _selectedPage = !!_typeName ? _typeName : this._selectedPage;
-        var _view = '_' + _selectedPage + 'View';
-        var _count = '_' + _selectedPage + 'Count';
-        var _anyMoreData = this[_view] < this[_count];
+      _infoAtSelectedRoom: Array,
 
-        return _loadingMoreData && _anyMoreData;
-      },
-      _isAnyMoreData: function(_view, _count, _isLargeDesktop) {
-        var _isMore = _view < _count;
-        return _isMore && !_isLargeDesktop;
-      },
-      _computeLargeDesktopCls: function(_isLargeDesktop) {
-        var _cls = _isLargeDesktop ? '' : 'end-of-list';
-        return _cls;
-      },
+      _reservationDetails: Object,
+      _detailAtSelectedRoom: Array,
 
-      _loadMoreData: function() {
-        if (typeof this.reservations === 'undefined' || typeof this.reservations[this._selectedPage] === 'undefined') {
-          // Always clear the triggers of scroll threshold even if it's an no-op and returns.
-          this.$.scrollThreshold.clearTriggers();
-          return;
+      _dialogAnimationDone: {
+        type: Boolean,
+        value: !0
+      },
+      _dialogTitle: String,
+      _dialogList: Array,
+      _isDialogInfo: Boolean,
+
+      _isWeekend: Boolean,
+      _veryLargeDesktop: Boolean,
+      _newBackgroundImage: String,
+      _isLoading: Boolean,
+
+      _isWeekendPageOpened: Boolean,
+      _isRoomPageOpened: Boolean,
+      _isInfoPageOpened: Boolean,
+      _isInfoOrScheduleOpened: Boolean,
+      _isSpinnerOpened: Boolean,
+
+    },
+
+    observers: [
+      '_whenSelectedSiteChanged(selectedSite)',
+      '_computeFloorStatus(_currentReservations, selectedSite)',
+      '_openDialog(_dialogAnimationDone)',
+      '_transitionSpinner(_isLoading)',
+      '_updateThemeColor(themeSelected)',
+    ],
+
+    // Element Lifecycle
+    created: function() {
+    },
+
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+      // necessary), or kick off any processes the element wants to perform.
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+      var _clientWidth = this.clientWidth;
+      if (_clientWidth > 800) {
+
+        // TODO: If screen larger than 1200, allows 2 dialogs to show on screen at the same time.
+        // if (_clientWidth >= 1200) {
+        //   this.$.infoOrSchedule.noCancelOnOutsideClick = !0;
+        // }
+        this.set('_veryLargeDesktop', !0);
+        this._changeNewBackgroundImage();
+      }
+
+      // TODO: load external resources, eg. Firebase.
+      this.fire('current-page-attached');
+      // console.timeEnd('semafloor-current-attached');
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    _onFirebaseValue: function(ev) {
+      var _firebaseData = ev.detail.val();
+
+      // Probably today is weekend, yet you're checking for reservations.
+      if (_.isEmpty(_firebaseData.site)) {
+        this.set('_isWeekend', !0);
+        // Observer won't work if one of the dependencies is undefined.
+        this.set('_allSitesData', {});
+        this.set('_currentReservations', []);
+
+        if (this._isLoading) {
+          this.set('_isLoading', !1);
+          this._lazifySelectedPage('_isWeekendPageOpened', 'weekend');
         }
+        return;
+      }
 
-        if (!this._isSmallScreen) {
-          this._loadMoreMultipleData();
-          return;
-        }
+      // hide spinner and switch to room page.
+      if (this.selectedFloor !== '13level' && this._isLoading) {
+        this.set('_isLoading', !1);
 
-        var _delayToLoadMoreData = Math.random() * 100 + Math.random() * 200;
-        this.async(function() {
-          var _selectedPage = this._selectedPage;
-          var _data = this.reservations[_selectedPage];
-          var _view = '_' + _selectedPage + 'View';
-          var _viewCount = this[_view] || 0;
-          var _dataCount = this['_' + _selectedPage + 'Count'];
-          // No need to load more data when everything has been loaded into the
-          // items of the dom-repeat. _viewCount has reached or exceeded total
-          // count of the selected type/ page (eg. _todayCount).
-          if (_viewCount >= _dataCount) {
-            // Always clearTriggers() before leaving this method.
-            this.$.scrollThreshold.clearTriggers();
-            return;
-          }
+        this._lazifySelectedPage('_isRoomPageOpened', 'room');
+      }
 
-          var _nextSlice = _data.slice(_viewCount, _viewCount + 5);
-          var _nextSliceLen  = _nextSlice.length;
+      // fire an event when data is fetched.
+      this.fire('current-reservations-ready');
 
-          for (var i = 0; i < _nextSliceLen; i++) {
-            // this.push('reservations.' + _selectedPage, _nextSlice[i]);
-            this.$$('#list').push('items', _nextSlice[i]);
-          }
+      // TODO: What if today happens to be one of the weekends?
+      // Set _allSitesData first before _currentReservations.
+      this.set('_allSitesData', _firebaseData.site);
+      this.set('_currentReservations', _.sortBy(_.pickBy(_firebaseData.reservations, function(_value, _key) { return _key.length > 4; }), ['fromTime']));
+    },
 
-          this.set(_view, _viewCount + 5);
-          this.$.scrollThreshold.clearTriggers();
-        }, _delayToLoadMoreData);
-      },
-      _loadMoreMultipleData: function() {
-        var _todayView = this._todayView || 0;
-        var _thisweekView = this._thisweekView || 0;
-        var _upcomingView = this._upcomingView || 0;
+    _computeFloorsAtSelection: function(_selectedSite) {
+      var _idx = _siteNames.indexOf(_selectedSite);
+      var _floors = [_alphaFloors, ['level 3'], ['level 1']][_idx];
+      return _floors;
+    },
+    _whenSelectedSiteChanged: function(_selectedSite) {
+      // Now change to new background image on each site value changes.
+      this._changeNewBackgroundImage();
+      // go back to floor page when select on another site at floor page.
+      if (this._selectedPage !== 'floor') {
+        this._lazifySelectedPage('_isFloorPageOpened', 'floor');
+      }
+    },
+    _computeFloorStatus: function(_currentReservations, _selectedSite) {
+      // X - TODO: Major change as global reservations list now has total different structure.
+      if (_.isUndefined(_currentReservations) || _.isEmpty(_currentReservations) || _.isUndefined(_selectedSite)) {
+        // this.set('_floorStatus', {});
+        // this.set('_reservationDetails', {});
+        return;
+      }
 
-        var _todayCount = this._todayCount;
-        var _thisweekCount = this._thisweekCount;
-        var _upcomingCount = this._upcomingCount;
+      var _floorsToBeInspected = _alphaFloorsCode;
+      var _siteIdx = _siteNames.indexOf(_selectedSite);
+      var _siteCode = ['alpha', 'beta', 'gamma'][_siteIdx];
 
-        var _needMoreTodayData = _todayView < _todayCount;
-        var _needMoreThisweekData = _thisweekView < _thisweekCount;
-        var _needMoreUpcomingData = _upcomingView < _upcomingCount;
+      var _now = new Date();
+      var _nowHours = _now.getHours();
+      var _nowMinutes = _now.getMinutes();
+      var _nowInMinutes = _nowHours * 60 + _nowMinutes;
+      var _isDivisibleByHalfHour = _nowInMinutes % 30 === 0;
 
-        // At this point, when all data has been loaded, can just return.
-        if (!_needMoreTodayData && !_needMoreThisweekData && !_needMoreUpcomingData) {
-          this.$.scrollThreshold.clearTriggers();
-          return;
-        }
+      var _backwardTimeInHours = _isDivisibleByHalfHour ? _nowInMinutes / 30 - 1 : Math.floor(_nowInMinutes / 30);
+      var _forwardTimeInHours = _isDivisibleByHalfHour ? _nowInMinutes / 30 : Math.ceil(_nowInMinutes / 30);
 
-        var _delayToLoadMoreData = Math.random() * 100 + Math.random() * 200;
-        this.async(function() {
-          var _reservations = this.reservations;
-          var _todayData = _reservations.today;
-          var _thisweekData = _reservations.thisweek;
-          var _upcomingData = _reservations.upcoming;
+      var _backwardTimeString = _.padStart(Math.floor(_backwardTimeInHours / 2), 2, '0') + ':' + _.padStart(_backwardTimeInHours / 2 % 1 * 60, 2, '0');
+      var _forwardTimeString = _.padStart(Math.floor(_forwardTimeInHours / 2), 2, '0') + ':' + _.padStart(_forwardTimeInHours / 2 % 1 * 60, 2, '0');
 
-          var _nextTodaySlice = _needMoreTodayData ? _todayData.slice(_todayView, _todayView + 5) : null;
-          var _nextThisweekSlice = _needMoreThisweekData ? _thisweekData.slice(_thisweekView, _thisweekView + 5) : null;
-          var _nextUpcomingSlice = _needMoreUpcomingData ? _upcomingData.slice(_upcomingView, _upcomingView + 5) : null;
-
-          var _needMoreDataObject = {};
-          var _needMoreDataKeys = [];
-          var _needMoreDataKeysLen = 0;
-          if (_nextTodaySlice !== null) {
-            _needMoreDataObject.today = _nextTodaySlice;
-            _needMoreDataKeys.push('today');
-            _needMoreDataKeysLen++;
-          }
-          if (_nextThisweekSlice !== null) {
-            _needMoreDataObject.thisweek = _nextThisweekSlice;
-            _needMoreDataKeys.push('thisweek');
-            _needMoreDataKeysLen++;
-          }
-          if (_nextUpcomingSlice !== null) {
-            _needMoreDataObject.upcoming = _nextUpcomingSlice;
-            _needMoreDataKeys.push('upcoming');
-            _needMoreDataKeysLen++;
-          }
-
-          // _pushMoreData method to push into different list items based on name.
-          function _pushMoreData(_keyName, _data) {
-            if (_keyName === 'today') {
-              _todayList.push('items', _data);
-            }else if (_keyName === 'thisweek') {
-              _thisweekList.push('items', _data);
-            }else {
-              _upcomingList.push('items', _data);
+      var _extractedReservationsTemp = {};
+      var _reservationDetailsTemp = {};
+      _.forEach(_currentReservations, function(n) {
+        if (n.roomInfo.site === _selectedSite) {
+          if (n.fromTime >= _backwardTimeString && n.fromTime <= _forwardTimeString) {
+            // X - TODO: To filter reservations at current time period.
+            var _lowerFirstLevel = _.lowerFirst(n.roomInfo.floor);
+            var _convertedFloorIdx = _alphaFloors.indexOf(_lowerFirstLevel);
+            var _convertedFloorCode = _alphaFloorsCode[_convertedFloorIdx];
+            if (_.isUndefined(_extractedReservationsTemp[_lowerFirstLevel])) {
+              _extractedReservationsTemp[_lowerFirstLevel] = [];
+              _reservationDetailsTemp[_lowerFirstLevel] = {};
             }
+            _extractedReservationsTemp[_lowerFirstLevel].push(n.roomInfo.room);
+            _reservationDetailsTemp[_lowerFirstLevel][n.roomInfo.room] = n;
           }
 
-          if (_needMoreDataKeysLen > 0) {
-            var _todayList = this.$$('#todayList');
-            var _thisweekList = this.$$('#thisweekList');
-            var _upcomingList = this.$$('#upcomingList');
-            for (var i = 0; i < 5; i++) {
-              for (var j = 0, _key = '', _data; j < _needMoreDataKeysLen; j++) {
-                _key = _needMoreDataKeys[j];
-                _data = _needMoreDataObject[_key][i];
-                // Only want defined value.
-                if (_data) {
-                  _pushMoreData(_key, _data);
-                }
+        }
+      });
+
+      _.forIn(_extractedReservationsTemp, function(n, _key) {
+        _extractedReservationsTemp[_key] = _.uniq(n);
+      });
+
+      this.set('_floorStatus', _extractedReservationsTemp);
+      this.set('_reservationDetails', _reservationDetailsTemp);
+    },
+    _isVacantFloor: function(_currentReservations, _selectedSite, _item) {
+      // TODO: To test if all rooms at one floor are reserved at the same time, the status should turn red from green.
+      if (_.isEmpty(_currentReservations) || _.isUndefined(_currentReservations)) {
+        return '';
+      }
+
+      var _allSitesData = this._allSitesData;
+      var _isVacantFloor = !0;
+      var _allFloors = [];
+
+      if (_selectedSite === 'KLB - Tower 2A') {
+        if (_item === 'level 3') {
+          _allFloors = _.keys(_allSitesData['beta']['03level']);
+          _isVacantFloor = _.isEqual(_allFloors, _currentReservations['03level']);
+          return _isVacantFloor ? ' fully-occupied' : '';
+        }
+
+        return '';
+      }else if (_selectedSite === 'SUITE') {
+        if (_item === 'level 1') {
+          _allFloors = _.keys(_allSitesData['gamma']['01level']);
+          _isVacantFloor = _.isEqual(_allFloors, _currentReservations['01level']);
+          return _isVacantFloor ? ' fully-occupied' : '';
+        }
+
+        return '';
+      }else {
+        var _floorIdx = _alphaFloors.indexOf(_item);
+        var _floorCode = _alphaFloorsCode[_floorIdx];
+        _allFloors = _.keys(_allSitesData['alpha'][_floorCode]);
+        _isVacantFloor = _.isEqual(_allFloors, _currentReservations[_item]);
+        return _isVacantFloor ? ' fully-occupied' : '';
+      }
+    },
+    _unveilFloor: function(ev) {
+      // Nothing to show on weekends.
+      if (this._isWeekend) {
+        this._lazifySelectedPage('_isWeekendPageOpened', 'weekend');
+        return;
+      }
+
+      // X - TODO: Minor change as global reservations list now has total different structure.
+      var _target = ev.target;
+
+      if (_target && _target.hasAttribute('floor')) {
+        var _floor = ev.model.item;
+        var _selectedSite = ev.model.selectedSite;
+
+        if (_.isEmpty(this._allSitesData) || _.isUndefined(this._allSitesData)) {
+          this.set('_isLoading', !0);
+        }else {
+          this._lazifySelectedPage('_isRoomPageOpened', 'room');
+        }
+
+        this.set('selectedFloor', _floor === 'level 3A' ? '04level' : _alphaFloorsCode[_alphaFloors.indexOf(_floor)]);
+        this.set('selectedFloorName', _floor);
+      }
+    },
+    _backSite: function() {
+      this.set('selectedFloor', null);
+      this.set('selectedFloorName', null);
+
+      this._lazifySelectedPage('_isFloorPageOpened', 'floor');
+    },
+
+    _computeRoomsAtSelection: function(_selectedSite, _selectedFloor, _site) {
+      // X - TODO: Major change as global reservations list now has total different structure.
+      if (_.isUndefined(_site) || _.isEmpty(_site)) {
+        return [];
+      }
+
+      var _decodedSite = ['alpha', 'beta', 'gamma'][_siteNames.indexOf(_selectedSite)];
+      var _floorData = this._allSitesData[_decodedSite][_selectedFloor];
+      var _rooms = _.keys(_floorData);
+
+      return _rooms;
+    },
+    _unveilRoom: function(ev) {
+      var _target = ev.target;
+
+      if (_target && _target.hasAttribute('room')) {
+        // X - TODO: Only show info of reservations at current time period.
+        var _selectedSite = this.selectedSite;
+        var _selectedFloor = this.selectedFloor;
+        var _selectedItem = ev.model.item
+        var _decodedSite = ['alpha', 'beta', 'gamma'][_siteNames.indexOf(_selectedSite)];
+        var _decodedFloor = _alphaFloors[_alphaFloorsCode.indexOf(_selectedFloor)];
+        var _temp = this._allSitesData[_decodedSite][_selectedFloor][_selectedItem];
+
+        var _detailAtSelectedRoom = _.isUndefined(this._reservationDetails) || _.isUndefined(this._reservationDetails[_decodedFloor]) ? '' : this._reservationDetails[_decodedFloor][_selectedItem];
+        _temp['name'] = _selectedItem;
+
+        this._lazifySelectedPage('_isInfoPageOpened', 'info');
+
+        this.set('_detailAtSelectedRoom', [_detailAtSelectedRoom]);
+        this.set('selectedRoomName', _selectedItem);
+        this.set('_infoAtSelectedRoom', [_temp]);
+      }
+    },
+    _backRoom: function() {
+      this.set('selectedRoomName', null);
+      // this.set('_selectedPage', 'room');
+      this._lazifySelectedPage('_isRoomPageOpened', 'room');
+    },
+    _isVacantRoom: function(_item) {
+      // X - TODO: Minor change due to different structure of global reservations list.
+      // ? - TODO: It's quite hard to be of status RESERVED in this system.
+      if (_.isUndefined(_item) || _.isEmpty(_item) || _.isUndefined(this._floorStatus)) {
+        return '';
+      }
+
+      var _ff;
+      var _fs = this._floorStatus;
+      var _isVacantRoom = !0;
+
+      if (_.isObject(_item)) {
+        _ff = _.lowerFirst(_item.floor);
+        if (!_.isUndefined(_fs[_ff])) {
+          _isVacantRoom = _fs[_ff].indexOf(_item.name) < 0;
+        }
+      }else {
+        _ff = _alphaFloors[_alphaFloorsCode.indexOf(this.selectedFloor)];
+        if (!_.isUndefined(_fs[_ff])) {
+          _isVacantRoom = _fs[_ff].indexOf(_item) < 0;
+        }
+      }
+
+      var _cls = _isVacantRoom ? '' : ' fully-occupied';
+
+      return _cls;
+    },
+    _isRoomLocked: function(_locked) {
+      if (_.isUndefined(_locked)) {
+        return '-open';
+      }
+
+      return JSON.parse(_locked) ? '-open' : '';
+    },
+    _isRoomLockedMsg: function(_locked) {
+      if (_.isUndefined(_locked)) {
+        return 'This room is open to the public.';
+      }
+
+      return _locked ? 'This room is open to the public.' : 'This room has restricted access to the public.';
+    },
+    _isRoomOccupied: function(_item) {
+      // X - TODO: Minor change due to different strucutre in global reservations list.
+      _ff = _.lowerFirst(_item.floor);
+      var _fs = this._floorStatus;
+      var _isVacantRoom = !0;
+
+      if (!_.isUndefined(_fs) && !_.isUndefined(_fs[_ff])) {
+        _isVacantRoom = _fs[_ff].indexOf(_item.name) < 0;
+      }
+
+      return _isVacantRoom ? 'unchecked' : 'checked';
+    },
+
+    // workaround for importHref.
+    // Nothing shows when switch to other page while the page is loading even it's loaded.
+    updateCurrentPages: function() {
+      this.$.currentPages.notifyResize();
+    },
+
+    // TODO: Able to show all reservations of a room and room info.
+    _showInfoOrSchedule: function(ev) {
+      var _target = ev.target;
+
+      // noop if dialog's still animating.
+      if (!this._dialogAnimationDone) {
+        return;
+      }
+
+      // Only when is dialog's animation done, prepare to open new dialog.
+      if (_target && _target.tagName === 'IRON-ICON') {
+        if (_target.hasAttribute('icon')) {
+          var _icon = _target.getAttribute('icon');
+          var _dialogTitle = 'Room Schedule';
+          var _dialogList = this._infoAtSelectedRoom;
+          var _isDialogInfo = !1;
+
+          if (_icon.indexOf('info') > 0) {
+            _dialogTitle = 'Room Information';
+            _isDialogInfo = !0;
+          }else {
+            var _hexTypes = _.padStart(parseInt(_dialogList[0].time, 16).toString(2), 32, 0);
+            var _str2arr = _hexTypes.split('').map(Number);
+
+            for (var i = 8, j = 0, k = 0, l =0, _timeArray = []; i < 24; j = j + 30, l++) {
+              if (j === 60) {
+                j = 0;
+                i++;
+              }
+
+              if (i < 24) {
+                k = _.padStart(i, 2, '0') + ':' + _.padStart(j, 2, '0');
+                _timeArray.push({
+                  fulltime: k,
+                  result: _str2arr[l]
+                });
               }
             }
-            this.set('_todayView', _todayView + 5);
-            this.set('_thisweekView', _thisweekView + 5);
-            this.set('_upcomingView', _upcomingView + 5);
+            _dialogList = _timeArray;
           }
-          // Reset scrollThreshold's triggers.
-          this.$.scrollThreshold.clearTriggers();
-        }, _delayToLoadMoreData);
-      },
-      _translateBottomsheet: function(_postY) {
-        // SUprisingly this doesn't trigger much painting as I'd have expected.
-        // Maybe due to something else is triggerting reflow, repaint and composite,
-        // so this becomes part of it?
-        var _bottomSheet = this.$$('#typeTitleBottomsheet');
-        var _fab = this.$.reserveFab;
-        if (_bottomSheet) {
-          _fab.style.opacity = Math.max(0, 1 - _postY / 350);
-          _bottomSheet.style.opacity = Math.max(0, 1 - _postY / 350);
-          // Huh?! this.transform won't work but this works?
-          this.translate3d('0', _postY + 'px', '0', _bottomSheet);
-          this.translate3d('0', (_postY * 2)+ 'px', '0', _fab);
+
+          // Setting up dialog.
+          this.set('_isDialogInfo', _isDialogInfo);
+          this.set('_dialogTitle', _dialogTitle);
+          this.set('_dialogList', _dialogList);
+
+          // Set !1 to _dialogAnimationDone which will trigger _openDialog method.
+          this.set('_dialogAnimationDone', !1);
+          // this.$.infoOrSchedule.open();
         }
-      },
-      _reserveNew: function(ev) {
-        this.debounce('debounceTransitionend', function() {
-          if (ev.type === 'tap') {
-            this.set('_readyToReserve', !0);
-          }else {
-            if (this._readyToReserve) {
-              var _parentNode = this.domHost;
-              this.set('_readyToReserve', !1);
-              _parentNode.animateReservePage();
-            }
-          }
-        }, 1);
-      },
-      _lazifyList: function(_selectedPage, _reservations, _isSmallScreen) {
-        // Since _reservations is of type Object, the observer will run once
-        // this is initialized with an {}. However, we only want this method
-        // to run only when has it some items (eg. Array) inside.
-        if (typeof _reservations.base[_selectedPage] === 'undefined') {
-          return;
-        }
+      }
+    },
 
-        if (!_isSmallScreen) {
-          this._lazifyMultipleList(_reservations);
-          return;
-        }
+    // TODO: Even though neon-animation-finish fires off, the iron-overlay-closed is not yet fired.
+    // In this case, when animation is done and the dialog is still opened, the subsequent dialog
+    // will distort in its appearance during animation and/ or affect its resizing during/ after
+    // animation.
+    // In order to tackle this issue, the dialog must be closed after animation is done.
+    // MUST always ensure that both neon-animation-finish and iron-overlay-closed are fired!
+    // To make things simple, listen for iron-overlay-closed is more than enough.
+    // HOWEVER, delay is certainly there for all of these to happen during user interaction.
+    _dialogClosedDone: function(ev) {
+      if (!this._dialogAnimationDone) {
+        console.warn('Subsequent dialog is now ready to be opened!');
+        // Bring back document scrolling.
+        this._manipulateDocumentScrolling();
+        this.set('_dialogAnimationDone', !0);
+      }
+    },
 
-        var _view = '_' + _selectedPage + 'View';
-        var _count = '_' + _selectedPage + 'Count';
-        // Switch empty page when the list is empty.
-        var _path = _reservations.path.split('.')[1];
-        // Special case where _reservations is updated elsewhere while
-        // the _path !== _selectedPage.
-        // In that case, everything to be done here has to be separated
-        // and not affecting the _selectedPage's visual and list data.
-
-        // Only load.
-        function _setEmptyPage(_view, _count) {
-          this.set(_view, 0);
-          this.set(_count, 0);
-        }
-        var _thisSetEmptyPage = _setEmptyPage.bind(this);
-        if (_path === _selectedPage) {
-          if (_.isEmpty(_reservations.value)) {
-            _thisSetEmptyPage(_view, _count);
-            // Only set _list and _page when _path equals to _selectedPage
-            // and when switching page.
-            if (!this._isEmptyPageOpened) {
-              this.set('_isEmptyPageOpened', !0);
-            }
-            this.set('_list', []);
-            this.set('_page', 'empty');
-            return;
-          }
-        }else if (!!_path && _path !== _selectedPage){
-          // Data is updated but not at current page.
-          _view = '_' + _path + 'View';
-          _count = '_' + _path + 'Count';
-          if (_.isEmpty(_reservations.value)) {
-            _thisSetEmptyPage(_view, _count);
-            return;
-          }
-        }else {
-          // Switching page.
-          if (_.isEmpty(_reservations.base[_selectedPage])) {
-            _thisSetEmptyPage(_view, _count);
-            // Only set _list and _page when _path equals to _selectedPage
-            // and when switching page.
-            if (!this._isEmptyPageOpened) {
-              this.set('_isEmptyPageOpened', !0);
-            }
-            this.set('_list', []);
-            this.set('_page', 'empty');
-            return;
-          }
-        }
-
-        var _viewCount = this[_view] || 10;
-        var _totalCount = _reservations.base[_selectedPage].length;
-        var _slice = _reservations.base[_selectedPage].slice(0, _viewCount);
-        this.set(_view, _viewCount);
-        // Assign sliced list into the dom-repeat.
-        this.set('_list', _slice);
-        // Assign total count.
-        this.set(_count, _totalCount);
-        // Then change iron-page to reveal the list data at 'list' page.
-        this.set('_page', 'list');
-      },
-      _lazifyMultipleList: function(_reservations) {
-        var _type = _reservations.path.split('.')[1];
-        var _isTodayEmpty = _.isEmpty(_reservations.base.today);
-        var _isThisweekEmpty = _.isEmpty(_reservations.base.thisweek);
-        var _isUpcomingEmpty = _.isEmpty(_reservations.base.upcoming);
-        var _isAllEmpty = _isTodayEmpty && _isThisweekEmpty && _isUpcomingEmpty;
-        var _view = '_' + _type + 'View';
-        var _list = '_' + _type + 'List';
-        var _count = '_' + _type + 'Count';
-        if (_isAllEmpty) {
-          this.set('_isEmptyReservationsOnLargeScreen', !0);
-        }else {
-          this.set('_isEmptyReservationsOnLargeScreen', !1);
-        }
-
-        if (typeof _type === 'undefined') {
-          // To tackle the problem to update each independent list,
-          // when the page was first viewed in small screen then switch to
-          // larger screen, only 1 list was displayed at one time when it's
-          // small screen but 3 independent lists are shown on larger screen,
-          // each independent list is not updated to the their own list data
-          // as data is not fetched from server just a recompute is needed to
-          // distribute the data accordingly.
-          function _pushAllData(_typeList, _typeView, _typeData) {
-            var _viewCount = this[_typeView] || 10;
-            var _slice = _typeData.slice(0, _viewCount);
-
-            this.set(_typeList, _slice);
-            this.set(_typeView, _viewCount);
-          }
-
-          var _isTodayDefined = typeof _reservations.value.today !== 'undefined';
-          var _isThisweekDefined = typeof _reservations.value.thisweek !== 'undefined';
-          var _isUpcomingDefined = typeof _reservations.value.upcoming !== 'undefined';
-
-          var _thisPushAllData = _pushAllData.bind(this);
-
-          if (_isTodayDefined) {
-            _thisPushAllData('_todayList', '_todayView', _reservations.value.today);
-          }
-          if (_isThisweekDefined) {
-            _thisPushAllData('_thisweekList', '_thisweekView', _reservations.value.thisweek);
-          }
-          if (_isUpcomingDefined) {
-            _thisPushAllData('_upcomingList', '_upcomingView', _reservations.value.upcoming);
-          }
-
-          return;
-        }else {
-          if (_.isEmpty(_reservations.value)) {
-            var _totalCount = _reservations.value.length;
-            this.set(_view, 0);
-            this.set(_list, 0);
-            this.set(_count, _totalCount);
-            return;
-          }
-        }
-
-        var _viewCount = this[_view] || 10;
-        var _slice = _reservations.value.slice(0, _viewCount);
-
-        this.set(_view, _viewCount);
-        this.set(_list, _slice);
-      },
-
-      _showDetail: function(ev) {
-        var _selectedItem = ev.model.item;
-        var _isListViewDetailOpened = this._isListViewDetailOpened;
-
-        this.set('_listViewDetail', [_selectedItem]);
+    _openDialog: function(_dialogAnimationDone) {
+      // Only when is _dialogAnimationDone falsy dialog is allowed to be opened.
+      if (!_dialogAnimationDone) {
+        // Disable document scrolling.
         this._manipulateDocumentScrolling('hidden');
-        if (_isListViewDetailOpened) {
-          this.async(function() {
-            this.$$('#listViewDetailDialog').open();
-          }, 1);
-        }else {
-          this.set('_isListViewDetailOpened', !0);
-        }
-      },
-      _onDomChange: function(ev) {
-        if (ev.target.if) {
-          this.async(function() {
-            this.$$('#listViewDetailDialog').open();
-          }, 1);
-        }
-      },
-      _closeDetail: function(ev) {
-        this.debounce('_closeDetail', function() {
-          if (ev.type === 'tap') {
-            this.set('_readyToCloseDetail', !0);
-          }else {
-            if (this._readyToCloseDetail) {
-              this.set('_readyToCloseDetail', !1);
-              this.$$('#listViewDetailDialog').close();
-            }
-          }
-        }, 1);
-      },
-      _removeItem: function(ev) {
-        this.debounce('_removeItem', function() {
-          var _type = ev.type === 'tap';
-          if (_type) {
-            this.set('_readyToRemoveItem', !0);
-          }else {
-            if (this._readyToRemoveItem) {
-              this.set('_readyToRemoveItem', !1);
-              // Close dialog first.
-              this.$$('#listViewDetailDialog').close();
 
-              var _reserveBaseRef = new Firebase(this._location);
-              // As the detail itself is an Object, in order to be able to iterate thru
-              // by dom-repeat, wrapped it inside Array. Hence, [0] is always the value.
-              var _itemToRemove = this._listViewDetail[0];
-              var _thisOpenReserveToast = this._openReserveToast.bind(this);
-              // If accessed user's database successfully...
-              _reserveBaseRef.once('value', function(snapshot) {
-                var _refToRemove = '';
-                snapshot.forEach(function(n) {
-                  // Check if selected item object is equal to traversed object from Firebase.
-                  if (_.isEqual(n.val(), _itemToRemove)) {
-                    // Save the reference URL.
-                    _refToRemove = n.ref();
-                    // Then break the forEach loop.
-                    return !0;
-                  }
-                });
-                // If ref to remove an item exists...
-                if (!!_refToRemove) {
-                  _refToRemove.transaction(function(data) {
-                    if (data === null) {
-                      return;
-                    }else {
-                      // Return null to remove object.
-                      return null;
-                    }
-                  }).then(function(val) {
-                    if (!val.committed) {
-                      console.warn('Data not found!');
-                    }
-                  }).catch(function(error) {
-                    console.error(error);
-                  });
-                  _thisOpenReserveToast('The selected item has been removed.', !0);
-                }
-              }).catch(function(error) {
-                console.error(error);
-              });
-            }
-          }
-        }, 1);
-      },
-      _openReserveToast: function(_msg, _showUndo) {
-        var _reserveToast = this.$.reserveToast;
-        if (_reserveToast.opened) {
-          _reserveToast.close();
-        }
-        this.toggleClass('undo-remove', _showUndo, _reserveToast);
-        this.set('_showUndo', _showUndo);
-        this.set('_msg', _msg);
-        this.async(function() {
-          _reserveToast.open();
-        }, 1);
-      },
-      _undoItemRemoval: function(ev) {
-        var _reserveBaseRef = new Firebase(this._location);
-        var _selectedItemToRestore = this._listViewDetail[0];
-        var _thisOpenReserveToast = this._openReserveToast.bind(this);
-        // If accessed user's database successfully...
-        _reserveBaseRef.once('value', function(snapshot) {
-          // Undo deleted item by Firebase.push method.
-          _reserveBaseRef.push(_selectedItemToRestore).catch(function(error) {
-            console.error(error);
+        this._lazifyDialog('_isInfoOrScheduleOpened', function() {
+          var _dialog = this.$$('#infoOrSchedule');
+
+          this.set('_animationConfig', {
+            'entry': [{
+              name: 'slide-from-bottom-animation',
+              node: _dialog,
+            }, {
+              name: 'fade-in-animation',
+              node: _dialog,
+              timing: {
+                delay: 250,
+                duration: 250
+              }
+            }],
+            'exit': [{
+              name: 'slide-down-animation',
+              node: _dialog
+            }, {
+              name: 'fade-out-animation',
+              node: _dialog,
+              timing: {
+                delay: 0,
+                duration: 250
+              }
+            }]
           });
-          _thisOpenReserveToast('Removed item has been recovered!', !1);
-        }).catch(function(error) {
-          console.error(error);
+
+          _dialog.notifyResize();
+          this.async(function() {
+            _dialog.open();
+          }, 1);
         });
-      },
+      }
+    },
 
-      _updateFirebaseLocation: function(_uid) {
-        this.set('_location',
-         '//semafloor-webapp.firebaseio.com/users/google/' + _uid + '/reservations');
-      },
-      _onFirebaseValue: function(ev) {
-        var _val = ev.detail.val();
-        if (!_val) {
-          return;
-        }
+    _isRestricted: function(_access) {
+      // TODO: Since Firebase data has not been updated, no it's undefined.
+      return _access ? 'No' : 'Yes';
+    },
+    _decodeTypes: function(_types) {
+      var _roomTypes = [
+        'Adjoining Room (Operable Wall)','Panaboard','Polycom CX100 (Audio)',
+        'Polycom CX5000 (Video Conferencing)','Projector','Projector Cable Faulty',
+        'Projector Faulty','Screen Projector Faulty','SmartBoard 800','Telepresence',
+        'TV','Writing Glass Board'];
+      var _hexTypes = _.padStart(parseInt(_types, 16).toString(2), 12, 0);
+      var _str2arr = _hexTypes.split('').map(Number);
+      var _filtered = [];
+      _.forEach(_str2arr, function(el, idx) {
+        if (el === 1) _filtered.push(_roomTypes[idx]);
+      });
+      _hexTypes = null; _str2arr = null;
+      return _filtered;
+    },
 
-        var _sortedVal = this._sortVal(_val);
-        var _todayCount = _sortedVal['today'].length;
-        var _thisweekCount = _sortedVal['thisweek'].length;
-        var _upcomingCount = _sortedVal['upcoming'].length;
-        this.set('_todayCount', _todayCount);
-        this.set('_thisweekCount', _thisweekCount);
-        this.set('_upcomingCount', _upcomingCount);
+    _isVacantTime: function(_result) {
+      return !_result ? '' : ' fully-occupied';
+    },
 
-        // If _isSmallScreen is true, set _sortedVal to 'reservations'.
-        // Otherwise, separately set to corresponding list.
-        if (this._isSmallScreen) {
-          this.set('reservations', _sortedVal);
-        }else {
-          this.set('reservations', _sortedVal);
-          // this.set('_todayList', _sortedVal.today);
-          // this.set('_thisweekList', _sortedVal.thisweek);
-          // this.set('_upcomingList', _sortedVal.upcoming);
-        }
+    // Change new background image for the page.
+    _changeNewBackgroundImage: function() {
+      var _backgroundImages = [
+        'https://wallpaperscraft.com/image/mountain_building_hill_cliff_100487_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/trees_sunset_sky_river_winter_92676_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/mountains_grass_tops_sky_92475_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/nature_mountains_sky_lake_clouds_81150_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/mountains_sky_sunset_peaks_97149_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/full_moon_stars_clouds_shadows_45767_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/stars_sky_shore_84534_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/mountains_sea_ocean_clouds_night_96938_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/night_stars_alps_87097_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/dusk_evening_lights_home_castle_mountains_alps_christmas_slovenia_59568_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/switzerland_city_evening_alps_mountains_fog_95963_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/sunset_sea_wave_87145_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/hamburg_germany_speicherstadt_warehouse_evening_building_63117_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/decline_sea_coast_beach_mountains_sun_evening_clouds_calm_14556_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/mountains_houses_snow_winter_beautiful_92511_2560x1440.jpg',
+        'https://wallpaperscraft.com/image/coast_sea_decline_branch_palm_tree_sand_beach_panorama_evening_orange_46137_2560x1440.jpg'
+      ];
+      var _backgroundImagesLen = _backgroundImages.length;
+      var _randomIdx = Math.ceil(Math.random() * _backgroundImagesLen) - 1;
+      this._newBackgroundImage = _backgroundImages[_randomIdx];
+    },
 
-        this.fire('reserve-page-firebase-ready');
-      },
-      _sortVal: function(_val) {
-        // Sort Firebase value by both 'date' and 'period' ascendingly.
-        // After sorting, _val will be coerced into type Array from type Object .
-        var _sorted = _.orderBy(_val, ['date', 'period'], ['asc', 'asc']);
-        // var _now = new Date();
-        // TODO: Testing purpose...
-        // Note: new Date('2016-1-1 00:00') !== new Date('2016-01-01T00:00')
-        // But: new Date('2016-1-1 00:00').getTime === new Date('2016-01-01 00:00').getTime()
-        var _now = new Date('2016-02-16 00:00');
-        var _nowTime = _now.getTime();
-        var _nowDay = _now.getDay();
-        var _ff = _now.getFullYear();
-        var _mm = _now.getMonth() + 1;
-        var _dd = _now.getDate();
-        var _maxDd = _dd - _nowDay + 6; // By deducting the day number then add 6 will offset to Sat.
-        var _fd = _ff + '-' + _mm + '-' + _maxDd + ' 00:00';
-        var _maxNow = new Date(_fd).getTime();
-        var _computedDate;
-        var _todayFiltered = [];
-        var _thisweekFiltered = [];
-        var _upcomingFiltered = [];
-        var _sortedLen = _sorted.length;
-        // Filter all data into 3 different types: today, thisweek, and upcoming.
-        for (var i = 0; i < _sortedLen; i++) {
-          _computedDate = new Date(_sorted[i].date + ' 00:00').getTime();
-          if (_computedDate === _nowTime) {
-            _todayFiltered.push(_sorted[i]);
-          }else if (_computedDate > _maxNow) {
-            _upcomingFiltered.push(_sorted[i]);
-          }else {
-            _thisweekFiltered.push(_sorted[i]);
+    _transitionSpinner: function(_isLoading) {
+      var _isOpaque = _isLoading ? 1 : 0;
+      // Lazily load and show spinner.
+      var _loadSpinner = function() {
+        // Transition opacity of paper-spinnner corresponding to _isLoading's state.
+        this.$$('#loadingSpinner').style.opacity = _isOpaque;
+        // Hide iron-pages when spinner is showing and vice versa.
+        this.$.currentPages.style.opacity = +!_isOpaque;
+      };
+      var _thisLoadSpinner = _loadSpinner.bind(this);
+
+      if (!this._isSpinnerOpened) {
+        this.set('_isSpinnerOpened', !0);
+        this.async(_thisLoadSpinner, 1);
+      }else {
+        _thisLoadSpinner();
+      }
+    },
+
+    // Lazily load and open the selected page.
+    _lazifySelectedPage: function(_isWhichPageOpened, _page) {
+      if (!this[_isWhichPageOpened]) {
+        this.set(_isWhichPageOpened, !0);
+        // Is this necessary? JIC loading is still running.
+        this.async(function() {
+          // Scroll to the top.
+          if (document.body.scrollTop > 0) {
+            window.scrollTo(0, 0);
           }
+          this.set('_selectedPage', _page);
+        }, 1);
+      }else {
+        // Scroll to the top.
+        if (document.body.scrollTop > 0) {
+          window.scrollTo(0, 0);
         }
-        // Return everything filtered wrapped inside an Object.
-        return {
-          'today': _todayFiltered,
-          'thisweek': _thisweekFiltered,
-          'upcoming': _upcomingFiltered
-        };
-      },
+        this.set('_selectedPage', _page);
+      }
+    },
+    // Lazily load and open dialog.
+    _lazifyDialog: function(_isWhichDialogOpened, _cb) {
+      var _thisCb = _cb.bind(this);
+      if (!this[_isWhichDialogOpened]) {
+        this.set(_isWhichDialogOpened, !0);
+        this.async(function() {
+          _thisCb();
+        }, 1);
+      }else {
+        _thisCb();
+      }
+    },
 
-      _manipulateDocumentScrolling: function(_state) {
-        var _overflow = typeof _state == 'object' ? '' : _state || '';
-        document.body.style.overflow = _overflow;
-      },
+    _manipulateDocumentScrolling: function(_state) {
+      var _overflow = typeof _state == 'object' ? '' : _state || '';
 
-      _loadAllData: function(ev) {
-        var _type = ev.type;
-        if (_type === 'tap') {
-          this.set('_readyToLoadAllData', !0);
-        }else {
-          if (this._readyToLoadAllData) {
-            var _reserveType = Polymer.dom(ev.target.domHost).node.getAttribute('reserve-type');
-            var _listName = '_' + _reserveType + 'List';
-            var _view = '_' + _reserveType + 'View';
-            var _count = '_' + _reserveType + 'Count';
-            var _list = this.$$('#' + _reserveType + 'List');
-            var _viewCount = this[_view];
-            var _totalCount = this[_count];
-            var _allData = this.reservations[_reserveType].slice(_viewCount, _totalCount);
-            var _allDataLen = _allData.length;
+      document.body.style.overflow = _overflow;
+    },
 
-            for (var i = 0; i < _allDataLen; i++) {
-              _list.push('items', _allData[i]);
-            }
+    _updateThemeColor: function(_themeSelected) {
+      var _isDarkTheme = _themeSelected === 'dark theme';
+      this.toggleClass('dark-theme', _isDarkTheme, this);
+      this.updateStyles();
+    },
 
-            this.set(_view, _totalCount);
-            this.set('_readyToLoadAllData', !1);
-          }
-        }
-      },
-
-      // workaround to clear list data as the last item is removed
-      // on-firebase-value will not be fired as Firebase won't send in
-      // anything as there is empty data at the location.
-      // To remove the last item, use on-firebase-child-removed event.
-      _onFirebaseRemoved: function(ev) {
-        var _isDataEmpty = this.$.reserveBase.data.length < 1;
-        // If the list is empty after the last item is being deleted.
-        // Manually clear things that being set.
-        if (_isDataEmpty) {
-          this.set('reservations', {});
-
-          this.set('_todayCount', 0);
-          this.set('_thisweekCount', 0);
-          this.set('_upcomingCount', 0);
-
-          this.set('_todayView', 0);
-          this.set('_thisweekView', 0);
-          this.set('_upcomingView', 0);
-
-          if (!this._isEmptyPageOpened) {
-            this.set('_isEmptyPageOpened', !0);
-          }
-          if (!this._isEmptyReservationsOnLargeScreen) {
-            this.set('_isEmptyReservationsOnLargeScreen', !0);
-          }
-          // Clear things that only set on small screen.
-          this.set('_list', []);
-          this.set('_page', 'empty')
-          // Clear things that only set on large screen.
-          this.set('_todayList', []);
-          this.set('_thisweekList', []);
-          this.set('_upcomingList', []);
-        }
-      },
-
-      _closeToast: function(ev) {
-        var _target = ev.target;
-
-        while (_target && _target.tagName !== 'PAPER-TOAST') {
-          _target = _target.parentElement;
-        }
-
-        if (_target) {
-          _target.close();
-        }
-      },
-
-      _updateThemeColor: function(_themeSelected) {
-        var _isDarkTheme = _themeSelected === 'dark theme';
-        this.toggleClass('dark-theme', _isDarkTheme, this);
-        this.updateStyles();
-      },
-
-      // TODO: Add more data indicator at the bottom of each list if necessary.
-      // TODO: Cleanup ALL mock data when finished developing.
-      // X - TODO: Polish _lazifyList & _loadMoreData as it works as expected before this.
-      // X - TODO: When media query changes, list has to be updated to the correct dom-repeat.
-
-    });
-  </script>
-</dom-module>
+    // TODO: Add social:mood to weekend page.
+    // X - TODO: _manipulateDocumentScrolling FTW.
+    // X - TODO: Styling in between 360P mobile and 800P desktop.
+    // X - TODO: Lazify non-critical elements.
+    // X - TODO: New weekend page needs more styling.
+    // X - TODO: Spinner needs more styling...
+    // X - TODO: Overflow content of div.floor, div.room, div.info.
+    // X - TODO: Remove _currentReservations dependcy from _computeFloorsAtSelection as this is not needed.
+  });
+</script>
