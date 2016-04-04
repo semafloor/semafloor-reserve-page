@@ -995,7 +995,7 @@ Example:
         // the _path !== _selectedPage.
         // In that case, everything to be done here has to be separated
         // and not affecting the _selectedPage's visual and list data.
-
+        console.log(_reservations);
         // Only load.
         function _setEmptyPage(_view, _count) {
           this.set(_view, 0);
@@ -1266,14 +1266,14 @@ Example:
         // TODO: Testing purpose...
         // Note: new Date('2016-1-1 00:00') !== new Date('2016-01-01T00:00')
         // But: new Date('2016-1-1 00:00').getTime === new Date('2016-01-01 00:00').getTime()
-        var _now = new Date('2016-02-16 00:00');
+        var _now = new Date('2016/02/16 00:00');
         var _nowTime = _now.getTime();
         var _nowDay = _now.getDay();
         var _ff = _now.getFullYear();
         var _mm = _now.getMonth() + 1;
         var _dd = _now.getDate();
         var _maxDd = _dd - _nowDay + 6; // By deducting the day number then add 6 will offset to Sat.
-        var _fd = _ff + '-' + _mm + '-' + _maxDd + ' 00:00';
+        var _fd = _ff + '/' + _mm + '/' + _maxDd + ' 00:00';
         var _maxNow = new Date(_fd).getTime();
         var _computedDate;
         var _todayFiltered = [];
@@ -1282,7 +1282,7 @@ Example:
         var _sortedLen = _sorted.length;
         // Filter all data into 3 different types: today, thisweek, and upcoming.
         for (var i = 0; i < _sortedLen; i++) {
-          _computedDate = new Date(_sorted[i].date + ' 00:00').getTime();
+          _computedDate = new Date(_.replace(_sorted[i].date, /\-/gi, '/') + ' 00:00').getTime();
           if (_computedDate === _nowTime) {
             _todayFiltered.push(_sorted[i]);
           }else if (_computedDate > _maxNow) {
